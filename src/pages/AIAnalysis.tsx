@@ -6,6 +6,7 @@ interface AIAnalysisProps {
   onComplete: () => void;
 }
 
+
 const keywords = {
   matched: ["React", "TypeScript", "GraphQL", "REST API", "Node.js", "CI/CD", "Agile", "AWS", "Performance Optimization", "Code Review"],
   missing: ["Kafka", "Kubernetes", "Go", "gRPC", "Terraform"],
