@@ -15,6 +15,7 @@ import Reports from "./pages/Reports";
 import AdminPanel from "./pages/AdminPanel";
 import UserMembershipModal from "./components/UserMembershipModal";
 import UserSupportModal from "./components/UserSupportModal";
+import RazorpayCheckoutModal from "./components/RazorpayCheckoutModal";
 import { PlanData } from "./components/admin/PlanModal";
 
 // Ordered list of screens that contribute to progress
@@ -33,7 +34,7 @@ const PROGRESS_SCREENS: Screen[] = [
 const INITIAL_USER_PLANS: PlanData[] = [
   {
     id: "plan-monthly",
-    name: "Monthly Starter",
+    name: "Basic",
     duration: "1 Month",
     months: 1,
     priceINR: 499,
@@ -53,7 +54,7 @@ const INITIAL_USER_PLANS: PlanData[] = [
   },
   {
     id: "plan-quarterly",
-    name: "3-Month Sprint",
+    name: "Plus",
     duration: "3 Months",
     months: 3,
     priceINR: 1299,
@@ -74,7 +75,7 @@ const INITIAL_USER_PLANS: PlanData[] = [
   },
   {
     id: "plan-halfyearly",
-    name: "6-Month Pro Prep",
+    name: "Pro",
     duration: "6 Months",
     months: 6,
     priceINR: 2299,
@@ -97,7 +98,7 @@ const INITIAL_USER_PLANS: PlanData[] = [
   },
   {
     id: "plan-annual",
-    name: "1-Year Career Pass",
+    name: "Elite",
     duration: "1 Year",
     months: 12,
     priceINR: 3999,
@@ -109,7 +110,7 @@ const INITIAL_USER_PLANS: PlanData[] = [
     status: "Active",
     subscribersCount: 680,
     features: [
-      "All 6-Month Plan Features Included",
+      "All Pro Plan Features Included",
       "VIP Priority Queue for AI Speech Processing",
       "Unlimited Mock Interviews & Resume Revisions for 365 Days",
       "Job Application Tracker & Referral Assistant",
@@ -164,6 +165,10 @@ export default function App() {
   const [isSupportHovered, setIsSupportHovered] = useState(false);
   const [userPlans] = useState<PlanData[]>(INITIAL_USER_PLANS);
 
+  // Razorpay Checkout Modal State
+  const [showRazorpayModal, setShowRazorpayModal] = useState(false);
+  const [selectedRazorpayPlan, setSelectedRazorpayPlan] = useState<PlanData | null>(null);
+
   const hasActiveSubscription = !!userSubscription;
 
   const navigate = (s: Screen) => {
@@ -182,6 +187,7 @@ export default function App() {
     setUserRole(null);
     setShowProfileModal(false);
     setShowUpgradeModal(false);
+    setShowRazorpayModal(false);
     setAuthView("login");
     setScreen("dashboard");
   };
@@ -200,6 +206,11 @@ export default function App() {
   };
 
   const handleSubscribe = (plan: PlanData) => {
+    setSelectedRazorpayPlan(plan);
+    setShowRazorpayModal(true);
+  };
+
+  const handleRazorpaySuccess = (plan: PlanData) => {
     setUserSubscription(plan);
   };
 
@@ -367,6 +378,14 @@ export default function App() {
         plans={userPlans}
         currentPlanId={userSubscription?.id || null}
         onSubscribe={handleSubscribe}
+      />
+
+      {/* Razorpay Detailed Payment Modal */}
+      <RazorpayCheckoutModal
+        isOpen={showRazorpayModal}
+        onClose={() => setShowRazorpayModal(false)}
+        plan={selectedRazorpayPlan}
+        onSuccess={handleRazorpaySuccess}
       />
 
       {/* User Support Query Modal */}

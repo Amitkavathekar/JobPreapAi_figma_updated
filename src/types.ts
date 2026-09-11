@@ -19,7 +19,6 @@ export type AdminScreen =
   | "admin-users"
   | "admin-support"
   | "admin-ai-models"
-  | "admin-settings"
   | "admin-notifications"
   | "admin-activity-log";
 

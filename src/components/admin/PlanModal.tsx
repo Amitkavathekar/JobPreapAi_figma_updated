@@ -169,7 +169,7 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. 6-Month Pro Prep"
+                placeholder="e.g. Pro"
                 className="glass-input"
                 style={{ marginTop: 4, padding: "8px 12px", fontSize: 13 }}
               />

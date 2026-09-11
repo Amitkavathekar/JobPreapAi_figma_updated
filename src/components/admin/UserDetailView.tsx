@@ -53,7 +53,7 @@ export default function UserDetailView({
   // Mock sub data
   const paymentHistory = [
     { id: "inv_9041", date: user.joined, amount: user.spent, plan: user.plan, status: "Paid", method: "Razorpay / UPI" },
-    { id: "inv_8102", date: "2026-06-15", amount: "₹1,299", plan: "3-Month Sprint", status: "Paid", method: "Razorpay / Cards" },
+    { id: "inv_8102", date: "2026-06-15", amount: "₹1,299", plan: "Plus", status: "Paid", method: "Razorpay / Cards" },
   ];
 
   const candidateActivityLog = [
@@ -473,10 +473,10 @@ export default function UserDetailView({
               onChange={(e) => setSelectedNewPlan(e.target.value)}
               style={{ width: "100%", padding: 10, marginTop: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "white", borderRadius: 8 }}
             >
-              <option value="Monthly Starter">Monthly Starter (₹499)</option>
-              <option value="3-Month Sprint">3-Month Sprint (₹1,299)</option>
-              <option value="6-Month Pro Prep">6-Month Pro Prep (₹2,299)</option>
-              <option value="1-Year Career Pass">1-Year Career Pass (₹3,999)</option>
+              <option value="Basic">Basic (₹499)</option>
+              <option value="Plus">Plus (₹1,299)</option>
+              <option value="Pro">Pro (₹2,299)</option>
+              <option value="Elite">Elite (₹3,999)</option>
               <option value="Super Admin">Super Admin (VIP Access)</option>
             </select>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 18 }}>

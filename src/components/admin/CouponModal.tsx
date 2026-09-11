@@ -8,7 +8,7 @@ interface CouponModalProps {
   initialData?: Coupon | null;
 }
 
-const ALL_PLANS = ["Monthly Starter", "3-Month Sprint", "6-Month Pro Prep", "1-Year Career Pass"];
+const ALL_PLANS = ["Basic", "Plus", "Pro", "Elite"];
 
 export default function CouponModal({ isOpen, onClose, onSave, initialData }: CouponModalProps) {
   const [code, setCode] = useState(initialData?.code || "");

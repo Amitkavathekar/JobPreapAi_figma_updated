@@ -9,7 +9,6 @@ import UserDetailView from "../components/admin/UserDetailView";
 import ActivityLogScreen from "../components/admin/ActivityLogScreen";
 import ConfirmationModal from "../components/admin/ConfirmationModal";
 import EmptyState from "../components/admin/EmptyState";
-import PaymentGatewaysScreen from "../components/admin/future-plan";
 import SupportTicketsScreen from "../components/admin/SupportTicketsScreen";
 
 interface AdminPanelProps {
@@ -19,7 +18,7 @@ interface AdminPanelProps {
 const INITIAL_PLANS: PlanData[] = [
   {
     id: "plan-monthly",
-    name: "Monthly Starter",
+    name: "Basic",
     duration: "1 Month",
     months: 1,
     priceINR: 499,
@@ -39,7 +38,7 @@ const INITIAL_PLANS: PlanData[] = [
   },
   {
     id: "plan-quarterly",
-    name: "3-Month Sprint",
+    name: "Plus",
     duration: "3 Months",
     months: 3,
     priceINR: 1299,
@@ -60,7 +59,7 @@ const INITIAL_PLANS: PlanData[] = [
   },
   {
     id: "plan-halfyearly",
-    name: "6-Month Pro Prep",
+    name: "Pro",
     duration: "6 Months",
     months: 6,
     priceINR: 2299,
@@ -83,7 +82,7 @@ const INITIAL_PLANS: PlanData[] = [
   },
   {
     id: "plan-annual",
-    name: "1-Year Career Pass",
+    name: "Elite",
     duration: "1 Year",
     months: 12,
     priceINR: 3999,
@@ -95,7 +94,7 @@ const INITIAL_PLANS: PlanData[] = [
     status: "Active",
     subscribersCount: 680,
     features: [
-      "All 6-Month Plan Features Included",
+      "All Pro Plan Features Included",
       "VIP Priority Queue for AI Speech Processing",
       "Unlimited Mock Interviews & Resume Revisions for 365 Days",
       "Job Application Tracker & Referral Assistant",
@@ -122,7 +121,7 @@ const INITIAL_COUPONS: Coupon[] = [
     code: "STUDENT50",
     discountType: "Percentage",
     discountValue: 50,
-    applicablePlans: ["6-Month Pro Prep", "1-Year Career Pass"],
+    applicablePlans: ["Pro", "Elite"],
     usageLimit: 1000,
     timesUsed: 890,
     expiryDate: "2026-10-15",
@@ -133,7 +132,7 @@ const INITIAL_COUPONS: Coupon[] = [
     code: "EARLYBIRD",
     discountType: "Flat Amount",
     discountValue: 300,
-    applicablePlans: ["Monthly Starter", "3-Month Sprint"],
+    applicablePlans: ["Basic", "Plus"],
     usageLimit: 200,
     timesUsed: 200,
     expiryDate: "2026-08-30",
@@ -142,16 +141,16 @@ const INITIAL_COUPONS: Coupon[] = [
 ];
 
 const INITIAL_USERS: AdminUser[] = [
-  { id: "usr_101", name: "Rahul Sharma", email: "rahul.s@gmail.com", plan: "6-Month Pro Prep", planExpiry: "2027-02-12", status: "Active", joined: "2026-08-12", spent: "₹2,299", phone: "+91 98201 12345", location: "Mumbai, MH", mockCount: 18, atsCount: 32 },
-  { id: "usr_102", name: "Priya Patil", email: "priya.patil@outlook.com", plan: "1-Year Career Pass", planExpiry: "2027-07-04", status: "Active", joined: "2026-07-04", spent: "₹3,999", phone: "+91 97110 54321", location: "Pune, MH", mockCount: 42, atsCount: 95 },
+  { id: "usr_101", name: "Rahul Sharma", email: "rahul.s@gmail.com", plan: "Pro", planExpiry: "2027-02-12", status: "Active", joined: "2026-08-12", spent: "₹2,299", phone: "+91 98201 12345", location: "Mumbai, MH", mockCount: 18, atsCount: 32 },
+  { id: "usr_102", name: "Priya Patil", email: "priya.patil@outlook.com", plan: "Elite", planExpiry: "2027-07-04", status: "Active", joined: "2026-07-04", spent: "₹3,999", phone: "+91 97110 54321", location: "Pune, MH", mockCount: 42, atsCount: 95 },
   { id: "usr_103", name: "Amit Kavathekar", email: "amit.k@jobprep.ai", plan: "Super Admin", planExpiry: "Lifetime VIP", status: "Active", joined: "2026-05-01", spent: "₹0", phone: "+91 98900 00000", location: "Bangalore, KA", mockCount: 120, atsCount: 200 },
-  { id: "usr_104", name: "Sneha Deshmukh", email: "sneha.d@yahoo.com", plan: "3-Month Sprint", planExpiry: "2026-08-10 (Expired)", status: "Expired", joined: "2026-05-10", spent: "₹1,299", phone: "+91 96500 11223", location: "Nagpur, MH", mockCount: 8, atsCount: 15 },
-  { id: "usr_105", name: "Vikram Mehta", email: "v.mehta@techcorp.io", plan: "Monthly Starter", planExpiry: "2026-10-01", status: "Active", joined: "2026-09-01", spent: "₹499", phone: "+91 99887 76655", location: "Hyderabad, TS", mockCount: 3, atsCount: 9 },
-  { id: "usr_106", name: "Aarti Kulkarni", email: "aarti.k@gmail.com", plan: "6-Month Pro Prep", planExpiry: "2027-02-28", status: "Active", joined: "2026-08-28", spent: "₹2,299", phone: "+91 94220 33445", location: "Thane, MH", mockCount: 12, atsCount: 24 },
+  { id: "usr_104", name: "Sneha Deshmukh", email: "sneha.d@yahoo.com", plan: "Plus", planExpiry: "2026-08-10 (Expired)", status: "Expired", joined: "2026-05-10", spent: "₹1,299", phone: "+91 96500 11223", location: "Nagpur, MH", mockCount: 8, atsCount: 15 },
+  { id: "usr_105", name: "Vikram Mehta", email: "v.mehta@techcorp.io", plan: "Basic", planExpiry: "2026-10-01", status: "Active", joined: "2026-09-01", spent: "₹499", phone: "+91 99887 76655", location: "Hyderabad, TS", mockCount: 3, atsCount: 9 },
+  { id: "usr_106", name: "Aarti Kulkarni", email: "aarti.k@gmail.com", plan: "Pro", planExpiry: "2027-02-28", status: "Active", joined: "2026-08-28", spent: "₹2,299", phone: "+91 94220 33445", location: "Thane, MH", mockCount: 12, atsCount: 24 },
 ];
 
 const INITIAL_ACTIVITY_LOGS: ActivityLogItem[] = [
-  { id: "log_1", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Changed price of 6-Month Plan to ₹2,299", target: "6-Month Pro Prep", type: "Pricing", timestamp: "10 mins ago" },
+  { id: "log_1", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Changed price of Pro Plan to ₹2,299", target: "Pro", type: "Pricing", timestamp: "10 mins ago" },
   { id: "log_2", adminName: "Neha Kulkarni", adminRole: "Support Admin", action: "Issued ₹499 refund to user usr_105", target: "Vikram Mehta (usr_105)", type: "User Action", timestamp: "1 hour ago" },
   { id: "log_3", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Created promotional coupon FESTIVE25", target: "FESTIVE25", type: "Coupon", timestamp: "3 hours ago" },
   { id: "log_4", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Updated Razorpay & Stripe Gateway API Credentials", target: "Payment Gateways", type: "Settings", timestamp: "2 days ago" },
@@ -168,7 +167,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>(INITIAL_ACTIVITY_LOGS);
 
   // User Directory Filters & Detail View State
-  const [userDirectorySubTab, setUserDirectorySubTab] = useState<"directory" | "tickets">("directory");
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [userPlanFilter, setUserPlanFilter] = useState("All");
   const [userStatusFilter, setUserStatusFilter] = useState("All");
@@ -182,15 +180,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
 
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
-
-  // Payment Gateway Enhanced Config State
-  const [isRazorpayModalOpen, setIsRazorpayModalOpen] = useState(false);
-  const [paymentEnv, setPaymentEnv] = useState<"live" | "test">("live");
-  const [razorpayKeyId, setRazorpayKeyId] = useState("rzp_live_891238491823");
-  const [razorpaySecret, setRazorpaySecret] = useState("sec_live_9981273981273");
-  const [stripePublishableKey, setStripePublishableKey] = useState("pk_live_51M391823812398");
-  const [stripeSecretKey, setStripeSecretKey] = useState("sk_live_51M391823812398sec");
-  const [upiVpa, setUpiVpa] = useState("jobprep.ai@razorpay");
 
   // Notification Toast State
   const [notification, setNotification] = useState<string | null>(null);
@@ -227,6 +216,14 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
       timestamp: "Just now",
     };
     setActivityLogs((prev) => [newLog, ...prev]);
+  };
+
+  const handleViewPlanSubscribers = (planName: string) => {
+    setUserPlanFilter(planName);
+    setUserCurrentPage(1);
+    setSelectedUserDetail(null);
+    setActiveAdminScreen("admin-users");
+    showNotification(`Showing subscribers for plan: ${planName}`);
   };
 
   // Logout Confirmation Handler
@@ -452,21 +449,21 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
         />
 
         {/* Main Admin Content Container */}
-        <main style={{ flex: 1, overflowY: "auto", padding: "28px 32px", color: "#e2e8f0" }}>
+        <main style={{ flex: 1, overflowY: "auto", padding: "14px 24px", color: "#e2e8f0" }}>
           {/* Notification Toast */}
           {notification && (
             <div
               style={{
                 position: "fixed",
-                top: 20,
+                top: 16,
                 right: 20,
                 zIndex: 1100,
                 background: "rgba(236, 72, 153, 0.25)",
                 border: "1px solid #ec4899",
                 color: "#f472b6",
-                padding: "12px 20px",
+                padding: "10px 16px",
                 borderRadius: 10,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
@@ -481,138 +478,276 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
           )}
 
           {/* Clean Top Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, marginBottom: 10, flexWrap: "wrap", gap: 10 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-
-              </div>
-              <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", marginTop: 6, margin: 0 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: "white", margin: 0, lineHeight: 1.2 }}>
                 JobPrep<span className="gradient-text">AI</span> Admin Module
               </h1>
-            </div>
-
-            <div style={{ display: "flex", gap: 12 }}>
             </div>
           </div>
 
           {/* 1. OVERVIEW: ADMIN DASHBOARD */}
           {activeAdminScreen === "admin-dashboard" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {/* KPI Metrics Widgets */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 16 }}>
-                <div className="glass-card" style={{ padding: "18px 20px", borderLeft: "4px solid #10b981" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+                <div className="glass-card" style={{ padding: "10px 14px", borderLeft: "4px solid #10b981" }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
                     Total Revenue (MRR)
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#10b981", marginTop: 6 }}>₹4,87,450</div>
-                  <div style={{ fontSize: 11, color: "#34d399", marginTop: 4 }}>↑ +18.4% this month</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#10b981", marginTop: 2 }}>₹4,87,450</div>
+                  <div style={{ fontSize: 10, color: "#34d399", marginTop: 2 }}>↑ +18.4% this month</div>
                 </div>
 
-                <div className="glass-card" style={{ padding: "18px 20px", borderLeft: "4px solid #06b6d4" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
+                <div className="glass-card" style={{ padding: "10px 14px", borderLeft: "4px solid #06b6d4" }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
                     Active Subscribers
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#06b6d4", marginTop: 6 }}>3,298</div>
-                  <div style={{ fontSize: 11, color: "#67e8f9", marginTop: 4 }}>Monthly, 3M, 6M & 1Yr Plans</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#06b6d4", marginTop: 2 }}>3,298</div>
+                  <div style={{ fontSize: 10, color: "#67e8f9", marginTop: 2 }}>Monthly, 3M, 6M & 1Yr Plans</div>
                 </div>
 
-                <div className="glass-card" style={{ padding: "18px 20px", borderLeft: "4px solid #ec4899" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
+                <div className="glass-card" style={{ padding: "10px 14px", borderLeft: "4px solid #ec4899" }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
                     AI Tokens Used
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#ec4899", marginTop: 6 }}>14.2M</div>
-                  <div style={{ fontSize: 11, color: "#f472b6", marginTop: 4 }}>Gemini 1.5 & GPT-4o</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#ec4899", marginTop: 2 }}>14.2M</div>
+                  <div style={{ fontSize: 10, color: "#f472b6", marginTop: 2 }}>Gemini 1.5 & GPT-4o</div>
                 </div>
 
-                <div className="glass-card" style={{ padding: "18px 20px", borderLeft: "4px solid #f59e0b" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
+                <div className="glass-card" style={{ padding: "10px 14px", borderLeft: "4px solid #f59e0b" }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
                     Completed Mock Interviews
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#f59e0b", marginTop: 6 }}>18,420</div>
-                  <div style={{ fontSize: 11, color: "#fbbf24", marginTop: 4 }}>Avg Score: 78.4 / 100</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#f59e0b", marginTop: 2 }}>18,420</div>
+                  <div style={{ fontSize: 10, color: "#fbbf24", marginTop: 2 }}>Avg Score: 78.4 / 100</div>
                 </div>
               </div>
 
-              {/* Main Chart + Health */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
-                {/* Revenue Growth Bar Chart */}
-                <div className="glass-card" style={{ padding: 22 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: 16, color: "white", fontWeight: 700 }}>Monthly Revenue Growth (₹)</h3>
-                      <div style={{ fontSize: 12, color: "#94a3b8" }}>Last 6 months subscription revenue breakdown</div>
+              {/* Main Chart + Quick Actions (65% / 35% Layout) */}
+              <div style={{ display: "flex", gap: 14, width: "100%", flexWrap: "wrap", marginTop: 10 }}>
+                {/* Revenue Growth Bar Chart (65% WIDTH) */}
+                <div className="glass-card" style={{ flex: "1 1 calc(65% - 7px)", width: "calc(65% - 7px)", minWidth: 320, padding: "18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380 }}>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: 16, color: "white", fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
+                          <span>📈</span> Monthly Revenue Growth (₹)
+                        </h3>
+                        <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>Last 6 months subscription revenue performance</div>
+                      </div>
+                      <span style={{ fontSize: 11, background: "rgba(236,72,153,0.15)", border: "1px solid rgba(236,72,153,0.3)", color: "#f472b6", padding: "3px 10px", borderRadius: 4, fontFamily: "JetBrains Mono", fontWeight: 700 }}>
+                        +42% YoY Growth
+                      </span>
                     </div>
-                    <span style={{ fontSize: 11, background: "rgba(236,72,153,0.15)", color: "#f472b6", padding: "3px 8px", borderRadius: 4, fontFamily: "JetBrains Mono", fontWeight: 700 }}>
-                      +42% YoY
-                    </span>
+
+                    {/* Height 280px Bar Chart */}
+                    <div style={{ height: 280, display: "flex", alignItems: "flex-end", gap: 20, padding: "14px 10px 8px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {[
+                        { month: "Apr", val: 180, rev: "₹1.80L" },
+                        { month: "May", val: 240, rev: "₹2.40L" },
+                        { month: "Jun", val: 310, rev: "₹3.10L" },
+                        { month: "Jul", val: 390, rev: "₹3.90L" },
+                        { month: "Aug", val: 420, rev: "₹4.20L" },
+                        { month: "Sep", val: 487, rev: "₹4.87L", active: true },
+                      ].map((b, i) => (
+                        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%", justifyContent: "flex-end" }}>
+                          <span style={{ fontSize: 11, color: b.active ? "#ec4899" : "#cbd5e1", fontWeight: b.active ? 800 : 600, fontFamily: "JetBrains Mono" }}>{b.rev}</span>
+                          <div
+                            style={{
+                              width: "100%",
+                              maxWidth: 52,
+                              height: `${(b.val / 500) * 100}%`,
+                              background: b.active ? "linear-gradient(180deg, #ec4899, #7c3aed)" : "rgba(255, 255, 255, 0.12)",
+                              borderRadius: "8px 8px 0 0",
+                              boxShadow: b.active ? "0 0 16px rgba(236, 72, 153, 0.45)" : "none",
+                              transition: "height 0.5s ease",
+                            }}
+                          />
+                          <span style={{ fontSize: 12, color: b.active ? "white" : "#94a3b8", fontWeight: b.active ? 700 : 500 }}>{b.month}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div style={{ height: 180, display: "flex", alignItems: "flex-end", gap: 16, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                    {[
-                      { month: "Apr", val: 180, rev: "1.8L" },
-                      { month: "May", val: 240, rev: "2.4L" },
-                      { month: "Jun", val: 310, rev: "3.1L" },
-                      { month: "Jul", val: 390, rev: "3.9L" },
-                      { month: "Aug", val: 420, rev: "4.2L" },
-                      { month: "Sep", val: 487, rev: "4.87L", active: true },
-                    ].map((b, i) => (
-                      <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%", justifyContent: "flex-end" }}>
-                        <span style={{ fontSize: 10, color: b.active ? "#ec4899" : "#94a3b8", fontWeight: b.active ? 700 : 400 }}>{b.rev}</span>
-                        <div
-                          style={{
-                            width: "100%",
-                            maxWidth: 36,
-                            height: `${(b.val / 500) * 100}%`,
-                            background: b.active ? "linear-gradient(180deg, #ec4899, #7c3aed)" : "rgba(255, 255, 255, 0.12)",
-                            borderRadius: "6px 6px 0 0",
-                            transition: "height 0.5s ease",
-                          }}
-                        />
-                        <span style={{ fontSize: 11, color: b.active ? "white" : "#64748b", fontWeight: b.active ? 700 : 400 }}>{b.month}</span>
-                      </div>
-                    ))}
+                  {/* Revenue Growth Summary Footer */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, paddingTop: 8, fontSize: 12, color: "#94a3b8" }}>
+                    <div>Total 6-Mo Revenue: <strong style={{ color: "white" }}>₹20.27 Lakhs</strong></div>
+                    <div>Avg Growth: <strong style={{ color: "#34d399" }}>+18.4% / mo</strong></div>
+                    <div>Peak: <strong style={{ color: "#ec4899" }}>Sep (₹4.87L)</strong></div>
                   </div>
                 </div>
 
-                {/* System Health */}
-                <div className="glass-card" style={{ padding: 22, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                {/* Payment Method Distribution (Donut Chart) (35% WIDTH) */}
+                <div className="glass-card" style={{ flex: "1 1 calc(35% - 7px)", width: "calc(35% - 7px)", minWidth: 240, padding: "18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380 }}>
                   <div>
-                    <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white", fontWeight: 700 }}>System Health & API Services</h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "8px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 6 }}>
-                        <span style={{ color: "#cbd5e1" }}>Google Gemini 1.5 AI Engine</span>
-                        <span style={{ color: "#34d399", fontWeight: 700 }}>● Operational (99.9%)</span>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: 16, color: "white", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                          <span>📱</span> Payment Method Distribution
+                        </h3>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Real-time payment mode breakdown</div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "8px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 6 }}>
-                        <span style={{ color: "#cbd5e1" }}>Razorpay / UPI Payment Gateway</span>
-                        <span style={{ color: "#34d399", fontWeight: 700 }}>● Active (100%)</span>
+                      <span style={{ fontSize: 10, background: "rgba(52, 211, 153, 0.15)", border: "1px solid rgba(52, 211, 153, 0.3)", color: "#34d399", padding: "3px 10px", borderRadius: 10, fontWeight: 700, fontFamily: "JetBrains Mono", display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", display: "inline-block" }}></span>
+                        98.8% SUCCESS
+                      </span>
+                    </div>
+
+                    {/* Donut Chart & Center Stats */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", margin: "10px 0 16px", position: "relative" }}>
+                      <svg width="150" height="150" viewBox="0 0 140 140" style={{ transform: "rotate(-90deg)" }}>
+                        <defs>
+                          <linearGradient id="grad-upi" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#34d399" />
+                            <stop offset="100%" stopColor="#059669" />
+                          </linearGradient>
+                          <linearGradient id="grad-cards" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#ec4899" />
+                            <stop offset="100%" stopColor="#8b5cf6" />
+                          </linearGradient>
+                          <linearGradient id="grad-netbank" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#38bdf8" />
+                            <stop offset="100%" stopColor="#0284c7" />
+                          </linearGradient>
+                          <linearGradient id="grad-wallets" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#a855f7" />
+                            <stop offset="100%" stopColor="#7e22ce" />
+                          </linearGradient>
+                        </defs>
+                        {/* Background track */}
+                        <circle cx="70" cy="70" r="50" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
+
+                        {/* 1. UPI (GPay, PhonePe, Paytm) (64%) */}
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="50"
+                          fill="transparent"
+                          stroke="url(#grad-upi)"
+                          strokeWidth="18"
+                          strokeDasharray="201.06 113.10"
+                          strokeDashoffset="0"
+                          style={{ transition: "all 0.5s ease" }}
+                        />
+                        {/* 2. Credit & Debit Cards (22%) */}
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="50"
+                          fill="transparent"
+                          stroke="url(#grad-cards)"
+                          strokeWidth="18"
+                          strokeDasharray="69.12 245.04"
+                          strokeDashoffset="-201.06"
+                          style={{ transition: "all 0.5s ease" }}
+                        />
+                        {/* 3. Net Banking (9%) */}
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="50"
+                          fill="transparent"
+                          stroke="url(#grad-netbank)"
+                          strokeWidth="18"
+                          strokeDasharray="28.27 285.89"
+                          strokeDashoffset="-270.18"
+                          style={{ transition: "all 0.5s ease" }}
+                        />
+                        {/* 4. Wallets & EMI (5%) */}
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="50"
+                          fill="transparent"
+                          stroke="url(#grad-wallets)"
+                          strokeWidth="18"
+                          strokeDasharray="15.71 298.45"
+                          strokeDashoffset="-298.45"
+                          style={{ transition: "all 0.5s ease" }}
+                        />
+                      </svg>
+
+                      {/* Donut Center Display */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textAlign: "center",
+                        }}
+                      >
+                        <span style={{ fontSize: 19, fontWeight: 900, color: "white", fontFamily: "JetBrains Mono", lineHeight: 1 }}>₹72.6L</span>
+                        <span style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 3 }}>Total Volume</span>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "8px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 6 }}>
-                        <span style={{ color: "#cbd5e1" }}>Speech Recognition Engine</span>
-                        <span style={{ color: "#34d399", fontWeight: 700 }}>● Latency: 42ms</span>
+                    </div>
+
+                    {/* Breakdown List Legend */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+                      {/* Item 1 */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#34d399" }}></span>
+                            UPI (GPay / PhonePe / Paytm)
+                          </span>
+                          <span style={{ color: "#34d399", fontWeight: 700, fontFamily: "JetBrains Mono" }}>64% (₹46.46L)</span>
+                        </div>
+                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ width: "64%", height: "100%", background: "linear-gradient(90deg, #34d399, #059669)", borderRadius: 4 }}></div>
+                        </div>
+                      </div>
+
+                      {/* Item 2 */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ec4899" }}></span>
+                            Credit & Debit Cards
+                          </span>
+                          <span style={{ color: "#f472b6", fontWeight: 700, fontFamily: "JetBrains Mono" }}>22% (₹15.97L)</span>
+                        </div>
+                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ width: "22%", height: "100%", background: "linear-gradient(90deg, #ec4899, #8b5cf6)", borderRadius: 4 }}></div>
+                        </div>
+                      </div>
+
+                      {/* Item 3 */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#38bdf8" }}></span>
+                            Net Banking (SBI / HDFC / ICICI)
+                          </span>
+                          <span style={{ color: "#38bdf8", fontWeight: 700, fontFamily: "JetBrains Mono" }}>9% (₹6.53L)</span>
+                        </div>
+                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ width: "9%", height: "100%", background: "linear-gradient(90deg, #38bdf8, #0284c7)", borderRadius: 4 }}></div>
+                        </div>
+                      </div>
+
+                      {/* Item 4 */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#a855f7" }}></span>
+                            Wallets & No-Cost EMI
+                          </span>
+                          <span style={{ color: "#c084fc", fontWeight: 700, fontFamily: "JetBrains Mono" }}>5% (₹3.63L)</span>
+                        </div>
+                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ width: "5%", height: "100%", background: "linear-gradient(90deg, #a855f7, #7e22ce)", borderRadius: 4 }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ marginTop: 18 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Quick Actions</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                      <button
-                        onClick={() => {
-                          setEditingPlan(null);
-                          setIsPlanModalOpen(true);
-                        }}
-                        style={{ padding: "8px", borderRadius: 6, fontSize: 11, background: "rgba(236, 72, 153, 0.15)", border: "1px solid rgba(236,72,153,0.3)", color: "#f472b6", cursor: "pointer", fontWeight: 600 }}
-                      >
-                        + Create Plan
-                      </button>
-                      <button
-                        onClick={() => setActiveAdminScreen("admin-users")}
-                        style={{ padding: "8px", borderRadius: 6, fontSize: 11, background: "rgba(6, 182, 212, 0.15)", border: "1px solid rgba(6,182,212,0.3)", color: "#67e8f9", cursor: "pointer", fontWeight: 600 }}
-                      >
-                        👥 Manage Users
-                      </button>
-                    </div>
+                  {/* Donut Footer Info */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 11, color: "#94a3b8" }}>
+                    <div>Avg Speed: <strong style={{ color: "#34d399" }}>&lt;1.8s</strong></div>
+                    <div>Failure Rate: <strong style={{ color: "#38bdf8" }}>1.2%</strong></div>
                   </div>
                 </div>
               </div>
@@ -628,25 +763,93 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                   📊 Financial Analytics & Plan Revenue Overview
                 </h4>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
-                  <div className="glass-card" style={{ padding: 18, borderLeft: "4px solid #38bdf8" }}>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>1 Month Plan Revenue</div>
+                  {/* 1 Month Plan KPI Card */}
+                  <div
+                    className="glass-card"
+                    onClick={() => handleViewPlanSubscribers("Basic")}
+                    title="Click to view candidates subscribed to Basic Plan"
+                    style={{
+                      padding: 18,
+                      borderLeft: "4px solid #38bdf8",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-3px)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#94a3b8" }}>1 Month (Basic)</div>
+                      <span style={{ fontSize: 10, color: "#38bdf8", fontWeight: 700, background: "rgba(56, 189, 248, 0.12)", padding: "2px 6px", borderRadius: 4 }}>👥 VIEW USERS</span>
+                    </div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "white", marginTop: 4 }}>₹1,70,658</div>
-                    <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 2 }}>342 Active Subscribers</div>
+                    <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 2 }}>342 Active Subscribers →</div>
                   </div>
-                  <div className="glass-card" style={{ padding: 18, borderLeft: "4px solid #a855f7" }}>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>3 Months Plan Revenue</div>
+
+                  {/* 3 Months Plan KPI Card */}
+                  <div
+                    className="glass-card"
+                    onClick={() => handleViewPlanSubscribers("Plus")}
+                    title="Click to view candidates subscribed to Plus Plan"
+                    style={{
+                      padding: 18,
+                      borderLeft: "4px solid #a855f7",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-3px)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#94a3b8" }}>3 Months (Plus)</div>
+                      <span style={{ fontSize: 10, color: "#c084fc", fontWeight: 700, background: "rgba(168, 85, 247, 0.12)", padding: "2px 6px", borderRadius: 4 }}>👥 VIEW USERS</span>
+                    </div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "white", marginTop: 4 }}>₹11,11,944</div>
-                    <div style={{ fontSize: 11, color: "#c084fc", marginTop: 2 }}>856 Active Subscribers</div>
+                    <div style={{ fontSize: 11, color: "#c084fc", marginTop: 2 }}>856 Active Subscribers →</div>
                   </div>
-                  <div className="glass-card" style={{ padding: 18, borderLeft: "4px solid #ec4899", background: "rgba(236,72,153,0.08)" }}>
-                    <div style={{ fontSize: 12, color: "#f472b6", fontWeight: 700 }}>6 Months Plan (Top Revenue)</div>
+
+                  {/* 6 Months Plan KPI Card */}
+                  <div
+                    className="glass-card"
+                    onClick={() => handleViewPlanSubscribers("Pro")}
+                    title="Click to view candidates subscribed to Pro Plan"
+                    style={{
+                      padding: 18,
+                      borderLeft: "4px solid #ec4899",
+                      background: "rgba(236,72,153,0.08)",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-3px)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#f472b6", fontWeight: 700 }}>6 Months (Pro)</div>
+                      <span style={{ fontSize: 10, color: "#ec4899", fontWeight: 700, background: "rgba(236, 72, 153, 0.2)", padding: "2px 6px", borderRadius: 4 }}>👥 VIEW USERS</span>
+                    </div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "white", marginTop: 4 }}>₹32,64,580</div>
-                    <div style={{ fontSize: 11, color: "#f472b6", marginTop: 2 }}>1,420 Active Subscribers (43% volume)</div>
+                    <div style={{ fontSize: 11, color: "#f472b6", marginTop: 2 }}>1,420 Active Subscribers (43% volume) →</div>
                   </div>
-                  <div className="glass-card" style={{ padding: 18, borderLeft: "4px solid #34d399" }}>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>1 Year Plan Revenue</div>
+
+                  {/* 1 Year Plan KPI Card */}
+                  <div
+                    className="glass-card"
+                    onClick={() => handleViewPlanSubscribers("Elite")}
+                    title="Click to view candidates subscribed to Elite Plan"
+                    style={{
+                      padding: 18,
+                      borderLeft: "4px solid #34d399",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-3px)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#94a3b8" }}>1 Year (Elite)</div>
+                      <span style={{ fontSize: 10, color: "#34d399", fontWeight: 700, background: "rgba(52, 211, 153, 0.12)", padding: "2px 6px", borderRadius: 4 }}>👥 VIEW USERS</span>
+                    </div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "white", marginTop: 4 }}>₹27,19,320</div>
-                    <div style={{ fontSize: 11, color: "#34d399", marginTop: 2 }}>680 Active Subscribers (High LTV)</div>
+                    <div style={{ fontSize: 11, color: "#34d399", marginTop: 2 }}>680 Active Subscribers (High LTV) →</div>
                   </div>
                 </div>
               </div>
@@ -734,12 +937,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                         <span style={{ fontSize: 28, fontWeight: 800, color: "#ffffff" }}>₹{plan.priceINR}</span>
                         <span style={{ fontSize: 13, textDecoration: "line-through", color: "#64748b" }}>₹{plan.originalPriceINR}</span>
                         <span style={{ fontSize: 11, color: "#94a3b8" }}>/ total</span>
-                      </div>
-
-
-
-                      <div style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 12 }}>
-                        <strong>Active Subscribers:</strong> {plan.subscribersCount} users
                       </div>
 
                       <ul style={{ paddingLeft: 16, margin: "0 0 16px", fontSize: 12, color: "#cbd5e1", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -886,51 +1083,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
           {/* 4. USERS: USER DIRECTORY & USER DETAIL VIEW */}
           {activeAdminScreen === "admin-users" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              {/* Sub Navigation Bar for Users Section */}
-              {!selectedUserDetail && (
-                <div style={{ display: "flex", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 12 }}>
-                  <button
-                    onClick={() => setUserDirectorySubTab("directory")}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 10,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: userDirectorySubTab === "directory" ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "rgba(255,255,255,0.05)",
-                      color: userDirectorySubTab === "directory" ? "#ffffff" : "#94a3b8",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    <span>👥 Candidate Directory</span>
-                  </button>
-
-                  <button
-                    onClick={() => setUserDirectorySubTab("tickets")}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 10,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: userDirectorySubTab === "tickets" ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "rgba(255,255,255,0.05)",
-                      color: userDirectorySubTab === "tickets" ? "#ffffff" : "#94a3b8",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    <span>🎫 Support Tickets & Queries</span>
-                  </button>
-                </div>
-              )}
-
               {selectedUserDetail ? (
                 <UserDetailView
                   user={selectedUserDetail}
@@ -951,8 +1103,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                     addAuditLog(`Reset password for ${usr.name}`, usr.id, "User Action");
                   }}
                 />
-              ) : userDirectorySubTab === "tickets" ? (
-                <SupportTicketsScreen />
               ) : (
                 <div className="glass-card" style={{ padding: 22 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
@@ -987,10 +1137,10 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                         style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "white", padding: "6px 10px", borderRadius: 6, fontSize: 12 }}
                       >
                         <option value="All">All Plans</option>
-                        <option value="Monthly Starter">Monthly Starter</option>
-                        <option value="3-Month Sprint">3-Month Sprint</option>
-                        <option value="6-Month Pro Prep">6-Month Pro Prep</option>
-                        <option value="1-Year Career Pass">1-Year Career Pass</option>
+                        <option value="Basic">Basic (1 Month)</option>
+                        <option value="Plus">Plus (3 Months)</option>
+                        <option value="Pro">Pro (6 Months)</option>
+                        <option value="Elite">Elite (1 Year)</option>
                         <option value="Super Admin">Super Admin</option>
                       </select>
                     </div>
@@ -1190,18 +1340,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
             </div>
           )}
 
-          {/* 6. SYSTEM: PAYMENT GATEWAY SETTINGS (Modular component in src/components/admin/future-plan) */}
-          {activeAdminScreen === "admin-settings" && (
-            <PaymentGatewaysScreen
-              paymentEnv={paymentEnv}
-              setPaymentEnv={setPaymentEnv}
-              upiVpa={upiVpa}
-              setUpiVpa={setUpiVpa}
-              onOpenRazorpayModal={() => setIsRazorpayModalOpen(true)}
-              showNotification={showNotification}
-            />
-          )}
-
           {/* 7. SYSTEM: NOTIFICATIONS SETTINGS */}
           {activeAdminScreen === "admin-notifications" && (
             <div className="glass-card" style={{ padding: 22, maxWidth: 600 }}>
@@ -1257,52 +1395,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
         />
       )}
 
-      {/* SECURE RAZORPAY KEY UPDATE MODAL */}
-      {isRazorpayModalOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(5,5,16,0.8)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div className="glass-card" style={{ width: 440, padding: 24, borderRadius: 16, background: "rgba(13,13,35,0.95)", border: "1px solid rgba(255,255,255,0.15)" }}>
-            <h3 style={{ margin: "0 0 14px", color: "white" }}>Update Payment Gateway Credentials</h3>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setIsRazorpayModalOpen(false);
-                showNotification("Razorpay API credentials updated!");
-                addAuditLog("Updated Razorpay API Credentials", "Razorpay Gateway", "Settings");
-              }}
-              style={{ display: "flex", flexDirection: "column", gap: 12 }}
-            >
-              <div>
-                <label style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>Razorpay Key ID</label>
-                <input
-                  type="text"
-                  required
-                  value={razorpayKeyId}
-                  onChange={(e) => setRazorpayKeyId(e.target.value)}
-                  className="glass-input"
-                  style={{ marginTop: 4, fontFamily: "JetBrains Mono" }}
-                />
-              </div>
 
-              <div>
-                <label style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>Razorpay Key Secret</label>
-                <input
-                  type="password"
-                  required
-                  value={razorpaySecret}
-                  onChange={(e) => setRazorpaySecret(e.target.value)}
-                  className="glass-input"
-                  style={{ marginTop: 4, fontFamily: "JetBrains Mono" }}
-                />
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
-                <button type="button" onClick={() => setIsRazorpayModalOpen(false)} className="btn-ghost" style={{ padding: "6px 14px" }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ padding: "6px 18px", background: "linear-gradient(135deg, #ec4899, #7c3aed)" }}>Save Credentials</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* CONFIRMATION POPUP DIALOG */}
       {confirmation.isOpen && (

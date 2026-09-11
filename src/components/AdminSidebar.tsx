@@ -38,7 +38,6 @@ const adminSections: AdminNavSection[] = [
     label: "System",
     items: [
       { id: "admin-ai-models", icon: "🤖", label: "AI Tokens & Models" },
-      { id: "admin-settings", icon: "⚙", label: "Payment Gateways" },
       { id: "admin-notifications", icon: "🔔", label: "Notifications Settings" },
       { id: "admin-activity-log", icon: "📜", label: "Activity Log" },
     ],
