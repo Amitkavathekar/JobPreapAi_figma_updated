@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Screen } from "../types";
+import LockedBlurOverlay from "../components/LockedBlurOverlay";
 
 interface InterviewPrepProps {
   onNavigate: (s: Screen) => void;
+  hasActiveSubscription?: boolean;
+  onOpenUpgradeModal?: () => void;
 }
 
 interface QuestionItem {
@@ -49,6 +52,18 @@ const questionBanks: QuestionBankCategory[] = [
         answer: "Our team proposed rebuilding our internal UI with a heavy third-party framework that added 400KB bundle overhead. I set up a quick 1-day benchmark comparing it against our native React design tokens. I presented load-time metrics and accessibility scores to the team, leading us to adopt our lightweight internal library.",
         keyPoints: ["Focus on empirical data over opinions", "Built quick prototype/benchmark", "Collaborative decision making"],
       },
+      {
+        id: "b3",
+        q: "How do you handle a production outage caused by a regression in code deployed by your direct peer?",
+        answer: "I initiate an immediate incident response without playing blame games. First, we roll back to the last known stable tag within 3 minutes. Next, we write characterization tests to isolate the bug, and conduct a blameless post-mortem to update our CI integration pipeline.",
+        keyPoints: ["Immediate rollback protocol", "Blameless engineering post-mortem", "Automated CI regression test guardrails"],
+      },
+      {
+        id: "b4",
+        q: "Describe how you mentor junior developers and foster high technical standards across remote teams.",
+        answer: "I set up weekly pair programming sessions, maintain clear PR review guidelines, and encourage junior engineers to write design RFCs. Rather than giving direct answers, I guide them through debugging techniques using DevTools profile traces.",
+        keyPoints: ["Structured code review checklists", "Pair programming & design RFCs", "Empowering debugging independence"],
+      },
     ],
   },
   {
@@ -68,6 +83,18 @@ const questionBanks: QuestionBankCategory[] = [
         q: "How would you design a global Micro-Frontend setup for an enterprise application?",
         answer: "Using Webpack 5 / Vite Module Federation. Each team maintains an independent repository deployed to CDN edge servers. A container application dynamically imports remote entry bundles at runtime with shared dependencies configured as singletons.",
         keyPoints: ["Module Federation runtime import", "Autonomous team deployment", "Shared singleton dependencies"],
+      },
+      {
+        id: "s3",
+        q: "How do you architect a client-side offline storage engine with automatic background sync?",
+        answer: "We leverage IndexedDB wrapped with Dexie.js for transactional client storage. Service Worker intercepts network requests and queues mutating payloads in BackgroundSync registry when offline, retrying with exponential backoff on reconnection.",
+        keyPoints: ["IndexedDB transactional storage", "Service Worker BackgroundSync", "Idempotent mutation retries"],
+      },
+      {
+        id: "s4",
+        q: "Architect an analytics telemetry SDK operating inside client applications without hurting Web Vitals.",
+        answer: "We use lightweight event buffers flushed via navigator.sendBeacon during browser idle periods. Event serialization runs inside Web Workers, keeping main-thread execution overhead below 2ms per interaction.",
+        keyPoints: ["navigator.sendBeacon asynchronous transport", "Web Worker serialization", "Zero main-thread blocking"],
       },
     ],
   },
@@ -89,6 +116,18 @@ const questionBanks: QuestionBankCategory[] = [
         answer: "useMemo memoizes computed values across re-renders; useCallback memoizes function references to prevent child component re-renders. State caches like React Query extend this with TTL, background polling, and cache invalidation tags.",
         keyPoints: ["useMemo for heavy calculations", "useCallback for stable handler props", "React Query for server-state caching"],
       },
+      {
+        id: "t3",
+        q: "Explain TypeScript strict mode flags (noImplicitAny, strictNullChecks, keyof lookup types).",
+        answer: "strictNullChecks prevents runtime undefined access bugs by forcing explicit union types (T | null). keyof and mapped types allow type-safe property getters and automated state transformation interfaces.",
+        keyPoints: ["Eliminating null dereference bugs", "Mapped & Conditional TypeScript types", "Compile-time safety assurances"],
+      },
+      {
+        id: "t4",
+        q: "How does React 18 automatic batching and useTransition improve UI responsiveness during heavy re-renders?",
+        answer: "Automatic batching groups multiple state updates into a single render cycle, even inside timeouts and promises. useTransition marks state updates as non-urgent transitions, allowing user keystrokes to interrupt background list filtering.",
+        keyPoints: ["Automatic batching across async boundaries", "Interruptible transition updates", "Maintaining 60fps frame rate"],
+      },
     ],
   },
   {
@@ -109,11 +148,23 @@ const questionBanks: QuestionBankCategory[] = [
         answer: "LCP is improved by dynamic image optimization, HTTP/3 asset preloading, and critical inline CSS. CLS is mitigated by reserving explicit width/height dimensions on image skeletons and dynamic DOM containers. INP is optimized by yielding long tasks back to the browser event loop using requestIdleCallback and scheduler.yield().",
         keyPoints: ["Preload critical route chunks", "Reserve layout dimensions for image skeletons", "Break long JS tasks with scheduler.yield()"],
       },
+      {
+        id: "r3",
+        q: "How do you handle feature flag rollouts safely across 1M+ active users?",
+        answer: "We use server-evaluated feature flags with percentage-based canary rollouts. Flags are cached client-side with WebSocket updates, ensuring immediate kill-switch capability if error rates spike.",
+        keyPoints: ["Canary percentage rollouts", "WebSocket instant kill-switch", "Client-side flag caching"],
+      },
+      {
+        id: "r4",
+        q: "What measures do you take to prevent Cross-Site Scripting (XSS) and CSRF in modern React apps?",
+        answer: "We rely on React's automatic JSX string escaping, enforce strict Content Security Policy (CSP) headers, store session tokens in SameSite Strict HTTP-only cookies, and sanitize user-submitted HTML with DOMPurify.",
+        keyPoints: ["SameSite Strict HTTP-only cookies", "Content Security Policy (CSP) headers", "DOMPurify HTML sanitization"],
+      },
     ],
   },
 ];
 
-export default function InterviewPrep({ onNavigate }: InterviewPrepProps) {
+export default function InterviewPrep({ onNavigate, hasActiveSubscription, onOpenUpgradeModal }: InterviewPrepProps) {
   const [expandedBank, setExpandedBank] = useState<string | null>("Behavioral (STAR Method)");
 
   return (
@@ -128,7 +179,12 @@ export default function InterviewPrep({ onNavigate }: InterviewPrepProps) {
             AI-curated question bank tailored to your Job Description & Resume with model answers.
           </p>
         </div>
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          {!hasActiveSubscription && (
+            <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13, background: "linear-gradient(135deg, #7c3aed, #06b6d4)" }} onClick={onOpenUpgradeModal}>
+              ⚡ Upgrade Plan to Unlock All Questions
+            </button>
+          )}
           <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("mock-interview")}>
             Start Voice Mock Interview →
           </button>
@@ -140,7 +196,9 @@ export default function InterviewPrep({ onNavigate }: InterviewPrepProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>Tailored JD Question Bank</span>
-            <span style={{ fontSize: 12, color: "#06b6d4", fontFamily: "JetBrains Mono" }}>64 Questions Total</span>
+            <span style={{ fontSize: 12, color: "#06b6d4", fontFamily: "JetBrains Mono" }}>
+              {hasActiveSubscription ? "64 Questions Total" : "2 Questions Visible Per Category"}
+            </span>
           </div>
 
           {questionBanks.map((bank) => {
@@ -164,18 +222,27 @@ export default function InterviewPrep({ onNavigate }: InterviewPrepProps) {
                 {isExpanded && (
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "16px 20px" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      {bank.questions.map((item, i) => (
-                        <div key={item.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: 16 }}>
+                      {/* Visible Questions (Q1 & Q2) */}
+                      {bank.questions.slice(0, 2).map((item, i) => (
+                        <div
+                          key={item.id}
+                          style={{
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.06)",
+                            borderRadius: 12,
+                            padding: 16,
+                          }}
+                        >
                           <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
                             <span style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: bank.color, fontWeight: 700, marginTop: 2, flexShrink: 0, background: `${bank.color}15`, padding: "2px 6px", borderRadius: 4 }}>
-                              Q{i + 1}
+                              {"Q" + (i + 1)}
                             </span>
                             <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "white", lineHeight: 1.4 }}>
                               {item.q}
                             </div>
                           </div>
 
-                          {/* Model Answer Box - Directly Visible */}
+                          {/* Model Answer Box */}
                           <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
                             <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "#10b981", marginBottom: 6, fontWeight: 700 }}>
                               ✓ RECOMMENDED MODEL ANSWER:
@@ -197,6 +264,47 @@ export default function InterviewPrep({ onNavigate }: InterviewPrepProps) {
                           </div>
                         </div>
                       ))}
+
+                      {/* Locked Questions (Grouped in ONE single LockedBlurOverlay block) */}
+                      {!hasActiveSubscription && bank.questions.length > 2 && (
+                        <LockedBlurOverlay
+                          isLocked={true}
+                          onOpenUpgradeModal={onOpenUpgradeModal}
+                          customText="to view remaining questions & model answers"
+                        >
+                          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                            {bank.questions.slice(2).map((item, i) => (
+                              <div
+                                key={item.id}
+                                style={{
+                                  background: "rgba(255,255,255,0.02)",
+                                  border: "1px solid rgba(255,255,255,0.06)",
+                                  borderRadius: 12,
+                                  padding: 16,
+                                }}
+                              >
+                                <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
+                                  <span style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: bank.color, fontWeight: 700, marginTop: 2, flexShrink: 0, background: `${bank.color}15`, padding: "2px 6px", borderRadius: 4 }}>
+                                    {"Q" + (i + 3)}
+                                  </span>
+                                  <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "white", lineHeight: 1.4 }}>
+                                    {item.q}
+                                  </div>
+                                </div>
+
+                                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+                                  <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "#10b981", marginBottom: 6, fontWeight: 700 }}>
+                                    ✓ RECOMMENDED MODEL ANSWER:
+                                  </div>
+                                  <div style={{ fontSize: 13, color: "rgba(226,232,240,0.85)", lineHeight: 1.6, marginBottom: 12, background: "rgba(16,185,129,0.04)", padding: 12, borderRadius: 8, border: "1px solid rgba(16,185,129,0.15)" }}>
+                                    {item.answer}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </LockedBlurOverlay>
+                      )}
                     </div>
                   </div>
                 )}

@@ -31,6 +31,7 @@ const adminSections: AdminNavSection[] = [
     label: "Users",
     items: [
       { id: "admin-users", icon: "👥", label: "User Directory" },
+      { id: "admin-support", icon: "🎧", label: "Support Tickets", tag: "TICKETS" },
     ],
   },
   {
@@ -116,7 +117,7 @@ export default function AdminSidebar({
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: 13, color: "white", lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                Super Admin Portal
+                Admin Portal
               </div>
               <div style={{ fontSize: 10, color: "#ec4899", fontFamily: "JetBrains Mono", fontWeight: 700 }}>
 

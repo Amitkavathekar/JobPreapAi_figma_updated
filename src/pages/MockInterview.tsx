@@ -4,6 +4,8 @@ import { Screen } from '../types';
 interface MockInterviewProps {
   onNavigate: (s: Screen) => void;
   onComplete: () => void;
+  hasActiveSubscription?: boolean;
+  onOpenUpgradeModal?: () => void;
 }
 
 export type InterviewType =
@@ -578,6 +580,7 @@ interface ChatMessage {
   readyCard?: boolean;
   nextQuestionCard?: boolean;
   completeCard?: boolean;
+  upgradeCard?: boolean;
   nextQNum?: number;
 }
 
@@ -688,16 +691,6 @@ const jdPresetOptions: JdPresetOption[] = [
   }
 ];
 
-export default function MockInterview({
-  onNavigate,
-  onComplete,
-}: MockInterviewProps) {
-  const [phase, setPhase] = useState<'setup' | 'interview' | 'feedback'>(
-    'setup'
-  );
-
-  const [setupMode, setSetupMode] = useState<'preset' | 'jd-qa'>('preset');
-
 interface ChatgptHistoryItem {
   id: string;
   title: string;
@@ -705,6 +698,18 @@ interface ChatgptHistoryItem {
   messageCount: number;
   messages: { id: string; sender: 'user' | 'bot'; text: string; imageUrl?: string; imageName?: string; time: string }[];
 }
+
+export default function MockInterview({
+  onNavigate,
+  onComplete,
+  hasActiveSubscription,
+  onOpenUpgradeModal,
+}: MockInterviewProps) {
+  const [phase, setPhase] = useState<'setup' | 'interview' | 'feedback'>(
+    'setup'
+  );
+
+  const [setupMode, setSetupMode] = useState<'preset' | 'jd-qa'>('preset');
 
   // State for Mode 2: ChatGPT Chat Assistant with Image Upload support
   const [chatgptInput, setChatgptInput] = useState('');
@@ -977,7 +982,10 @@ interface ChatgptHistoryItem {
       time: nowTime,
     };
 
-    setChatMessages((prev) => [...prev, questionMsg]);
+    setChatMessages((prev) => {
+      const initialSetupCards = prev.filter((m) => m.configCard || m.readyCard || m.id.startsWith('msg-'));
+      return [...initialSetupCards, questionMsg];
+    });
     setChatInterviewActive(true);
     setChatQIndex(0);
   };
@@ -985,6 +993,12 @@ interface ChatgptHistoryItem {
   const handleNextChatQuestion = () => {
     const questionsToUse = (questionSets[selectedType] || questionSets['all-50']).slice(0, targetQuestionCount);
     const nextIdx = chatQIndex + 1;
+
+    if (!hasActiveSubscription && nextIdx >= 2) {
+      onOpenUpgradeModal?.();
+      return;
+    }
+
     setChatQIndex(nextIdx);
     const nextQ = questionsToUse[nextIdx];
     const nowTime = new Date().toLocaleTimeString([], {
@@ -1043,17 +1057,29 @@ interface ChatgptHistoryItem {
 
         if (!isLast) {
           const nextIdx = chatQIndex + 1;
-          setChatQIndex(nextIdx);
-          const nextQ = questionsToUse[nextIdx];
 
-          const nextQMsg: ChatMessage = {
-            id: `bot-auto-q-${Date.now() + 1}`,
-            sender: 'bot',
-            text: `❓ **Question ${nextIdx + 1} of ${questionsToUse.length}** (${selectedOptionInfo?.title}):\n\n"${nextQ.q}"\n\n• **Category**: ${nextQ.category || selectedOptionInfo?.title}\n• **Key Focus**: ${nextQ.hint || 'Detail step-by-step approach and edge cases.'}`,
-            time: nowTime,
-          };
+          if (!hasActiveSubscription && nextIdx >= 2) {
+            const upgradeMsg: ChatMessage = {
+              id: `bot-upgrade-${Date.now() + 1}`,
+              sender: 'bot',
+              text: `🔒 **FREE PRACTICE QUESTION LIMIT REACHED (2 / 2 QUESTIONS)**\n\nYou have completed the 2 free practice questions for this ${questionsToUse.length}-Question Master Interview! Upgrade your subscription plan to unlock Question 3 through ${questionsToUse.length}, full AI evaluation, and voice practice.`,
+              time: nowTime,
+              upgradeCard: true,
+            };
+            setChatMessages((prev) => [...prev, evalMsg, upgradeMsg]);
+          } else {
+            setChatQIndex(nextIdx);
+            const nextQ = questionsToUse[nextIdx];
 
-          setChatMessages((prev) => [...prev, evalMsg, nextQMsg]);
+            const nextQMsg: ChatMessage = {
+              id: `bot-auto-q-${Date.now() + 1}`,
+              sender: 'bot',
+              text: `❓ **Question ${nextIdx + 1} of ${questionsToUse.length}** (${selectedOptionInfo?.title}):\n\n"${nextQ.q}"\n\n• **Category**: ${nextQ.category || selectedOptionInfo?.title}\n• **Key Focus**: ${nextQ.hint || 'Detail step-by-step approach and edge cases.'}`,
+              time: nowTime,
+            };
+
+            setChatMessages((prev) => [...prev, evalMsg, nextQMsg]);
+          }
         } else {
           const completionMsg: ChatMessage = {
             id: `bot-complete-${Date.now() + 1}`,
@@ -1164,7 +1190,7 @@ interface ChatgptHistoryItem {
     return (
       <div
         className="fade-in page-container"
-        style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+        style={{ height: '100%', minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}
       >
         {/* MODE 1: STANDARD PRESET CHATBOT SETUP */}
         {setupMode === 'preset' && (
@@ -1180,7 +1206,7 @@ interface ChatgptHistoryItem {
               boxShadow: '0 10px 40px rgba(7,7,26,0.6)',
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
+              minHeight: 580,
               flex: 1,
             }}
           >
@@ -1767,6 +1793,67 @@ interface ChatgptHistoryItem {
                             </button>
                           </div>
                         )}
+
+                        {/* Upgrade Plan Card in Chat */}
+                        {msg.upgradeCard && (
+                          <div
+                            style={{
+                              marginTop: 14,
+                              padding: 16,
+                              borderRadius: 14,
+                              background:
+                                'linear-gradient(145deg, rgba(124, 58, 237, 0.22), rgba(236, 72, 153, 0.18))',
+                              border: '1px solid rgba(124, 58, 237, 0.45)',
+                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 10,
+                                marginBottom: 8,
+                              }}
+                            >
+                              <span style={{ fontSize: 20 }}>🔒</span>
+                              <span
+                                style={{
+                                  fontSize: 13,
+                                  fontWeight: 700,
+                                  color: '#f472b6',
+                                }}
+                              >
+                                Master Plan Required for Question 3 to {targetQuestionCount}
+                              </span>
+                            </div>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                color: 'rgba(226, 232, 240, 0.85)',
+                                margin: '0 0 14px 0',
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              You answered the 2 free practice questions! Upgrade your membership plan to unlock all {targetQuestionCount} questions, complete AI feedback, and full score analysis.
+                            </p>
+                            <button
+                              type="button"
+                              className="btn-primary"
+                              style={{
+                                padding: '10px 20px',
+                                fontSize: 13,
+                                fontWeight: 700,
+                                background:
+                                  'linear-gradient(135deg, #7c3aed, #ec4899)',
+                                boxShadow: '0 4px 16px rgba(124, 58, 237, 0.5)',
+                                borderRadius: 10,
+                              }}
+                              onClick={onOpenUpgradeModal}
+                            >
+                              ⚡ Unlock to Upgrade Plan →
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1889,7 +1976,7 @@ interface ChatgptHistoryItem {
               boxShadow: '0 10px 40px rgba(7, 7, 26, 0.6)',
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
+              minHeight: 580,
               flex: 1,
             }}
           >
@@ -2487,6 +2574,57 @@ interface ChatgptHistoryItem {
 
   // Phase 2: Live Interview Session
   if (phase === 'interview') {
+    if (!hasActiveSubscription && currentQIndex >= 2) {
+      return (
+        <div className="fade-in page-container" style={{ height: '100%', overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div
+            className="glass-card"
+            style={{
+              maxWidth: 640,
+              width: '100%',
+              padding: '36px',
+              textAlign: 'center',
+              borderRadius: 24,
+              border: '1px solid rgba(124, 58, 237, 0.4)',
+              background: 'linear-gradient(160deg, rgba(15, 15, 42, 0.95), rgba(7, 7, 26, 0.98))',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(124, 58, 237, 0.25)',
+            }}
+          >
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124, 58, 237, 0.2)', border: '1px solid rgba(124, 58, 237, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, margin: '0 auto 18px' }}>
+              🔒
+            </div>
+            <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: '#c4b5fd', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 700 }}>
+              FREE PRACTICE QUESTION LIMIT REACHED (2 / 2)
+            </div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'white', margin: '0 0 12px 0' }}>
+              Upgrade Your <span className="gradient-text">Membership Plan</span>
+            </h2>
+            <p style={{ fontSize: 14, color: 'rgba(148, 163, 184, 0.8)', lineHeight: 1.6, marginBottom: 24 }}>
+              You have answered the first 2 practice questions in Mode 1! Upgrade to a membership plan to unlock all 50+ questions, live AI audio feedback, and full score analysis.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ padding: '12px 24px', fontSize: 14, borderRadius: 12, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}
+                onClick={onOpenUpgradeModal}
+              >
+                ⚡ Upgrade Subscription Plan Now →
+              </button>
+              <button
+                type="button"
+                className="btn-ghost"
+                style={{ padding: '12px 20px', fontSize: 13, borderRadius: 12 }}
+                onClick={() => setPhase('setup')}
+              >
+                ← Back to Mode 1 Setup
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         className="fade-in page-container"

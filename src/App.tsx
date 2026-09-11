@@ -13,6 +13,9 @@ import InterviewPrep from "./pages/InterviewPrep";
 import MockInterview from "./pages/MockInterview";
 import Reports from "./pages/Reports";
 import AdminPanel from "./pages/AdminPanel";
+import UserMembershipModal from "./components/UserMembershipModal";
+import UserSupportModal from "./components/UserSupportModal";
+import { PlanData } from "./components/admin/PlanModal";
 
 // Ordered list of screens that contribute to progress
 const PROGRESS_SCREENS: Screen[] = [
@@ -25,6 +28,95 @@ const PROGRESS_SCREENS: Screen[] = [
   "interview-prep",
   "mock-interview",
   "reports",
+];
+
+const INITIAL_USER_PLANS: PlanData[] = [
+  {
+    id: "plan-monthly",
+    name: "Monthly Starter",
+    duration: "1 Month",
+    months: 1,
+    priceINR: 499,
+    originalPriceINR: 699,
+    mockLimit: "10 Interviews / mo",
+    atsLimit: "25 Resume Scans / mo",
+    aiCredits: 500,
+    status: "Active",
+    subscribersCount: 342,
+    features: [
+      "10 AI Mock Interviews per month",
+      "25 ATS Resume Analysis scans",
+      "Standard AI Feedback & Score",
+      "Basic Access",
+      "Email Support",
+    ],
+  },
+  {
+    id: "plan-quarterly",
+    name: "3-Month Sprint",
+    duration: "3 Months",
+    months: 3,
+    priceINR: 1299,
+    originalPriceINR: 2097,
+    badge: "Save 38%",
+    mockLimit: "35 Interviews / qtr",
+    atsLimit: "75 Resume Scans / qtr",
+    aiCredits: 1800,
+    status: "Active",
+    subscribersCount: 856,
+    features: [
+      "35 AI Mock Interviews (3 Months)",
+      "75 ATS Resume Scans",
+      "Deep Detailed AI Audio/Video Feedback",
+      "Resume PDF Exporter & Editor",
+      "Priority Chat Support",
+    ],
+  },
+  {
+    id: "plan-halfyearly",
+    name: "6-Month Pro Prep",
+    duration: "6 Months",
+    months: 6,
+    priceINR: 2299,
+    originalPriceINR: 4194,
+    badge: "Most Popular",
+    popular: true,
+    mockLimit: "Unlimited Mock Interviews",
+    atsLimit: "Unlimited Resume Scans",
+    aiCredits: 4500,
+    status: "Active",
+    subscribersCount: 1420,
+    features: [
+      "Unlimited AI Mock Interviews",
+      "Unlimited ATS Scans & Resume Tailoring",
+      "Company-Specific Interview Simulations (Google, TCS, Infosys)",
+      "Live Speech Speed & Filler Word AI Analysis",
+      "Export PDF Reports with Custom Branding",
+      "1-on-1 AI Resume Optimization Assistant",
+    ],
+  },
+  {
+    id: "plan-annual",
+    name: "1-Year Career Pass",
+    duration: "1 Year",
+    months: 12,
+    priceINR: 3999,
+    originalPriceINR: 8388,
+    badge: "Best Value (Save 52%)",
+    mockLimit: "Unlimited + VIP Priority",
+    atsLimit: "Unlimited + VIP Priority",
+    aiCredits: 10000,
+    status: "Active",
+    subscribersCount: 680,
+    features: [
+      "All 6-Month Plan Features Included",
+      "VIP Priority Queue for AI Speech Processing",
+      "Unlimited Mock Interviews & Resume Revisions for 365 Days",
+      "Job Application Tracker & Referral Assistant",
+      "Dedicated Placement & Interview Consultation",
+      "Certificate of Job Readiness",
+    ],
+  },
 ];
 
 const defaultUserProfile: UserProfile = {
@@ -65,6 +157,15 @@ export default function App() {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  // Membership & Subscription State
+  const [userSubscription, setUserSubscription] = useState<PlanData | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [isSupportHovered, setIsSupportHovered] = useState(false);
+  const [userPlans] = useState<PlanData[]>(INITIAL_USER_PLANS);
+
+  const hasActiveSubscription = !!userSubscription;
+
   const navigate = (s: Screen) => {
     setScreen(s);
     if (s !== "landing") {
@@ -80,6 +181,7 @@ export default function App() {
     setLoggedIn(false);
     setUserRole(null);
     setShowProfileModal(false);
+    setShowUpgradeModal(false);
     setAuthView("login");
     setScreen("dashboard");
   };
@@ -95,6 +197,10 @@ export default function App() {
       // Popup Complete Profile Form Modal on user login landing on Dashboard!
       setShowProfileModal(true);
     }
+  };
+
+  const handleSubscribe = (plan: PlanData) => {
+    setUserSubscription(plan);
   };
 
   const progress = Math.round((visited.size / PROGRESS_SCREENS.length) * 100);
@@ -184,15 +290,47 @@ export default function App() {
       case "job-resume":
         return <JobResume onNavigate={navigate} onComplete={() => markComplete("job-resume")} />;
       case "ai-analysis":
-        return <AIAnalysis onNavigate={navigate} onComplete={() => markComplete("ai-analysis")} />;
+        return (
+          <AIAnalysis
+            onNavigate={navigate}
+            onComplete={() => markComplete("ai-analysis")}
+            hasActiveSubscription={hasActiveSubscription}
+            onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+          />
+        );
       case "resume-editor":
-        return <ResumeEditor onNavigate={navigate} />;
+        return (
+          <ResumeEditor
+            onNavigate={navigate}
+            hasActiveSubscription={hasActiveSubscription}
+            onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+          />
+        );
       case "ats-analysis":
-        return <ATSAnalysis onNavigate={navigate} />;
+        return (
+          <ATSAnalysis
+            onNavigate={navigate}
+            hasActiveSubscription={hasActiveSubscription}
+            onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+          />
+        );
       case "interview-prep":
-        return <InterviewPrep onNavigate={navigate} />;
+        return (
+          <InterviewPrep
+            onNavigate={navigate}
+            hasActiveSubscription={hasActiveSubscription}
+            onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+          />
+        );
       case "mock-interview":
-        return <MockInterview onNavigate={navigate} onComplete={() => markComplete("mock-interview")} />;
+        return (
+          <MockInterview
+            onNavigate={navigate}
+            onComplete={() => markComplete("mock-interview")}
+            hasActiveSubscription={hasActiveSubscription}
+            onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+          />
+        );
       case "reports":
         return <Reports />;
       default:
@@ -222,6 +360,69 @@ export default function App() {
       className="mesh-bg"
       style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}
     >
+      {/* User Membership Plan Modal */}
+      <UserMembershipModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        plans={userPlans}
+        currentPlanId={userSubscription?.id || null}
+        onSubscribe={handleSubscribe}
+      />
+
+      {/* User Support Query Modal */}
+      <UserSupportModal
+        isOpen={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+        userProfile={userProfile}
+      />
+
+      {/* Non-intrusive Floating Support Trigger Button (Icon only by default, expands text on hover) */}
+      <button
+        onClick={() => setShowSupportModal(true)}
+        onMouseEnter={() => setIsSupportHovered(true)}
+        onMouseLeave={() => setIsSupportHovered(false)}
+        title="Help & Support (Click to raise query)"
+        style={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          zIndex: 900,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          height: 48,
+          minWidth: 48,
+          padding: isSupportHovered ? "0 18px" : "0 12px",
+          borderRadius: 24,
+          background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
+          border: "1px solid rgba(255, 255, 255, 0.25)",
+          color: "white",
+          fontSize: 14,
+          fontWeight: 700,
+          cursor: "pointer",
+          boxShadow: isSupportHovered
+            ? "0 10px 25px rgba(124, 58, 237, 0.6), 0 0 20px rgba(6, 182, 212, 0.4)"
+            : "0 8px 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(124, 58, 237, 0.3)",
+          transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflow: "hidden",
+        }}
+      >
+        <span style={{ fontSize: 20, flexShrink: 0, display: "flex", alignItems: "center" }}>🎧</span>
+        {isSupportHovered && (
+          <span
+            style={{
+              whiteSpace: "nowrap",
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Support
+          </span>
+        )}
+      </button>
+
       {/* Mobile Top Header */}
       <div
         className="mobile-header"
@@ -276,6 +477,10 @@ export default function App() {
           visited={visited}
           profile={userProfile}
           onOpenProfileModal={() => setShowProfileModal(true)}
+          hasActiveSubscription={hasActiveSubscription}
+          userSubscription={userSubscription}
+          onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+          onOpenSupportModal={() => setShowSupportModal(true)}
         />
         <main style={{ flex: 1, overflow: "hidden", position: "relative" }}>
           {renderScreen()}
@@ -284,4 +489,5 @@ export default function App() {
     </div>
   );
 }
+
 

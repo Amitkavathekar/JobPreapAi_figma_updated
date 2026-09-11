@@ -17,6 +17,7 @@ export type AdminScreen =
   | "admin-membership"
   | "admin-coupons"
   | "admin-users"
+  | "admin-support"
   | "admin-ai-models"
   | "admin-settings"
   | "admin-notifications"
@@ -106,6 +107,23 @@ export interface UserProfile {
   created_at: string;
   updated_at: string;
 }
+
+export interface SupportTicket {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  category: "Technical Issue" | "Billing & Payment" | "Resume AI" | "Mock Interview" | "Account & Other";
+  subject: string;
+  description: string;
+  priority: "Low" | "Medium" | "High" | "Urgent";
+  status: "Open" | "In Progress" | "Resolved" | "Closed";
+  createdAt: string;
+  updatedAt: string;
+  adminResponse?: string;
+  responseAt?: string;
+}
+
 
 
 

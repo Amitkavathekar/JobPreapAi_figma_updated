@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Screen } from "../types";
+import LockedBlurOverlay from "../components/LockedBlurOverlay";
 
 interface ATSAnalysisProps {
   onNavigate: (s: Screen) => void;
+  hasActiveSubscription?: boolean;
+  onOpenUpgradeModal?: () => void;
 }
-
 
 const checks = [
   { label: "No tables or columns", pass: true },
@@ -34,7 +36,7 @@ const recommendations = [
   { priority: "Low", text: "Standardize all dates to 'Month YYYY' format (currently mixed with 'MM/YY').", fix: "Normalize" },
 ];
 
-export default function ATSAnalysis({ onNavigate }: ATSAnalysisProps) {
+export default function ATSAnalysis({ onNavigate, hasActiveSubscription, onOpenUpgradeModal }: ATSAnalysisProps) {
   const [score, setScore] = useState(74);
   const [analyzing, setAnalyzing] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -62,20 +64,27 @@ export default function ATSAnalysis({ onNavigate }: ATSAnalysisProps) {
   const ScoreGauge = ({ value }: { value: number }) => {
     const color = value >= 80 ? "#10b981" : value >= 60 ? "#f59e0b" : "#ef4444";
     return (
-      <div style={{ position: "relative", width: 160, height: 160, margin: "0 auto" }}>
-        <svg width="160" height="160" viewBox="0 0 160 160">
-          <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
-          <circle cx="80" cy="80" r="60" fill="none" stroke={color} strokeWidth="14" strokeLinecap="round"
-            strokeDasharray={`${(value / 100) * 376.99} 376.99`}
-            transform="rotate(-90 80 80)"
-            style={{ filter: `drop-shadow(0 0 8px ${color}88)`, transition: "stroke-dasharray 0.8s ease" }}
+      <div style={{ position: "relative", width: 170, height: 170, margin: "0 auto" }}>
+        <svg width="170" height="170" viewBox="0 0 170 170">
+          <circle cx="85" cy="85" r="66" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+          <circle
+            cx="85"
+            cy="85"
+            r="66"
+            fill="none"
+            stroke={color}
+            strokeWidth="14"
+            strokeLinecap="round"
+            strokeDasharray={`${(value / 100) * 414.69} 414.69`}
+            transform="rotate(-90 85 85)"
+            style={{ filter: `drop-shadow(0 0 12px ${color}99)`, transition: "stroke-dasharray 0.8s ease" }}
           />
         </svg>
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ fontSize: 36, fontWeight: 800, color: "white", letterSpacing: "-0.04em" }}>
+          <div style={{ fontSize: 54, fontWeight: 800, color: "white", letterSpacing: "-0.04em", lineHeight: 1 }}>
             {analyzing ? "..." : value}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(148,163,184,0.5)", fontFamily: "JetBrains Mono" }}>
+          <div style={{ fontSize: 11, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono", marginTop: 4, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             {analyzing ? "Scanning..." : "ATS Score"}
           </div>
         </div>
@@ -87,7 +96,7 @@ export default function ATSAnalysis({ onNavigate }: ATSAnalysisProps) {
 
   return (
     <div className="fade-in page-container" style={{ height: "100%", overflowY: "auto" }}>
-      <div className="stack-on-mobile" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, gap: 12 }}>
+      <div className="stack-on-mobile" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>ATS <span className="gradient-text">Analysis</span></h1>
           <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>
@@ -96,6 +105,11 @@ export default function ATSAnalysis({ onNavigate }: ATSAnalysisProps) {
           </p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          {!hasActiveSubscription && (
+            <button className="btn-primary" style={{ padding: "9px 16px", fontSize: 13, background: "linear-gradient(135deg, #7c3aed, #06b6d4)" }} onClick={onOpenUpgradeModal}>
+              ⚡ Upgrade Plan
+            </button>
+          )}
           <button
             className="btn-primary"
             style={{ padding: "9px 16px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}
@@ -111,35 +125,78 @@ export default function ATSAnalysis({ onNavigate }: ATSAnalysisProps) {
       </div>
 
       <div className="grid-responsive-3col" style={{ gap: 16, marginBottom: 20 }}>
-        <div className="glass" style={{ padding: "24px", textAlign: "center" }}>
+        <div className="glass" style={{ padding: "14px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
           <ScoreGauge value={score} />
-          <div style={{ marginTop: 14, fontSize: 16, fontWeight: 700, color: "#f59e0b" }}>Good</div>
-          <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginTop: 4 }}>Above average for SWE roles</div>
+          <div style={{ marginTop: 6, fontSize: 15, fontWeight: 800, color: "#f59e0b" }}>Good Match</div>
+          <div style={{ fontSize: 11, color: "rgba(148,163,184,0.5)", marginTop: 2 }}>Above average for SWE roles</div>
         </div>
 
-        <div className="glass" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 16 }}>Formatting Checks</div>
-          <div style={{ fontSize: 12, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)", marginBottom: 12 }}>{passCount}/{checks.length} passing</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {checks.map((c) => (
-              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 13, color: c.pass ? "#10b981" : "#ef4444", flexShrink: 0 }}>{c.pass ? "✓" : "✗"}</span>
-                <span style={{ fontSize: 12, color: c.pass ? "rgba(226,232,240,0.7)" : "rgba(252,165,165,0.9)" }}>{c.label}</span>
+        <div className="glass" style={{ padding: "14px 18px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>Formatting Checks</span>
+            {!hasActiveSubscription && <span style={{ fontSize: 11, color: "#c4b5fd", fontFamily: "JetBrains Mono" }}>2 Visible</span>}
+          </div>
+          <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)", marginBottom: 8 }}>{passCount}/{checks.length} passing</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            {/* Visible Checks (Top 2) */}
+            {checks.slice(0, 2).map((c) => (
+              <div
+                key={c.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "3px 6px",
+                }}
+              >
+                <span style={{ fontSize: 12, color: c.pass ? "#10b981" : "#ef4444", flexShrink: 0 }}>{c.pass ? "✓" : "✗"}</span>
+                <span style={{ fontSize: 12, color: c.pass ? "rgba(226,232,240,0.7)" : "rgba(252,165,165,0.9)" }}>
+                  {c.label}
+                </span>
                 {!c.pass && c.note && <span style={{ fontSize: 11, color: "rgba(252,165,165,0.5)", fontFamily: "JetBrains Mono" }}>— {c.note}</span>}
               </div>
             ))}
+
+            {/* Locked Checks (Grouped in ONE single LockedBlurOverlay centered in the middle) */}
+            {!hasActiveSubscription && checks.length > 2 && (
+              <LockedBlurOverlay
+                isLocked={true}
+                onOpenUpgradeModal={onOpenUpgradeModal}
+                customText="to view remaining checks"
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "2px 0" }}>
+                  {checks.slice(2).map((c) => (
+                    <div
+                      key={c.label}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "3px 6px",
+                      }}
+                    >
+                      <span style={{ fontSize: 12, color: c.pass ? "#10b981" : "#ef4444", flexShrink: 0 }}>{c.pass ? "✓" : "✗"}</span>
+                      <span style={{ fontSize: 12, color: c.pass ? "rgba(226,232,240,0.7)" : "rgba(252,165,165,0.9)" }}>
+                        {c.label}
+                      </span>
+                      {!c.pass && c.note && <span style={{ fontSize: 11, color: "rgba(252,165,165,0.5)", fontFamily: "JetBrains Mono" }}>— {c.note}</span>}
+                    </div>
+                  ))}
+                </div>
+              </LockedBlurOverlay>
+            )}
           </div>
         </div>
 
-        <div className="glass" style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 16 }}>Keyword Coverage</div>
+        <div className="glass" style={{ padding: "14px 18px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 10 }}>Keyword Coverage</div>
           {keywordCoverage.map((k) => (
-            <div key={k.category} style={{ marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 13, color: "rgba(148,163,184,0.8)" }}>{k.category}</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: k.color, fontFamily: "JetBrains Mono" }}>{k.matched}/{k.total}</span>
+            <div key={k.category} style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <span style={{ fontSize: 12, color: "rgba(148,163,184,0.8)" }}>{k.category}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: k.color, fontFamily: "JetBrains Mono" }}>{k.matched}/{k.total}</span>
               </div>
-              <div className="progress-bar" style={{ height: 6 }}>
+              <div className="progress-bar" style={{ height: 5 }}>
                 <div className="progress-fill" style={{ width: `${(k.matched / k.total) * 100}%`, background: `linear-gradient(90deg, ${k.color}, ${k.color}88)` }} />
               </div>
             </div>

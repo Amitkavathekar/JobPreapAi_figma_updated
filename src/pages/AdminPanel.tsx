@@ -10,6 +10,7 @@ import ActivityLogScreen from "../components/admin/ActivityLogScreen";
 import ConfirmationModal from "../components/admin/ConfirmationModal";
 import EmptyState from "../components/admin/EmptyState";
 import PaymentGatewaysScreen from "../components/admin/future-plan";
+import SupportTicketsScreen from "../components/admin/SupportTicketsScreen";
 
 interface AdminPanelProps {
   onLogout: () => void;
@@ -167,6 +168,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
   const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>(INITIAL_ACTIVITY_LOGS);
 
   // User Directory Filters & Detail View State
+  const [userDirectorySubTab, setUserDirectorySubTab] = useState<"directory" | "tickets">("directory");
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [userPlanFilter, setUserPlanFilter] = useState("All");
   const [userStatusFilter, setUserStatusFilter] = useState("All");
@@ -883,7 +885,52 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
 
           {/* 4. USERS: USER DIRECTORY & USER DETAIL VIEW */}
           {activeAdminScreen === "admin-users" && (
-            <div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* Sub Navigation Bar for Users Section */}
+              {!selectedUserDetail && (
+                <div style={{ display: "flex", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 12 }}>
+                  <button
+                    onClick={() => setUserDirectorySubTab("directory")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      border: "none",
+                      cursor: "pointer",
+                      background: userDirectorySubTab === "directory" ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "rgba(255,255,255,0.05)",
+                      color: userDirectorySubTab === "directory" ? "#ffffff" : "#94a3b8",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <span>👥 Candidate Directory</span>
+                  </button>
+
+                  <button
+                    onClick={() => setUserDirectorySubTab("tickets")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      border: "none",
+                      cursor: "pointer",
+                      background: userDirectorySubTab === "tickets" ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "rgba(255,255,255,0.05)",
+                      color: userDirectorySubTab === "tickets" ? "#ffffff" : "#94a3b8",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <span>🎫 Support Tickets & Queries</span>
+                  </button>
+                </div>
+              )}
+
               {selectedUserDetail ? (
                 <UserDetailView
                   user={selectedUserDetail}
@@ -904,6 +951,8 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                     addAuditLog(`Reset password for ${usr.name}`, usr.id, "User Action");
                   }}
                 />
+              ) : userDirectorySubTab === "tickets" ? (
+                <SupportTicketsScreen />
               ) : (
                 <div className="glass-card" style={{ padding: 22 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
@@ -1090,6 +1139,11 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                 </div>
               )}
             </div>
+          )}
+
+          {/* 4.5 USERS: STANDALONE SUPPORT TICKETS SCREEN */}
+          {activeAdminScreen === "admin-support" && (
+            <SupportTicketsScreen />
           )}
 
           {/* 5. SYSTEM: AI TOKENS & MODELS */}

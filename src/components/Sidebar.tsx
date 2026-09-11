@@ -59,9 +59,27 @@ interface SidebarProps {
     avatar_url?: string;
   };
   onOpenProfileModal?: () => void;
+  hasActiveSubscription?: boolean;
+  userSubscription?: any;
+  onOpenUpgradeModal?: () => void;
+  onOpenSupportModal?: () => void;
 }
 
-export default function Sidebar({ active, onNavigate, onLogout, isOpen, onToggle, progress, visited, profile, onOpenProfileModal }: SidebarProps) {
+export default function Sidebar({
+  active,
+  onNavigate,
+  onLogout,
+  isOpen,
+  onToggle,
+  progress,
+  visited,
+  profile,
+  onOpenProfileModal,
+  hasActiveSubscription,
+  userSubscription,
+  onOpenUpgradeModal,
+  onOpenSupportModal,
+}: SidebarProps) {
   const width = isOpen ? 228 : 60;
   const displayName = profile?.full_name || "Arjun Kumar";
   const displayEmail = profile?.email || "arjun@email.com";
@@ -401,8 +419,58 @@ export default function Sidebar({ active, onNavigate, onLogout, isOpen, onToggle
         })}
       </div>
 
-      {/* User footer */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12, marginTop: 8 }}>
+      {/* Footer / Support & Sign Out */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 10, marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+        {onOpenSupportModal && (
+          isOpen ? (
+            <button
+              className="btn-ghost"
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                fontSize: 12,
+                textAlign: "left",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#38bdf8",
+                background: "rgba(6, 182, 212, 0.1)",
+                border: "1px solid rgba(6, 182, 212, 0.2)",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+              onClick={onOpenSupportModal}
+            >
+              <span>🎧</span>
+              <span>Help & Support</span>
+            </button>
+          ) : (
+            <button
+              className="btn-ghost"
+              style={{
+                width: 36,
+                height: 36,
+                padding: 0,
+                fontSize: 15,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto",
+                color: "#38bdf8",
+                background: "rgba(6, 182, 212, 0.1)",
+                border: "1px solid rgba(6, 182, 212, 0.2)",
+                borderRadius: 8,
+                cursor: "pointer",
+              }}
+              title="Help & Support"
+              onClick={onOpenSupportModal}
+            >
+              🎧
+            </button>
+          )
+        )}
+
         {isOpen ? (
           <button className="btn-ghost" style={{ width: "100%", padding: "9px 14px", fontSize: 13, textAlign: "left" }} onClick={onLogout}>
             ⎋ Sign Out

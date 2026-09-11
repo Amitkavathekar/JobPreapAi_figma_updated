@@ -1,10 +1,24 @@
 import { useState } from "react";
 import { Screen } from "../types";
 import { resumeSections } from "./AIAnalysis";
+import LockedBlurOverlay from "../components/LockedBlurOverlay";
 
 interface ResumeEditorProps {
   onNavigate: (s: Screen) => void;
+  hasActiveSubscription?: boolean;
+  onOpenUpgradeModal?: () => void;
 }
+
+const formatChecks = [
+  { label: "No tables or complex grid columns", pass: true },
+  { label: "Standard ATS fonts (Arial, Calibri, Helvetica)", pass: true },
+  { label: "Consistent date format (MM/YYYY)", pass: true, note: "Contains minor variations" },
+  { label: "No images or graphics in document body", pass: true },
+  { label: "Contact info present in main body block", pass: false, note: "Phone number is inside header margin" },
+  { label: "No special bullet symbols in section headers", pass: false, note: "bullet character detected in section title" },
+  { label: "File size under 1MB limit", pass: true },
+  { label: "UTF-8 standard text encoding", pass: true },
+];
 
 const initialSuggestions = [
   {
@@ -51,7 +65,7 @@ interface Suggestion {
   impact: string;
 }
 
-export default function ResumeEditor({ onNavigate }: ResumeEditorProps) {
+export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpenUpgradeModal }: ResumeEditorProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initialSuggestions);
   const [editorSections, setEditorSections] = useState(resumeSections);
   const [editing, setEditing] = useState<number | null>(null);
@@ -59,6 +73,7 @@ export default function ResumeEditor({ onNavigate }: ResumeEditorProps) {
   const [version, setVersion] = useState(7);
   const [saved, setSaved] = useState(false);
   const [exportFormat, setExportFormat] = useState<"pdf" | "docx" | "txt">("pdf");
+  const [showAtsSlidebar, setShowAtsSlidebar] = useState(true);
 
   const applySuggestionsToSections = (currentSuggestions: Suggestion[]) => {
     let updatedSecs = resumeSections.map((sec) => ({ ...sec }));
@@ -406,68 +421,84 @@ export default function ResumeEditor({ onNavigate }: ResumeEditorProps) {
         {/* LEFT — Resume Editor content */}
         <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 16, paddingRight: 4 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {suggestions.map((s) => {
+            {suggestions.map((s, idx) => {
+              const isLocked = !hasActiveSubscription && idx >= 2;
               const statusStyle =
                 s.status === "accepted" ? { borderColor: "rgba(16,185,129,0.35)", background: "rgba(16,185,129,0.05)" }
                 : s.status === "rejected" ? { borderColor: "rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.04)", opacity: 0.65 }
                 : {};
 
               return (
-                <div key={s.id} className="glass" style={{ padding: "20px 22px", transition: "all 0.2s", ...statusStyle }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <span className="tag tag-purple">{s.section}</span>
-                      <span className={`tag ${s.impact === "high" ? "tag-green" : "tag-amber"}`}>{s.impact} impact</span>
-                      <span className="tag tag-cyan">{s.type}</span>
+                <LockedBlurOverlay
+                  key={s.id}
+                  isLocked={isLocked}
+                  onOpenUpgradeModal={onOpenUpgradeModal}
+                  title="Unlock Resume AI Suggestion"
+                  subtitle="Upgrade plan to apply high-impact bullet optimizations & ATS keywords"
+                >
+                  <div
+                    className="glass"
+                    style={{
+                      padding: "20px 22px",
+                      transition: "all 0.2s",
+                      ...statusStyle,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <span className="tag tag-purple">{s.section}</span>
+                        <span className={`tag ${s.impact === "high" ? "tag-green" : "tag-amber"}`}>{s.impact} impact</span>
+                        <span className="tag tag-cyan">{s.type}</span>
+                      </div>
+                      {s.status !== "pending" && (
+                        <span className={`tag ${s.status === "accepted" ? "tag-green" : "tag-red"}`}>
+                          {s.status === "accepted" ? "✓ Accepted & Applied to Resume" : "✗ Rejected"}
+                        </span>
+                      )}
                     </div>
-                    {s.status !== "pending" && (
-                      <span className={`tag ${s.status === "accepted" ? "tag-green" : "tag-red"}`}>
-                        {s.status === "accepted" ? "✓ Accepted & Applied to Resume" : "✗ Rejected"}
-                      </span>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+                      <div style={{ padding: "12px 14px", borderRadius: 10, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                        <div style={{ fontSize: 11, color: "rgba(239,68,68,0.7)", fontFamily: "JetBrains Mono", marginBottom: 6 }}>BEFORE</div>
+                        <div style={{ fontSize: 13, color: "rgba(226,232,240,0.7)", lineHeight: 1.5 }}>{s.original}</div>
+                      </div>
+                      <div style={{ padding: "12px 14px", borderRadius: 10, background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                        <div style={{ fontSize: 11, color: "rgba(16,185,129,0.7)", fontFamily: "JetBrains Mono", marginBottom: 6 }}>AI SUGGESTION</div>
+                        {editing === s.id ? (
+                          <textarea
+                            className="glass-textarea"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={3}
+                            style={{ fontSize: 13, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(124,58,237,0.4)" }}
+                          />
+                        ) : (
+                          <div style={{ fontSize: 13, color: "rgba(226,232,240,0.85)", lineHeight: 1.5 }}>{s.suggested}</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {!isLocked && s.status === "pending" && (
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {editing === s.id ? (
+                          <>
+                            <button className="btn-primary" style={{ padding: "7px 16px", fontSize: 13 }} onClick={() => saveEdit(s.id)}>Save Edit & Accept</button>
+                            <button className="btn-ghost" style={{ padding: "7px 16px", fontSize: 13 }} onClick={() => setEditing(null)}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="btn-primary" style={{ padding: "7px 16px", fontSize: 13, background: "linear-gradient(135deg, #10b981, #059669)" }} onClick={() => updateStatus(s.id, "accepted")}>✓ Accept</button>
+                            <button className="btn-ghost" style={{ padding: "7px 16px", fontSize: 13, borderColor: "rgba(239,68,68,0.4)", color: "#fca5a5" }} onClick={() => updateStatus(s.id, "rejected")}>✗ Reject</button>
+                            <button className="btn-ghost" style={{ padding: "7px 16px", fontSize: 13 }} onClick={() => startEdit(s)}>✎ Edit</button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {!isLocked && s.status !== "pending" && (
+                      <button className="btn-ghost" style={{ padding: "6px 14px", fontSize: 12 }} onClick={() => updateStatus(s.id, "pending")}>Undo</button>
                     )}
                   </div>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-                    <div style={{ padding: "12px 14px", borderRadius: 10, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                      <div style={{ fontSize: 11, color: "rgba(239,68,68,0.7)", fontFamily: "JetBrains Mono", marginBottom: 6 }}>BEFORE</div>
-                      <div style={{ fontSize: 13, color: "rgba(226,232,240,0.7)", lineHeight: 1.5 }}>{s.original}</div>
-                    </div>
-                    <div style={{ padding: "12px 14px", borderRadius: 10, background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                      <div style={{ fontSize: 11, color: "rgba(16,185,129,0.7)", fontFamily: "JetBrains Mono", marginBottom: 6 }}>AI SUGGESTION</div>
-                      {editing === s.id ? (
-                        <textarea
-                          className="glass-textarea"
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          rows={3}
-                          style={{ fontSize: 13, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(124,58,237,0.4)" }}
-                        />
-                      ) : (
-                        <div style={{ fontSize: 13, color: "rgba(226,232,240,0.85)", lineHeight: 1.5 }}>{s.suggested}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  {s.status === "pending" && (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      {editing === s.id ? (
-                        <>
-                          <button className="btn-primary" style={{ padding: "7px 16px", fontSize: 13 }} onClick={() => saveEdit(s.id)}>Save Edit & Accept</button>
-                          <button className="btn-ghost" style={{ padding: "7px 16px", fontSize: 13 }} onClick={() => setEditing(null)}>Cancel</button>
-                        </>
-                      ) : (
-                        <>
-                          <button className="btn-primary" style={{ padding: "7px 16px", fontSize: 13, background: "linear-gradient(135deg, #10b981, #059669)" }} onClick={() => updateStatus(s.id, "accepted")}>✓ Accept</button>
-                          <button className="btn-ghost" style={{ padding: "7px 16px", fontSize: 13, borderColor: "rgba(239,68,68,0.4)", color: "#fca5a5" }} onClick={() => updateStatus(s.id, "rejected")}>✗ Reject</button>
-                          <button className="btn-ghost" style={{ padding: "7px 16px", fontSize: 13 }} onClick={() => startEdit(s)}>✎ Edit</button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                  {s.status !== "pending" && (
-                    <button className="btn-ghost" style={{ padding: "6px 14px", fontSize: 12 }} onClick={() => updateStatus(s.id, "pending")}>Undo</button>
-                  )}
-                </div>
+                </LockedBlurOverlay>
               );
             })}
           </div>

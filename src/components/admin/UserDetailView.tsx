@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { AdminUser } from "../../types";
+import React, { useState, useEffect } from "react";
+import { AdminUser, SupportTicket } from "../../types";
+import { getStoredTickets, updateTicketStatus } from "../../services/supportTickets";
 
 interface UserDetailViewProps {
   user: AdminUser;
@@ -23,6 +24,31 @@ export default function UserDetailView({
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [selectedNewPlan, setSelectedNewPlan] = useState(user.plan);
   const [refundAmount, setRefundAmount] = useState(user.spent.replace(/[^0-9]/g, "") || "499");
+
+  // Load candidate's real tickets
+  const [userTickets, setUserTickets] = useState<SupportTicket[]>([]);
+
+  const reloadTickets = () => {
+    const all = getStoredTickets();
+    const filtered = all.filter(
+      (t) =>
+        t.userId === user.id ||
+        t.userEmail.toLowerCase() === user.email.toLowerCase()
+    );
+    setUserTickets(filtered);
+  };
+
+  useEffect(() => {
+    reloadTickets();
+    const handleUpdate = () => reloadTickets();
+    window.addEventListener("support_tickets_updated", handleUpdate);
+    return () => window.removeEventListener("support_tickets_updated", handleUpdate);
+  }, [user.id, user.email]);
+
+  const handleMarkResolved = (tId: string) => {
+    updateTicketStatus(tId, "Resolved", "Marked as resolved by Admin from Candidate Detail View");
+    reloadTickets();
+  };
 
   // Mock sub data
   const paymentHistory = [
@@ -344,22 +370,94 @@ export default function UserDetailView({
       {/* 4. SUPPORT TICKETS TAB */}
       {activeTab === "tickets" && (
         <div className="glass-card" style={{ padding: 22 }}>
-          <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white" }}>Support Tickets History</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {supportTickets.map((t) => (
-              <div key={t.id} style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <span style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "#06b6d4" }}>{t.id}</span>
-                  <div style={{ fontWeight: 600, color: "white", fontSize: 13, marginTop: 2 }}>{t.subject}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
-                    {t.status}
-                  </span>
-                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>{t.date}</div>
-                </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <h3 style={{ margin: 0, fontSize: 16, color: "white" }}>Support Queries & Tickets ({userTickets.length})</h3>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {userTickets.length === 0 ? (
+              <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+                No support tickets filed by {user.name} yet.
               </div>
-            ))}
+            ) : (
+              userTickets.map((t) => (
+                <div
+                  key={t.id}
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    padding: 14,
+                    borderRadius: 10,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "#ec4899", fontWeight: 700 }}>
+                          {t.id}
+                        </span>
+                        <span style={{ fontSize: 11, padding: "2px 6px", borderRadius: 4, background: "rgba(255,255,255,0.06)", color: "#cbd5e1" }}>
+                          {t.category}
+                        </span>
+                      </div>
+                      <div style={{ fontWeight: 700, color: "white", fontSize: 14, marginTop: 4 }}>
+                        {t.subject}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          padding: "3px 10px",
+                          borderRadius: 20,
+                          fontWeight: 700,
+                          background: t.status === "Resolved" ? "rgba(16,185,129,0.15)" : t.status === "In Progress" ? "rgba(6,182,212,0.15)" : "rgba(245,158,11,0.15)",
+                          color: t.status === "Resolved" ? "#34d399" : t.status === "In Progress" ? "#38bdf8" : "#fbbf24",
+                        }}
+                      >
+                        {t.status === "Resolved" ? "✓ Resolved" : t.status}
+                      </span>
+
+                      {t.status !== "Resolved" && (
+                        <button
+                          onClick={() => handleMarkResolved(t.id)}
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: 6,
+                            fontSize: 11,
+                            fontWeight: 700,
+                            background: "rgba(16, 185, 129, 0.2)",
+                            border: "1px solid rgba(16, 185, 129, 0.4)",
+                            color: "#34d399",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Mark Resolved
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.5, background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6 }}>
+                    {t.description}
+                  </div>
+
+                  {t.adminResponse && (
+                    <div style={{ fontSize: 12, color: "#f472b6", background: "rgba(236,72,153,0.1)", padding: 8, borderRadius: 6, border: "1px solid rgba(236,72,153,0.2)" }}>
+                      <strong>Admin Reply: </strong>{t.adminResponse}
+                    </div>
+                  )}
+
+                  <div style={{ fontSize: 10, color: "#64748b" }}>
+                    Submitted on {new Date(t.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
