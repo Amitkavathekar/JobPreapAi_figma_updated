@@ -162,7 +162,7 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
             style={{ padding: "11px 28px", fontSize: 14 }}
             onClick={handleValidate}
           >
-            Step 1: Validate Data & Proceed to AI Analysis →
+            Step 2: Validate Data & Proceed to AI Analysis →
           </button>
         </div>
       )}
@@ -190,7 +190,7 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
           </div>
           <div style={{ marginTop: 20, display: "flex", justifyContent: "flex-end" }}>
             <button className="btn-primary" style={{ padding: "10px 22px", fontSize: 14 }} onClick={() => onNavigate("ai-analysis")}>
-              Run AI Analysis →
+              Step 1: Validate Data & Proceed to AI Analysis →
             </button>
           </div>
         </div>

@@ -157,10 +157,10 @@ export default function ATSAnalysis({ onNavigate, hasActiveSubscription, onOpenU
               </div>
             ))}
 
-            {/* Locked Checks (Grouped in ONE single LockedBlurOverlay centered in the middle) */}
-            {!hasActiveSubscription && checks.length > 2 && (
+            {/* Locked/Unlocked Checks */}
+            {checks.length > 2 && (
               <LockedBlurOverlay
-                isLocked={true}
+                isLocked={!hasActiveSubscription}
                 onOpenUpgradeModal={onOpenUpgradeModal}
                 customText="to view remaining checks"
               >

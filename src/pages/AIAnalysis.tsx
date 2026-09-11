@@ -257,7 +257,7 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
             </button>
           )}
           <button className="btn-ghost" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("job-resume")}>← Re-upload</button>
-          <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("resume-editor")}>Step 2: Apply Suggestions →</button>
+          <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("resume-editor")}>Step 3: Apply Suggestions →</button>
         </div>
       </div>
 
@@ -312,25 +312,23 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
                     </div>
                   ))}
 
-                  {/* Locked Remaining Points (Grouped in ONE single LockedBlurOverlay) */}
-                  {!hasActiveSubscription && (
-                    <LockedBlurOverlay
-                      isLocked={true}
-                      onOpenUpgradeModal={onOpenUpgradeModal}
-                      customText="to view remaining points"
-                    >
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {["Agile methodology match: 5+ years in scrum teams", "GraphQL API design experience mentioned prominently"].map((item, i) => (
-                          <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
-                            <span style={{ color: "#10b981", fontSize: 14, marginTop: 1 }}>✓</span>
-                            <span style={{ fontSize: 13, color: "rgba(226,232,240,0.85)" }}>
-                              {item}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </LockedBlurOverlay>
-                  )}
+                  {/* Locked/Unlocked Remaining Points */}
+                  <LockedBlurOverlay
+                    isLocked={!hasActiveSubscription}
+                    onOpenUpgradeModal={onOpenUpgradeModal}
+                    customText="to view remaining points"
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {["Agile methodology match: 5+ years in scrum teams", "GraphQL API design experience mentioned prominently"].map((item, i) => (
+                        <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
+                          <span style={{ color: "#10b981", fontSize: 14, marginTop: 1 }}>✓</span>
+                          <span style={{ fontSize: 13, color: "rgba(226,232,240,0.85)" }}>
+                            {item}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </LockedBlurOverlay>
                 </div>
               </div>
             </div>
@@ -360,10 +358,10 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
                       </span>
                     ))}
 
-                    {/* Locked Keywords (Grouped in ONE single LockedBlurOverlay block) */}
-                    {!hasActiveSubscription && section.items.length > 2 && (
+                    {/* Locked/Unlocked Keywords */}
+                    {section.items.length > 2 && (
                       <LockedBlurOverlay
-                        isLocked={true}
+                        isLocked={!hasActiveSubscription}
                         onOpenUpgradeModal={onOpenUpgradeModal}
                         customText="to view remaining keywords"
                         style={{ display: "inline-flex" }}
@@ -425,10 +423,10 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
                 );
               })}
 
-              {/* Locked Gaps (Grouped in ONE single LockedBlurOverlay block) */}
-              {!hasActiveSubscription && gaps.length > 2 && (
+              {/* Locked/Unlocked Gaps */}
+              {gaps.length > 2 && (
                 <LockedBlurOverlay
-                  isLocked={true}
+                  isLocked={!hasActiveSubscription}
                   onOpenUpgradeModal={onOpenUpgradeModal}
                   customText="to view remaining skill gaps & recommendations"
                 >
@@ -545,10 +543,10 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
                 );
               })}
 
-              {/* Locked Suggestions (Grouped in ONE single LockedBlurOverlay block) */}
-              {!hasActiveSubscription && suggestions.length > 2 && (
+              {/* Locked/Unlocked Suggestions */}
+              {suggestions.length > 2 && (
                 <LockedBlurOverlay
-                  isLocked={true}
+                  isLocked={!hasActiveSubscription}
                   onOpenUpgradeModal={onOpenUpgradeModal}
                   customText="to view remaining AI suggestions"
                 >
@@ -582,12 +580,12 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
 
         {/* RIGHT — Resume preview */}
         <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", height: "100%" }}>
-          <div style={{ padding: "16px 20px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 2 }}>Resume Preview</div>
-              <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)" }}>Arjun_Kumar_Resume_v7.pdf</div>
+          <div style={{ padding: "16px 20px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "white", letterSpacing: "-0.01em" }}>Resume Preview</div>
+              <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.5)", marginTop: 2 }}>Arjun_Kumar_Resume_v7.pdf</div>
             </div>
-            <span className="tag tag-purple" style={{ fontSize: 10, cursor: "default" }} title="Click any text in preview to edit directly">
+            <span className="tag tag-purple" style={{ position: "absolute", right: 20, fontSize: 10, cursor: "default" }} title="Click any text in preview to edit directly">
               ✎ Click text to edit
             </span>
           </div>

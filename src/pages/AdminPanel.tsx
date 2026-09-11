@@ -614,6 +614,10 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                             <stop offset="0%" stopColor="#a855f7" />
                             <stop offset="100%" stopColor="#7e22ce" />
                           </linearGradient>
+                          <linearGradient id="grad-paylater" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#f59e0b" />
+                            <stop offset="100%" stopColor="#d97706" />
+                          </linearGradient>
                         </defs>
                         {/* Background track */}
                         <circle cx="70" cy="70" r="50" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
@@ -654,7 +658,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                           strokeDashoffset="-270.18"
                           style={{ transition: "all 0.5s ease" }}
                         />
-                        {/* 4. Wallets & EMI (5%) */}
+                        {/* 4. Digital Wallets (3%) */}
                         <circle
                           cx="70"
                           cy="70"
@@ -662,8 +666,20 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                           fill="transparent"
                           stroke="url(#grad-wallets)"
                           strokeWidth="18"
-                          strokeDasharray="15.71 298.45"
+                          strokeDasharray="9.42 304.74"
                           strokeDashoffset="-298.45"
+                          style={{ transition: "all 0.5s ease" }}
+                        />
+                        {/* 5. Pay Later (2%) */}
+                        <circle
+                          cx="70"
+                          cy="70"
+                          r="50"
+                          fill="transparent"
+                          stroke="url(#grad-paylater)"
+                          strokeWidth="18"
+                          strokeDasharray="6.28 307.88"
+                          strokeDashoffset="-307.87"
                           style={{ transition: "all 0.5s ease" }}
                         />
                       </svg>
@@ -685,12 +701,12 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                     </div>
 
                     {/* Breakdown List Legend */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                       {/* Item 1 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                           <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#34d399" }}></span>
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#34d399" }}></span>
                             UPI (GPay / PhonePe / Paytm)
                           </span>
                           <span style={{ color: "#34d399", fontWeight: 700, fontFamily: "JetBrains Mono" }}>64% (₹46.46L)</span>
@@ -701,10 +717,10 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                       </div>
 
                       {/* Item 2 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                           <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ec4899" }}></span>
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#ec4899" }}></span>
                             Credit & Debit Cards
                           </span>
                           <span style={{ color: "#f472b6", fontWeight: 700, fontFamily: "JetBrains Mono" }}>22% (₹15.97L)</span>
@@ -715,10 +731,10 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                       </div>
 
                       {/* Item 3 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                           <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#38bdf8" }}></span>
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#38bdf8" }}></span>
                             Net Banking (SBI / HDFC / ICICI)
                           </span>
                           <span style={{ color: "#38bdf8", fontWeight: 700, fontFamily: "JetBrains Mono" }}>9% (₹6.53L)</span>
@@ -728,17 +744,31 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                         </div>
                       </div>
 
-                      {/* Item 4 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                      {/* Item 4 - Wallets */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                           <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#a855f7" }}></span>
-                            Wallets & No-Cost EMI
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#a855f7" }}></span>
+                            Wallets (Paytm / Mobikwik / Amazon)
                           </span>
-                          <span style={{ color: "#c084fc", fontWeight: 700, fontFamily: "JetBrains Mono" }}>5% (₹3.63L)</span>
+                          <span style={{ color: "#c084fc", fontWeight: 700, fontFamily: "JetBrains Mono" }}>3% (₹2.18L)</span>
                         </div>
                         <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ width: "5%", height: "100%", background: "linear-gradient(90deg, #a855f7, #7e22ce)", borderRadius: 4 }}></div>
+                          <div style={{ width: "3%", height: "100%", background: "linear-gradient(90deg, #a855f7, #7e22ce)", borderRadius: 4 }}></div>
+                        </div>
+                      </div>
+
+                      {/* Item 5 - Pay Later */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#f59e0b" }}></span>
+                            Pay Later (LazyPay / Simpl / FlexiPay)
+                          </span>
+                          <span style={{ color: "#fbbf24", fontWeight: 700, fontFamily: "JetBrains Mono" }}>2% (₹1.45L)</span>
+                        </div>
+                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ width: "2%", height: "100%", background: "linear-gradient(90deg, #f59e0b, #d97706)", borderRadius: 4 }}></div>
                         </div>
                       </div>
                     </div>

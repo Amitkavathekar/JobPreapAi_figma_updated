@@ -135,11 +135,11 @@ export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpen
         <head><meta charset='utf-8'><title>${fileName}</title></head>
         <body style="font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #111827; padding: 20px;">
           ${editorSections
-            .map(
-              (sec) =>
-                `<h2 style="color: #4f46e5; border-bottom: 2px solid #6366f1; padding-bottom: 4px; margin-top: 18px; margin-bottom: 8px;">${sec.title}</h2><p style="white-space: pre-wrap; margin-bottom: 12px;">${sec.content}</p>`
-            )
-            .join("")}
+          .map(
+            (sec) =>
+              `<h2 style="color: #4f46e5; border-bottom: 2px solid #6366f1; padding-bottom: 4px; margin-top: 18px; margin-bottom: 8px;">${sec.title}</h2><p style="white-space: pre-wrap; margin-bottom: 12px;">${sec.content}</p>`
+          )
+          .join("")}
         </body>
         </html>
       `;
@@ -169,12 +169,12 @@ export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpen
           </head>
           <body>
             ${editorSections
-              .map((sec) =>
-                sec.isHeader
-                  ? `<h1>${sec.title}</h1><div class="sub-header">${sec.content}</div>`
-                  : `<div class="section-title">${sec.title}</div><div class="section-content">${sec.content}</div>`
-              )
-              .join("")}
+            .map((sec) =>
+              sec.isHeader
+                ? `<h1>${sec.title}</h1><div class="sub-header">${sec.content}</div>`
+                : `<div class="section-title">${sec.title}</div><div class="section-content">${sec.content}</div>`
+            )
+            .join("")}
             <script>
               window.onload = function() { window.print(); }
             </script>
@@ -226,8 +226,8 @@ export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpen
           <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>Review AI recommendations on the left and accept to edit your live resume on the right.</p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("ats-analysis")}>Step 3: Check ATS Score →</button>
-          
+          <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("ats-analysis")}>Step 4: Check ATS Score →</button>
+
           {/* Custom Glassmorphic Split Dropdown for Save & Download */}
           <div style={{ position: "relative" }}>
             <div
@@ -425,8 +425,8 @@ export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpen
               const isLocked = !hasActiveSubscription && idx >= 2;
               const statusStyle =
                 s.status === "accepted" ? { borderColor: "rgba(16,185,129,0.35)", background: "rgba(16,185,129,0.05)" }
-                : s.status === "rejected" ? { borderColor: "rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.04)", opacity: 0.65 }
-                : {};
+                  : s.status === "rejected" ? { borderColor: "rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.04)", opacity: 0.65 }
+                    : {};
 
               return (
                 <LockedBlurOverlay
@@ -506,12 +506,12 @@ export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpen
 
         {/* RIGHT — Resume preview (50% width) */}
         <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 2 }}>Resume Preview</div>
-              <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)" }}>Arjun_Kumar_Resume_v7.pdf</div>
+          <div style={{ padding: "16px 20px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "white", letterSpacing: "-0.01em" }}>Resume Preview</div>
+              <div style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.5)", marginTop: 2 }}>Arjun_Kumar_Resume_v7.pdf</div>
             </div>
-            <span className="tag tag-green" style={{ fontSize: 10, cursor: "default" }}>
+            <span className="tag tag-green" style={{ position: "absolute", right: 20, fontSize: 10, cursor: "default" }}>
               ✓ Live Updated
             </span>
           </div>

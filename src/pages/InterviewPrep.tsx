@@ -265,10 +265,10 @@ export default function InterviewPrep({ onNavigate, hasActiveSubscription, onOpe
                         </div>
                       ))}
 
-                      {/* Locked Questions (Grouped in ONE single LockedBlurOverlay block) */}
-                      {!hasActiveSubscription && bank.questions.length > 2 && (
+                      {/* Locked/Unlocked Questions */}
+                      {bank.questions.length > 2 && (
                         <LockedBlurOverlay
-                          isLocked={true}
+                          isLocked={!hasActiveSubscription}
                           onOpenUpgradeModal={onOpenUpgradeModal}
                           customText="to view remaining questions & model answers"
                         >
