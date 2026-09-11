@@ -85,7 +85,7 @@ export default function Sidebar({
   const width = isOpen ? 228 : 60;
   const displayName = profile?.full_name || "Arjun Kumar";
   const displayEmail = profile?.email || "arjun@email.com";
-  
+
   const getInitials = (name: string) => {
     const parts = name.trim().split(" ");
     if (parts.length >= 2) {
@@ -173,10 +173,10 @@ export default function Sidebar({
               (visited.has("ats-analysis")
                 ? 4
                 : visited.has("resume-editor")
-                ? 3
-                : visited.has("ai-analysis")
-                ? 2
-                : 1);
+                  ? 3
+                  : visited.has("ai-analysis")
+                    ? 2
+                    : 1);
             const currentStepProgress = Math.round((currentStepNum / 4) * 100);
 
             return (
@@ -241,9 +241,8 @@ export default function Sidebar({
                       return (
                         <div
                           key={item.id}
-                          className={`nav-item${
-                            active === item.id ? " active" : ""
-                          }`}
+                          className={`nav-item${active === item.id ? " active" : ""
+                            }`}
                           style={{
                             justifyContent: isOpen ? "flex-start" : "center",
                             padding: isOpen ? "8px 12px" : "8px 0",
@@ -330,10 +329,10 @@ export default function Sidebar({
                         stepNum === 1
                           ? "job-resume"
                           : stepNum === 2
-                          ? "ai-analysis"
-                          : stepNum === 3
-                          ? "resume-editor"
-                          : "ats-analysis"
+                            ? "ai-analysis"
+                            : stepNum === 3
+                              ? "resume-editor"
+                              : "ats-analysis"
                       ) as Screen;
                       const isCompleted = stepNum < currentStepNum;
                       const isActive = stepNum === currentStepNum;

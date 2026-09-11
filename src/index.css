@@ -17,7 +17,9 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -160,10 +162,23 @@ button[disabled],
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.4); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.6); }
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.6);
+}
 
 /* Progress bars */
 .progress-bar {
@@ -224,36 +239,89 @@ button[disabled],
   font-family: 'JetBrains Mono', monospace;
 }
 
-.tag-purple { background: rgba(124, 58, 237, 0.25); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.3); }
-.tag-cyan { background: rgba(6, 182, 212, 0.2); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); }
-.tag-green { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
-.tag-amber { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
-.tag-red { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+.tag-purple {
+  background: rgba(124, 58, 237, 0.25);
+  color: #c4b5fd;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+.tag-cyan {
+  background: rgba(6, 182, 212, 0.2);
+  color: #67e8f9;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.tag-green {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.tag-amber {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.tag-red {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
 
 /* Divider */
-.glass-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0; }
+.glass-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 0;
+}
 
 /* Animation */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.fade-in { animation: fadeInUp 0.35s ease forwards; }
+.fade-in {
+  animation: fadeInUp 0.35s ease forwards;
+}
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
+  }
 }
 
-.pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.spin-slow { animation: spin-slow 3s linear infinite; }
+.spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
 
 /* Textarea */
 .glass-textarea {
@@ -275,7 +343,9 @@ button[disabled],
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
-.glass-textarea::placeholder { color: rgba(148, 163, 184, 0.5); }
+.glass-textarea::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+}
 
 /* Select */
 .glass-select {
@@ -298,7 +368,9 @@ button[disabled],
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
-.glass-select option { background: #1a1a3e; }
+.glass-select option {
+  background: #1a1a3e;
+}
 
 /* Editable resume preview text styling */
 .editable-text {
@@ -370,6 +442,7 @@ button[disabled],
 
 /* Laptop (lg: <= 1024px) */
 @media (max-width: 1024px) {
+
   .grid-responsive-sidebar,
   .grid-responsive-3col,
   .grid-responsive-2col {
@@ -438,7 +511,8 @@ button[disabled],
     border-radius: 12px !important;
   }
 
-  .btn-primary, .btn-ghost {
+  .btn-primary,
+  .btn-ghost {
     padding: 8px 14px !important;
     font-size: 13px !important;
   }
@@ -464,7 +538,8 @@ button[disabled],
     border-radius: 10px !important;
   }
 
-  .btn-primary, .btn-ghost {
+  .btn-primary,
+  .btn-ghost {
     padding: 8px 12px !important;
     font-size: 12px !important;
     width: 100% !important;
@@ -476,4 +551,3 @@ button[disabled],
     padding: 2px 6px !important;
   }
 }
-

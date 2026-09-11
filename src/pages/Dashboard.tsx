@@ -699,9 +699,9 @@ export default function Dashboard({
       {userProfile && (
         <CompleteProfileModal
           isOpen={!!showProfileModal}
-          onClose={onCloseProfileModal || (() => {})}
+          onClose={onCloseProfileModal || (() => { })}
           profile={userProfile}
-          onSaveProfile={onSaveProfile || (() => {})}
+          onSaveProfile={onSaveProfile || (() => { })}
         />
       )}
     </div>
