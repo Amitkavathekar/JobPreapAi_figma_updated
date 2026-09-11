@@ -1,37 +1,52 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Screen } from "../types";
 
 interface JobResumeProps {
   onNavigate: (s: Screen) => void;
   onComplete: () => void;
+  onStep2EnabledChange?: (enabled: boolean) => void;
 }
 
-export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
+export default function JobResume({ onNavigate, onComplete, onStep2EnabledChange }: JobResumeProps) {
   const [jobDesc, setJobDesc] = useState("");
   const [uploaded, setUploaded] = useState(false);
+  const [fileName, setFileName] = useState("Arjun_Kumar_Resume_v7.pdf");
+  const [fileSize, setFileSize] = useState("243 KB");
   const [validating, setValidating] = useState(false);
   const [validated, setValidated] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
 
-  const handleUpload = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isJobDescValid = jobDesc.trim().length >= 10;
+  const isFormValid = isJobDescValid && uploaded && !validating;
+
+  const handleUpload = (customName?: string, customSize?: string) => {
+    if (customName) setFileName(customName);
+    if (customSize) setFileSize(customSize);
     setUploaded(true);
     setValidating(true);
     setTimeout(() => {
       setValidating(false);
       setValidated(true);
-    }, 1800);
+    }, 1200);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const kb = Math.round(file.size / 1024);
+      handleUpload(file.name, `${kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB"}`);
+    }
   };
 
   const handleValidate = () => {
-    if (!jobDesc || jobDesc.length < 20) {
-      setJobDesc("Senior Frontend Engineer at Stripe\n\nWe are looking for a Senior Frontend Engineer to build scalable React & TypeScript web applications. Requirements: React, TypeScript, GraphQL, REST APIs, AWS, Performance Optimization, Node.js, CI/CD, and Microservices experience.");
-    }
-    if (!uploaded) {
-      setUploaded(true);
-      setValidated(true);
-    }
+    if (!isFormValid) return;
     onComplete();
+    if (onStep2EnabledChange) {
+      onStep2EnabledChange(true);
+    }
     onNavigate("ai-analysis");
   };
 
@@ -48,24 +63,46 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
 
   return (
     <div className="fade-in page-container" style={{ height: "100%", overflowY: "auto" }}>
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept=".pdf,.docx,.txt"
+        style={{ display: "none" }}
+        onChange={handleFileSelect}
+      />
+
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>
           Step 1: <span className="gradient-text">Job Description & Resume</span>
         </h1>
         <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>
-          Paste the target job description and your resume text (or select an existing file) to begin AI analysis.
+          Paste the target job description and upload your resume PDF to unlock Step 2 AI analysis.
         </p>
       </div>
 
       <div className="grid-responsive-sidebar" style={{ gap: 20, marginBottom: 20 }}>
         {/* LEFT — Job Description */}
         <div className="glass" style={{ padding: "24px 28px", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 16 }}>Job Description</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>
+              Job Description <span style={{ color: "#ef4444", marginLeft: 4 }}>*</span>
+            </span>
+            {isJobDescValid ? (
+              <span className="tag tag-green">✓ Filled</span>
+            ) : (
+              <span className="tag tag-amber">* Required</span>
+            )}
+          </div>
           <textarea
             className="glass-textarea"
-            style={{ flex: 1, minHeight: 280 }}
-            placeholder={"Paste job description here...\n\nExample:\nSenior Frontend Engineer at Stripe\nWe're looking for a Senior Frontend Engineer to join our Growth team..."}
+            style={{
+              flex: 1,
+              minHeight: 280,
+              border: !isJobDescValid && jobDesc.length > 0 ? "1px solid rgba(245,158,11,0.5)" : undefined,
+            }}
+            placeholder={"Paste target job description here...\n\nExample:\nSenior Frontend Engineer at Stripe\nWe are looking for a Senior Frontend Engineer to build scalable React & TypeScript web applications..."}
             value={jobDesc}
             onChange={(e) => setJobDesc(e.target.value)}
           />
@@ -74,24 +111,48 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
               {jobDesc.length} chars · {jobDesc.split(/\s+/).filter(Boolean).length} words
             </div>
             <div style={{ display: "flex", gap: 6 }}>
-              {jobDesc.length >= 50 && <span className="tag tag-green">✓ Ready</span>}
-              {jobDesc.length > 0 && jobDesc.length < 50 && <span className="tag tag-amber">Too short</span>}
+              {jobDesc.length >= 20 && <span className="tag tag-green">✓ Ready</span>}
+              {jobDesc.length > 0 && jobDesc.length < 20 && <span className="tag tag-amber">Min 10 chars</span>}
+              {jobDesc.length === 0 && <span className="tag tag-red">Required</span>}
             </div>
           </div>
         </div>
 
         {/* RIGHT — Upload Resume */}
         <div className="glass" style={{ padding: "24px 28px", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 6 }}>Upload Resume</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>
+              Upload Resume <span style={{ color: "#ef4444", marginLeft: 4 }}>*</span>
+            </span>
+            {uploaded ? (
+              <span className="tag tag-green">✓ Uploaded</span>
+            ) : (
+              <span className="tag tag-amber">* Required</span>
+            )}
+          </div>
           <div style={{ fontSize: 13, color: "rgba(148,163,184,0.5)", marginBottom: 20 }}>PDF or DOCX · Max 5MB · We parse text, structure, and formatting.</div>
 
           <div
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
-            onDrop={(e) => { e.preventDefault(); setDragging(false); handleUpload(); }}
-            onClick={!uploaded ? handleUpload : undefined}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              const droppedFile = e.dataTransfer.files?.[0];
+              if (droppedFile) {
+                const kb = Math.round(droppedFile.size / 1024);
+                handleUpload(droppedFile.name, `${kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB"}`);
+              } else {
+                handleUpload();
+              }
+            }}
+            onClick={() => {
+              if (!uploaded && fileInputRef.current) {
+                fileInputRef.current.click();
+              }
+            }}
             style={{
-              border: `2px dashed ${dragging ? "rgba(124,58,237,0.7)" : uploaded ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.12)"}`,
+              border: `2px dashed ${dragging ? "rgba(124,58,237,0.7)" : uploaded ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.15)"}`,
               borderRadius: 14, padding: "40px 24px", textAlign: "center",
               cursor: uploaded ? "default" : "pointer",
               background: dragging ? "rgba(124,58,237,0.08)" : uploaded ? "rgba(16,185,129,0.05)" : "rgba(255,255,255,0.02)",
@@ -113,15 +174,15 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
             ) : (
               <>
                 <div style={{ fontSize: 14, fontWeight: 600, color: validating ? "#f59e0b" : "#10b981", marginBottom: 6 }}>
-                  {validating ? "Parsing document..." : "Arjun_Kumar_Resume_v7.pdf"}
+                  {validating ? "Parsing document..." : fileName}
                 </div>
                 <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginBottom: 12 }}>
-                  {validating ? "Extracting fields..." : "243 KB · Successfully parsed"}
+                  {validating ? "Extracting fields..." : `${fileSize} · Successfully parsed`}
                 </div>
                 {!validating && (
                   <div style={{ display: "flex", gap: 8 }}>
                     <span className="tag tag-green">✓ Parsed</span>
-                    <span className="tag tag-cyan">243 KB</span>
+                    <span className="tag tag-cyan">{fileSize}</span>
                   </div>
                 )}
                 {validating && (
@@ -137,7 +198,12 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
             <button
               className="btn-ghost"
               style={{ marginTop: 12, padding: "8px 0", fontSize: 13, width: "100%" }}
-              onClick={() => { setUploaded(false); setValidated(false); setValidating(false); }}
+              onClick={() => {
+                setUploaded(false);
+                setValidated(false);
+                setValidating(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
             >
               ↺ Replace File
             </button>
@@ -150,20 +216,31 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
         <span style={{ fontSize: 20 }}>💡</span>
         <div>
           <span style={{ fontSize: 13, fontWeight: 600, color: "white" }}>Pro tip: </span>
-          <span style={{ fontSize: 13, color: "rgba(148,163,184,0.6)" }}>Include the full JD including requirements, responsibilities, and preferred qualifications for the best analysis accuracy.</span>
+          <span style={{ fontSize: 13, color: "rgba(148,163,184,0.6)" }}>Both Job Description and Resume PDF are required (*). Once both are provided, Step 2 button will be enabled.</span>
         </div>
       </div>
 
       {/* Validate button */}
       {!showValidation && (
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
           <button
             className="btn-primary"
-            style={{ padding: "11px 28px", fontSize: 14 }}
+            disabled={!isFormValid}
+            style={{
+              padding: "11px 28px",
+              fontSize: 14,
+              opacity: isFormValid ? 1 : 0.45,
+              cursor: isFormValid ? "pointer" : "not-allowed",
+              background: isFormValid ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "rgba(255, 255, 255, 0.1)",
+              border: isFormValid ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: isFormValid ? "0 4px 15px rgba(124, 58, 237, 0.4)" : "none",
+              transition: "all 0.25s ease",
+            }}
             onClick={handleValidate}
           >
             Step 2: Validate Data & Proceed to AI Analysis →
           </button>
+
         </div>
       )}
 
@@ -190,7 +267,7 @@ export default function JobResume({ onNavigate, onComplete }: JobResumeProps) {
           </div>
           <div style={{ marginTop: 20, display: "flex", justifyContent: "flex-end" }}>
             <button className="btn-primary" style={{ padding: "10px 22px", fontSize: 14 }} onClick={() => onNavigate("ai-analysis")}>
-              Step 1: Validate Data & Proceed to AI Analysis →
+              Step 2: Validate Data & Proceed to AI Analysis →
             </button>
           </div>
         </div>

@@ -6,6 +6,7 @@ interface MockInterviewProps {
   onComplete: () => void;
   hasActiveSubscription?: boolean;
   onOpenUpgradeModal?: () => void;
+  isStep2Enabled?: boolean;
 }
 
 export type InterviewType =
@@ -704,12 +705,19 @@ export default function MockInterview({
   onComplete,
   hasActiveSubscription,
   onOpenUpgradeModal,
+  isStep2Enabled = false,
 }: MockInterviewProps) {
   const [phase, setPhase] = useState<'setup' | 'interview' | 'feedback'>(
     'setup'
   );
 
-  const [setupMode, setSetupMode] = useState<'preset' | 'jd-qa'>('preset');
+  const [setupMode, setSetupMode] = useState<'preset' | 'jd-qa'>('jd-qa');
+
+  useEffect(() => {
+    if (!isStep2Enabled && setupMode === 'preset') {
+      setSetupMode('jd-qa');
+    }
+  }, [isStep2Enabled, setupMode]);
 
   // State for Mode 2: ChatGPT Chat Assistant with Image Upload support
   const [chatgptInput, setChatgptInput] = useState('');
@@ -877,8 +885,8 @@ export default function MockInterview({
     }, 750);
   };
 
-  const [selectedType, setSelectedType] = useState<InterviewType>('all-50');
-  const [targetQuestionCount, setTargetQuestionCount] = useState<number>(50);
+  const [selectedType, setSelectedType] = useState<InterviewType>('theory');
+  const [targetQuestionCount, setTargetQuestionCount] = useState<number>(10);
   const [difficulty, setDifficulty] = useState<
     'Easy' | 'Medium' | 'Hard'
   >('Medium');
@@ -1297,7 +1305,9 @@ export default function MockInterview({
               >
                 <button
                   type="button"
-                  onClick={() => setSetupMode('preset')}
+                  onClick={() => isStep2Enabled && setSetupMode('preset')}
+                  disabled={!isStep2Enabled}
+                  title={!isStep2Enabled ? "🔒 Fill Job Description & Upload Resume in Step 1 to unlock Mode 1: Interview" : "Switch to Mode 1"}
                   style={{
                     padding: '6px 16px',
                     borderRadius: 8,
@@ -1306,7 +1316,8 @@ export default function MockInterview({
                     color: 'white',
                     fontWeight: 700,
                     fontSize: 12,
-                    cursor: 'pointer',
+                    cursor: isStep2Enabled ? 'pointer' : 'not-allowed',
+                    opacity: isStep2Enabled ? 1 : 0.45,
                     transition: 'all 0.2s ease',
                     fontFamily: 'Outfit',
                     display: 'inline-flex',
@@ -1315,7 +1326,7 @@ export default function MockInterview({
                     gap: 6,
                   }}
                 >
-                  🎯 Mode 1: Interview
+                  🎯 Mode 1: Interview {!isStep2Enabled && '🔒'}
                 </button>
 
                 <button
@@ -2055,7 +2066,9 @@ export default function MockInterview({
               >
                 <button
                   type="button"
-                  onClick={() => setSetupMode('preset')}
+                  onClick={() => isStep2Enabled && setSetupMode('preset')}
+                  disabled={!isStep2Enabled}
+                  title={!isStep2Enabled ? "🔒 Fill Job Description & Upload Resume in Step 1 to unlock Mode 1: Interview" : "Switch to Mode 1"}
                   style={{
                     padding: '6px 16px',
                     borderRadius: 8,
@@ -2064,7 +2077,8 @@ export default function MockInterview({
                     color: 'rgba(148,163,184,0.7)',
                     fontWeight: 600,
                     fontSize: 12,
-                    cursor: 'pointer',
+                    cursor: isStep2Enabled ? 'pointer' : 'not-allowed',
+                    opacity: isStep2Enabled ? 1 : 0.45,
                     transition: 'all 0.2s ease',
                     fontFamily: 'Outfit',
                     display: 'inline-flex',
@@ -2073,7 +2087,7 @@ export default function MockInterview({
                     gap: 6,
                   }}
                 >
-                  🎯 Mode 1: Interview
+                  🎯 Mode 1: Interview {!isStep2Enabled && '🔒'}
                 </button>
                 <button
                   type="button"

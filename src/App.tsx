@@ -169,9 +169,16 @@ export default function App() {
   const [showRazorpayModal, setShowRazorpayModal] = useState(false);
   const [selectedRazorpayPlan, setSelectedRazorpayPlan] = useState<PlanData | null>(null);
 
+  // Step 2 & Dependent Screens Lock State (requires JD + Resume PDF in Step 1)
+  const [isStep2Enabled, setIsStep2Enabled] = useState(false);
+
   const hasActiveSubscription = !!userSubscription;
 
   const navigate = (s: Screen) => {
+    // Guard navigation: lock AI Analysis, Resume Editor, ATS Analysis, Interview Prep if Step 1 is not valid
+    if (!isStep2Enabled && ["ai-analysis", "resume-editor", "ats-analysis", "interview-prep"].includes(s)) {
+      return;
+    }
     setScreen(s);
     if (s !== "landing") {
       setVisited((prev) => new Set([...prev, s]));
@@ -299,7 +306,13 @@ export default function App() {
           />
         );
       case "job-resume":
-        return <JobResume onNavigate={navigate} onComplete={() => markComplete("job-resume")} />;
+        return (
+          <JobResume
+            onNavigate={navigate}
+            onComplete={() => markComplete("job-resume")}
+            onStep2EnabledChange={(enabled) => setIsStep2Enabled(enabled)}
+          />
+        );
       case "ai-analysis":
         return (
           <AIAnalysis
@@ -340,6 +353,7 @@ export default function App() {
             onComplete={() => markComplete("mock-interview")}
             hasActiveSubscription={hasActiveSubscription}
             onOpenUpgradeModal={() => setShowUpgradeModal(true)}
+            isStep2Enabled={isStep2Enabled}
           />
         );
       case "reports":
@@ -500,6 +514,7 @@ export default function App() {
           userSubscription={userSubscription}
           onOpenUpgradeModal={() => setShowUpgradeModal(true)}
           onOpenSupportModal={() => setShowSupportModal(true)}
+          isStep2Enabled={isStep2Enabled}
         />
         <main style={{ flex: 1, overflow: "hidden", position: "relative" }}>
           {renderScreen()}

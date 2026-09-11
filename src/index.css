@@ -102,10 +102,21 @@ body {
   border-radius: 10px;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+}
+
+button:disabled,
+button[disabled],
+.btn-primary:disabled,
+.btn-ghost:disabled {
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+  opacity: 0.45 !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .btn-ghost {

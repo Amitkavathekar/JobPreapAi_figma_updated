@@ -63,6 +63,7 @@ interface SidebarProps {
   userSubscription?: any;
   onOpenUpgradeModal?: () => void;
   onOpenSupportModal?: () => void;
+  isStep2Enabled?: boolean;
 }
 
 export default function Sidebar({
@@ -79,6 +80,7 @@ export default function Sidebar({
   userSubscription,
   onOpenUpgradeModal,
   onOpenSupportModal,
+  isStep2Enabled = false,
 }: SidebarProps) {
   const width = isOpen ? 228 : 60;
   const displayName = profile?.full_name || "Arjun Kumar";
@@ -235,6 +237,7 @@ export default function Sidebar({
                     }}
                   >
                     {section.items.map((item) => {
+                      const isDisabled = !isStep2Enabled && ["ai-analysis", "resume-editor", "ats-analysis", "interview-prep"].includes(item.id);
                       return (
                         <div
                           key={item.id}
@@ -245,9 +248,12 @@ export default function Sidebar({
                             justifyContent: isOpen ? "flex-start" : "center",
                             padding: isOpen ? "8px 12px" : "8px 0",
                             position: "relative",
+                            opacity: isDisabled ? 0.38 : 1,
+                            cursor: isDisabled ? "not-allowed" : "pointer",
+                            pointerEvents: "auto",
                           }}
-                          onClick={() => onNavigate(item.id)}
-                          title={!isOpen ? item.label : undefined}
+                          onClick={() => !isDisabled && onNavigate(item.id)}
+                          title={isDisabled ? "🔒 Fill Job Description & Upload Resume to unlock" : !isOpen ? item.label : undefined}
                         >
                           <span
                             style={{
@@ -332,11 +338,12 @@ export default function Sidebar({
                       const isCompleted = stepNum < currentStepNum;
                       const isActive = stepNum === currentStepNum;
                       const isUpcoming = stepNum > currentStepNum;
+                      const nodeDisabled = !isStep2Enabled && stepNum > 1;
 
                       return (
                         <div
                           key={stepNum}
-                          onClick={() => onNavigate(stepScreen)}
+                          onClick={() => !nodeDisabled && onNavigate(stepScreen)}
                           style={{
                             width: 20,
                             height: 20,
@@ -347,7 +354,9 @@ export default function Sidebar({
                             fontSize: 10,
                             fontWeight: 800,
                             fontFamily: "Outfit, sans-serif",
-                            cursor: "pointer",
+                            cursor: nodeDisabled ? "not-allowed" : "pointer",
+                            pointerEvents: "auto",
+                            opacity: nodeDisabled ? 0.35 : 1,
                             zIndex: 2,
                             transition: "all 0.3s ease",
                             ...(isCompleted && {
@@ -368,9 +377,9 @@ export default function Sidebar({
                               boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
                             }),
                           }}
-                          title={`Step ${stepNum}: Click to navigate`}
+                          title={nodeDisabled ? "🔒 Fill Job Description & Upload Resume to unlock" : `Step ${stepNum}: Click to navigate`}
                         >
-                          {isCompleted ? "✓" : stepNum}
+                          {nodeDisabled ? "🔒" : isCompleted ? "✓" : stepNum}
                         </div>
                       );
                     })}
@@ -390,21 +399,32 @@ export default function Sidebar({
               {!isOpen && <div style={{ height: 8 }} />}
               {section.items.map((item) => {
                 const isVisited = visited.has(item.id);
+                const isDisabled = !isStep2Enabled && item.id === "interview-prep";
                 return (
                   <div
                     key={item.id}
                     className={`nav-item${active === item.id ? " active" : ""}`}
-                    style={{ justifyContent: isOpen ? "flex-start" : "center", padding: isOpen ? "8px 12px" : "8px 0", position: "relative" }}
-                    onClick={() => onNavigate(item.id)}
-                    title={!isOpen ? item.label : undefined}
+                    style={{
+                      justifyContent: isOpen ? "flex-start" : "center",
+                      padding: isOpen ? "8px 12px" : "8px 0",
+                      position: "relative",
+                      opacity: isDisabled ? 0.38 : 1,
+                      cursor: isDisabled ? "not-allowed" : "pointer",
+                      pointerEvents: "auto",
+                    }}
+                    onClick={() => !isDisabled && onNavigate(item.id)}
+                    title={isDisabled ? "🔒 Fill Job Description & Upload Resume to unlock" : !isOpen ? item.label : undefined}
                   >
                     <span style={{ fontSize: 16, width: 20, textAlign: "center", flexShrink: 0, position: "relative" }}>
                       {item.icon}
                     </span>
                     {isOpen && (
                       <>
-                        <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
-                        {item.tag && (
+                        <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span>{item.label}</span>
+                          {isDisabled && <span style={{ fontSize: 11, opacity: 0.8 }}>🔒</span>}
+                        </span>
+                        {item.tag && !isDisabled && (
                           <span style={{ fontSize: 10, fontFamily: "JetBrains Mono", color: "rgba(124,58,237,0.7)", background: "rgba(124,58,237,0.1)", padding: "1px 6px", borderRadius: 4, flexShrink: 0 }}>
                             {item.tag}
                           </span>
