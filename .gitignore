@@ -20,5 +20,5 @@ logs/
 /.opencode-skills/
 
 # Future plan component folder
-src/components/admin/future-plan/
+# src/components/admin/future-plan/
 
