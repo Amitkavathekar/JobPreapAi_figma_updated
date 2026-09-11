@@ -1,0 +1,10 @@
+{
+  "description": "Streamlines job application success with AI-powered resume analysis, ATS checks, interview prep, and comprehensive progress tracking in one platform.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
