@@ -268,7 +268,7 @@ export default function UserMembershipModal({
                   >
                     <div>🎯 <strong>{plan.mockLimit}</strong></div>
                     <div>⚡ <strong>{plan.atsLimit}</strong></div>
-                    <div>💎 <strong>{plan.aiCredits} AI Credits</strong> included</div>
+                    {plan.aiCredits ? <div>💎 <strong>{plan.aiCredits} AI Credits</strong> included</div> : null}
                   </div>
 
                   {/* Features list */}

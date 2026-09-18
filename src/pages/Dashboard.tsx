@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Screen, UserProfile } from "../types";
 import CompleteProfileModal from "../components/CompleteProfileModal";
+import ResumePreviewEditModal, { ResumeDocument } from "../components/ResumePreviewEditModal";
 
 interface DashboardProps {
   onNavigate: (s: Screen) => void;
@@ -17,42 +18,53 @@ const stats = [
   { label: "Total Resumes", value: "5", unit: "", color: "#f59e0b", sub: "5 active resumes" },
 ];
 
-const documentsData = [
+const INITIAL_DOCUMENTS: ResumeDocument[] = [
   {
     id: 1,
-    name: "Data Analyst - [Company Name]",
-    job: "Company name",
+    name: "Data Analyst - TechCorp",
+    job: "TechCorp",
     score: "90%",
     type: "Resume",
     createdAt: "Sep 3, 2026",
     lastEdit: "1 day ago",
+    candidateName: "Arjun Kumar",
+    title: "Senior Data Analyst",
+    email: "arjun.kumar@techcorp.com",
+    phone: "+91 98765 43210",
+    location: "Bengaluru, India",
   },
   {
     id: 2,
-    name: "Data Visualization & Reporting ...",
-    job: "Toyota Automat...",
+    name: "Data Visualization & Reporting Engineer",
+    job: "Toyota Automation",
     score: "89%",
     type: "Resume",
     createdAt: "Sep 3, 2026",
     lastEdit: "1 day ago",
+    candidateName: "Arjun Kumar",
+    title: "Data Visualization Engineer",
   },
   {
     id: 3,
-    name: "Data Engineer - Orinova Innov...",
-    job: "Orinova Innovat...",
+    name: "Data Engineer - Orinova Innovations",
+    job: "Orinova Innovations",
     score: "99%",
     type: "Resume",
     createdAt: "Sep 3, 2026",
     lastEdit: "2 days ago",
+    candidateName: "Arjun Kumar",
+    title: "Data Engineer",
   },
   {
     id: 4,
-    name: "New Resume (76)",
-    job: null,
-    score: null,
+    name: "Frontend Engineer - Google Prep",
+    job: "Google",
+    score: "92%",
     type: "Resume",
     createdAt: "Sep 3, 2026",
     lastEdit: "2 days ago",
+    candidateName: "Arjun Kumar",
+    title: "Senior Frontend Engineer",
   },
   {
     id: 5,
@@ -62,6 +74,8 @@ const documentsData = [
     type: "Resume",
     createdAt: "Aug 27, 2026",
     lastEdit: "4 days ago",
+    candidateName: "Arjun Kumar",
+    title: "Analytics Consultant",
   },
 ];
 
@@ -82,6 +96,22 @@ export default function Dashboard({
   onSaveProfile,
 }: DashboardProps) {
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+  const [documentsList, setDocumentsList] = useState<ResumeDocument[]>(INITIAL_DOCUMENTS);
+  const [selectedResumeForModal, setSelectedResumeForModal] = useState<ResumeDocument | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isModalEditable, setIsModalEditable] = useState(false);
+
+  const handleOpenPreviewModal = (doc: ResumeDocument, editable: boolean = false) => {
+    setSelectedResumeForModal(doc);
+    setIsModalEditable(editable);
+    setIsPreviewModalOpen(true);
+  };
+
+  const handleSaveModalResume = (updated: ResumeDocument) => {
+    setDocumentsList((prev) =>
+      prev.map((d) => (d.id === updated.id ? updated : d))
+    );
+  };
 
   // In-Dashboard ATS Scanner Modal State
   const [showAtsModal, setShowAtsModal] = useState(false);
@@ -256,11 +286,11 @@ export default function Dashboard({
                 </tr>
               </thead>
               <tbody>
-                {documentsData.map((doc, idx) => (
+                {documentsList.map((doc, idx) => (
                   <tr
                     key={doc.id}
                     style={{
-                      borderBottom: idx < documentsData.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                      borderBottom: idx < documentsList.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                       transition: "background 0.15s ease",
                     }}
                     className="glass-hover"
@@ -269,7 +299,21 @@ export default function Dashboard({
                     <td style={{ padding: "14px", fontSize: 13, fontWeight: 500, color: "white" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 15, opacity: 0.8 }}>📄</span>
-                        <span style={{ cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }} title={doc.name} onClick={() => onNavigate("resume-editor")}>
+                        <span
+                          style={{
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: 180,
+                            color: "#a78bfa",
+                            fontWeight: 600,
+                            textDecoration: "none",
+                          }}
+                          className="hover:underline"
+                          title={`Click to view ${doc.name}`}
+                          onClick={() => handleOpenPreviewModal(doc, false)}
+                        >
                           {doc.name}
                         </span>
                       </div>
@@ -342,43 +386,25 @@ export default function Dashboard({
                       {doc.lastEdit}
                     </td>
 
-                    {/* Actions */}
+                    {/* Actions — ONLY 3 dots button kept as requested */}
                     <td style={{ padding: "14px", textAlign: "right", position: "relative" }}>
-                      <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        <button
-                          title="Download document"
-                          onClick={() => handleDownload(doc.name)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "rgba(226,232,240,0.7)",
-                            fontSize: 15,
-                            cursor: "pointer",
-                            padding: "3px 5px",
-                            borderRadius: 6
-                          }}
-                          className="glass-hover"
-                        >
-                          📥
-                        </button>
-                        <button
-                          title="More options"
-                          onClick={() => setActiveMenuId(activeMenuId === doc.id ? null : doc.id)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "rgba(226,232,240,0.7)",
-                            fontSize: 15,
-                            cursor: "pointer",
-                            padding: "3px 5px",
-                            borderRadius: 6,
-                            letterSpacing: 2
-                          }}
-                          className="glass-hover"
-                        >
-                          •••
-                        </button>
-                      </div>
+                      <button
+                        title="More options"
+                        onClick={() => setActiveMenuId(activeMenuId === doc.id ? null : doc.id)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "rgba(226,232,240,0.7)",
+                          fontSize: 15,
+                          cursor: "pointer",
+                          padding: "4px 8px",
+                          borderRadius: 6,
+                          letterSpacing: 2
+                        }}
+                        className="glass-hover"
+                      >
+                        •••
+                      </button>
 
                       {/* Options Menu Dropdown */}
                       {activeMenuId === doc.id && (
@@ -389,7 +415,7 @@ export default function Dashboard({
                             right: 12,
                             top: 42,
                             zIndex: 50,
-                            width: 130,
+                            width: 150,
                             padding: "6px 0",
                             boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
                             border: "1px solid rgba(255,255,255,0.15)",
@@ -397,14 +423,21 @@ export default function Dashboard({
                           }}
                         >
                           <div
-                            style={{ padding: "8px 14px", fontSize: 12, color: "#white", cursor: "pointer", textAlign: "left" }}
+                            style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
                             className="glass-hover"
-                            onClick={() => { setActiveMenuId(null); onNavigate("resume-editor"); }}
+                            onClick={() => { setActiveMenuId(null); handleOpenPreviewModal(doc, false); }}
                           >
-                            ✎ Edit
+                            👁 View Resume
                           </div>
                           <div
-                            style={{ padding: "8px 14px", fontSize: 12, color: "#white", cursor: "pointer", textAlign: "left" }}
+                            style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
+                            className="glass-hover"
+                            onClick={() => { setActiveMenuId(null); handleOpenPreviewModal(doc, true); }}
+                          >
+                            ✏️ Preview & Edit
+                          </div>
+                          <div
+                            style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
                             className="glass-hover"
                             onClick={() => { setActiveMenuId(null); handleDownload(doc.name); }}
                           >
@@ -704,6 +737,16 @@ export default function Dashboard({
           onSaveProfile={onSaveProfile || (() => { })}
         />
       )}
+
+      {/* Resume Live Preview & Edit Modal */}
+      <ResumePreviewEditModal
+        isOpen={isPreviewModalOpen}
+        resume={selectedResumeForModal}
+        isEditable={isModalEditable}
+        onClose={() => setIsPreviewModalOpen(false)}
+        onSave={handleSaveModalResume}
+        onNavigateToFullEditor={() => onNavigate("resume-editor")}
+      />
     </div>
   );
 }

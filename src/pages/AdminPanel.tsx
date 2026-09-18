@@ -10,6 +10,8 @@ import ActivityLogScreen from "../components/admin/ActivityLogScreen";
 import ConfirmationModal from "../components/admin/ConfirmationModal";
 import EmptyState from "../components/admin/EmptyState";
 import SupportTicketsScreen from "../components/admin/SupportTicketsScreen";
+import AiModelsScreen from "../components/admin/AiModelsScreen";
+import NotificationSettingsScreen from "../components/admin/NotificationSettingsScreen";
 
 interface AdminPanelProps {
   onLogout: () => void;
@@ -22,10 +24,9 @@ const INITIAL_PLANS: PlanData[] = [
     duration: "1 Month",
     months: 1,
     priceINR: 499,
-    originalPriceINR: 699,
+    originalPriceINR: 499,
     mockLimit: "10 Interviews / mo",
     atsLimit: "25 Resume Scans / mo",
-    aiCredits: 500,
     status: "Active",
     subscribersCount: 342,
     features: [
@@ -42,11 +43,9 @@ const INITIAL_PLANS: PlanData[] = [
     duration: "3 Months",
     months: 3,
     priceINR: 1299,
-    originalPriceINR: 2097,
-    badge: "Save 38%",
+    originalPriceINR: 1299,
     mockLimit: "35 Interviews / qtr",
     atsLimit: "75 Resume Scans / qtr",
-    aiCredits: 1800,
     status: "Active",
     subscribersCount: 856,
     features: [
@@ -63,12 +62,9 @@ const INITIAL_PLANS: PlanData[] = [
     duration: "6 Months",
     months: 6,
     priceINR: 2299,
-    originalPriceINR: 4194,
-    badge: "Most Popular",
-    popular: true,
+    originalPriceINR: 2299,
     mockLimit: "Unlimited Mock Interviews",
     atsLimit: "Unlimited Resume Scans",
-    aiCredits: 4500,
     status: "Active",
     subscribersCount: 1420,
     features: [
@@ -86,11 +82,9 @@ const INITIAL_PLANS: PlanData[] = [
     duration: "1 Year",
     months: 12,
     priceINR: 3999,
-    originalPriceINR: 8388,
-    badge: "Best Value (Save 52%)",
+    originalPriceINR: 3999,
     mockLimit: "Unlimited + VIP Priority",
     atsLimit: "Unlimited + VIP Priority",
-    aiCredits: 10000,
     status: "Active",
     subscribersCount: 680,
     features: [
@@ -143,22 +137,304 @@ const INITIAL_COUPONS: Coupon[] = [
 const INITIAL_USERS: AdminUser[] = [
   { id: "usr_101", name: "Rahul Sharma", email: "rahul.s@gmail.com", plan: "Pro", planExpiry: "2027-02-12", status: "Active", joined: "2026-08-12", spent: "₹2,299", phone: "+91 98201 12345", location: "Mumbai, MH", mockCount: 18, atsCount: 32 },
   { id: "usr_102", name: "Priya Patil", email: "priya.patil@outlook.com", plan: "Elite", planExpiry: "2027-07-04", status: "Active", joined: "2026-07-04", spent: "₹3,999", phone: "+91 97110 54321", location: "Pune, MH", mockCount: 42, atsCount: 95 },
-  { id: "usr_103", name: "Amit Kavathekar", email: "amit.k@jobprep.ai", plan: "Super Admin", planExpiry: "Lifetime VIP", status: "Active", joined: "2026-05-01", spent: "₹0", phone: "+91 98900 00000", location: "Bangalore, KA", mockCount: 120, atsCount: 200 },
+  { id: "usr_103", name: "Amit Kavathekar", email: "amit.k@jobprep.ai", plan: "Elite", planExpiry: "Lifetime VIP", status: "Active", joined: "2026-05-01", spent: "₹0", phone: "+91 98900 00000", location: "Bangalore, KA", mockCount: 120, atsCount: 200 },
   { id: "usr_104", name: "Sneha Deshmukh", email: "sneha.d@yahoo.com", plan: "Plus", planExpiry: "2026-08-10 (Expired)", status: "Expired", joined: "2026-05-10", spent: "₹1,299", phone: "+91 96500 11223", location: "Nagpur, MH", mockCount: 8, atsCount: 15 },
   { id: "usr_105", name: "Vikram Mehta", email: "v.mehta@techcorp.io", plan: "Basic", planExpiry: "2026-10-01", status: "Active", joined: "2026-09-01", spent: "₹499", phone: "+91 99887 76655", location: "Hyderabad, TS", mockCount: 3, atsCount: 9 },
   { id: "usr_106", name: "Aarti Kulkarni", email: "aarti.k@gmail.com", plan: "Pro", planExpiry: "2027-02-28", status: "Active", joined: "2026-08-28", spent: "₹2,299", phone: "+91 94220 33445", location: "Thane, MH", mockCount: 12, atsCount: 24 },
 ];
 
 const INITIAL_ACTIVITY_LOGS: ActivityLogItem[] = [
-  { id: "log_1", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Changed price of Pro Plan to ₹2,299", target: "Pro", type: "Pricing", timestamp: "10 mins ago" },
-  { id: "log_2", adminName: "Neha Kulkarni", adminRole: "Support Admin", action: "Issued ₹499 refund to user usr_105", target: "Vikram Mehta (usr_105)", type: "User Action", timestamp: "1 hour ago" },
-  { id: "log_3", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Created promotional coupon FESTIVE25", target: "FESTIVE25", type: "Coupon", timestamp: "3 hours ago" },
-  { id: "log_4", adminName: "Amit Kavathekar", adminRole: "Super Admin", action: "Updated Razorpay & Stripe Gateway API Credentials", target: "Payment Gateways", type: "Settings", timestamp: "2 days ago" },
+  { id: "log_1", adminName: "Amit Kavathekar", adminRole: "Admin", action: "Changed price of Pro Plan to ₹2,299", target: "Pro", type: "Pricing", timestamp: "10 mins ago" },
+  { id: "log_2", adminName: "Amit Kavathekar", adminRole: "Admin", action: "Issued ₹499 refund to user Vikram Mehta", target: "Vikram Mehta", type: "User Action", timestamp: "1 hour ago" },
+  { id: "log_3", adminName: "Amit Kavathekar", adminRole: "Admin", action: "Created promotional coupon FESTIVE25", target: "FESTIVE25", type: "Coupon", timestamp: "3 hours ago" },
+  { id: "log_4", adminName: "Amit Kavathekar", adminRole: "Admin", action: "Updated Razorpay & Stripe Gateway API Credentials", target: "Payment Gateways", type: "Settings", timestamp: "2 days ago" },
 ];
+
+interface MembershipPlanCardProps {
+  plan: PlanData;
+  coupons: Coupon[];
+  onToggleStatus: (plan: PlanData) => void;
+  onEditPlan: (plan: PlanData) => void;
+}
+
+function MembershipPlanCard({ plan, coupons, onToggleStatus, onEditPlan }: MembershipPlanCardProps) {
+  const [couponCode, setCouponCode] = useState("");
+  const [testResult, setTestResult] = useState<{
+    valid: boolean;
+    discountText: string;
+    finalPrice: number;
+  } | null>(null);
+
+  const handleCheckCoupon = () => {
+    const clean = couponCode.trim().toUpperCase();
+    if (!clean) {
+      setTestResult(null);
+      return;
+    }
+
+    let targetCoupon: Coupon | undefined = coupons.find((c) => c.code.toUpperCase() === clean);
+    if (!targetCoupon) {
+      if (clean === "FESTIVE25") {
+        targetCoupon = {
+          id: "cpn_1",
+          code: "FESTIVE25",
+          discountType: "Percentage",
+          discountValue: 25,
+          applicablePlans: ["All Plans"],
+          usageLimit: 500,
+          timesUsed: 412,
+          expiryDate: "2026-12-31",
+          status: "Active",
+        };
+      } else if (clean === "STUDENT50") {
+        targetCoupon = {
+          id: "cpn_2",
+          code: "STUDENT50",
+          discountType: "Percentage",
+          discountValue: 50,
+          applicablePlans: ["Pro", "Elite"],
+          usageLimit: 1000,
+          timesUsed: 890,
+          expiryDate: "2026-10-15",
+          status: "Active",
+        };
+      } else if (clean === "EARLYBIRD") {
+        targetCoupon = {
+          id: "cpn_3",
+          code: "EARLYBIRD",
+          discountType: "Flat Amount",
+          discountValue: 300,
+          applicablePlans: ["Basic", "Plus"],
+          usageLimit: 200,
+          timesUsed: 200,
+          expiryDate: "2026-08-30",
+          status: "Expired",
+        };
+      }
+    }
+
+    if (!targetCoupon) {
+      setTestResult({
+        valid: false,
+        discountText: `✕ Invalid coupon code "${clean}"`,
+        finalPrice: plan.priceINR,
+      });
+      return;
+    }
+
+    // Check if coupon is applicable to THIS particular membership plan card
+    const isApplicable =
+      targetCoupon.applicablePlans.includes("All Plans") ||
+      targetCoupon.applicablePlans.includes("All") ||
+      targetCoupon.applicablePlans.some((ap) => ap.toLowerCase().includes(plan.name.toLowerCase()) || plan.name.toLowerCase().includes(ap.toLowerCase()));
+
+    if (!isApplicable) {
+      setTestResult({
+        valid: false,
+        discountText: `⚠️ Warning: Coupon ${targetCoupon.code} is NOT eligible for ${plan.name} plan. (Applicable only to: ${targetCoupon.applicablePlans.join(", ")})`,
+        finalPrice: plan.priceINR,
+      });
+      return;
+    }
+
+    if (targetCoupon.status === "Expired") {
+      setTestResult({
+        valid: false,
+        discountText: `⚠️ Coupon ${targetCoupon.code} is Expired!`,
+        finalPrice: plan.priceINR,
+      });
+      return;
+    }
+
+    let finalPrice = plan.priceINR;
+    if (targetCoupon.discountType === "Percentage") {
+      finalPrice = Math.round(plan.priceINR * (1 - targetCoupon.discountValue / 100));
+    } else {
+      finalPrice = Math.max(0, plan.priceINR - targetCoupon.discountValue);
+    }
+
+    setTestResult({
+      valid: true,
+      discountText: `✓ ${targetCoupon.code} Workable! (${targetCoupon.discountType === "Percentage" ? `${targetCoupon.discountValue}% OFF` : `₹${targetCoupon.discountValue} OFF`})`,
+      finalPrice,
+    });
+  };
+
+  return (
+    <div
+      className="glass-card"
+      style={{
+        padding: 22,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        position: "relative",
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.02)",
+      }}
+    >
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "JetBrains Mono", color: "#ec4899", textTransform: "uppercase" }}>
+            {plan.duration} ({plan.months} Month{plan.months > 1 ? "s" : ""})
+          </span>
+          <span
+            style={{
+              fontSize: 11,
+              padding: "2px 8px",
+              borderRadius: 4,
+              background: plan.status === "Active" ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
+              color: plan.status === "Active" ? "#34d399" : "#f87171",
+              fontWeight: 600,
+            }}
+          >
+            ● {plan.status}
+          </span>
+        </div>
+
+        <h4 style={{ fontSize: 20, fontWeight: 800, color: "white", margin: "8px 0 4px" }}>{plan.name}</h4>
+
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "10px 0 14px" }}>
+          <span style={{ fontSize: 28, fontWeight: 800, color: "#ffffff" }}>
+            ₹{testResult?.valid ? testResult.finalPrice : plan.priceINR}
+          </span>
+          {testResult?.valid && (
+            <span style={{ fontSize: 12, color: "#34d399", fontWeight: 700 }}>
+              (Original ₹{plan.priceINR})
+            </span>
+          )}
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>/ total</span>
+        </div>
+
+        <ul style={{ paddingLeft: 16, margin: "0 0 16px", fontSize: 12, color: "#cbd5e1", display: "flex", flexDirection: "column", gap: 6 }}>
+          {plan.features.map((feat, idx) => (
+            <li key={idx}>{feat}</li>
+          ))}
+        </ul>
+
+        {/* TEST COUPON CODE (ADMIN CHECK) Inside This Particular Card */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            padding: 12,
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.08)",
+            marginBottom: 14,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#ec4899",
+              fontFamily: "JetBrains Mono",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              marginBottom: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input
+              type="text"
+              value={couponCode}
+              onChange={(e) => {
+                setCouponCode(e.target.value.toUpperCase());
+                setTestResult(null);
+              }}
+              placeholder="Enter code (e.g. FESTIVE25)"
+              className="glass-input"
+              style={{ padding: "6px 8px", fontSize: 11, flex: 1 }}
+            />
+            <button
+              type="button"
+              onClick={handleCheckCoupon}
+              style={{
+                background: "rgba(16, 185, 129, 0.2)",
+                border: "1px solid #10b981",
+                color: "#34d399",
+                padding: "6px 10px",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontWeight: 700,
+                fontSize: 11,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Check Coupon
+            </button>
+          </div>
+
+          {testResult && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 11,
+                fontWeight: 600,
+                color: testResult.valid ? "#34d399" : testResult.discountText.includes("⚠️") ? "#fbbf24" : "#f87171",
+                background: testResult.valid ? "rgba(16, 185, 129, 0.1)" : testResult.discountText.includes("⚠️") ? "rgba(245, 158, 11, 0.12)" : "rgba(239, 68, 68, 0.1)",
+                border: testResult.valid ? "1px solid rgba(16, 185, 129, 0.3)" : testResult.discountText.includes("⚠️") ? "1px solid rgba(245, 158, 11, 0.35)" : "1px solid rgba(239, 68, 68, 0.3)",
+                padding: "6px 8px",
+                borderRadius: 6,
+                lineHeight: 1.4,
+              }}
+            >
+              {testResult.discountText}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+        <button
+          onClick={() => onToggleStatus(plan)}
+          style={{
+            flex: 1,
+            padding: "8px 12px",
+            borderRadius: 6,
+            fontSize: 12,
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(255,255,255,0.05)",
+            color: plan.status === "Active" ? "#f87171" : "#34d399",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          {plan.status === "Active" ? "Pause Plan" : "Activate Plan"}
+        </button>
+        <button
+          onClick={() => onEditPlan(plan)}
+          style={{
+            padding: "8px 14px",
+            borderRadius: 6,
+            fontSize: 12,
+            border: "1px solid rgba(236,72,153,0.3)",
+            background: "rgba(236,72,153,0.15)",
+            color: "#f472b6",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          Edit Plan
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPanel({ onLogout }: AdminPanelProps) {
   const [activeAdminScreen, setActiveAdminScreen] = useState<AdminScreen>("admin-dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [hoveredPaymentMethod, setHoveredPaymentMethod] = useState<{
+    name: string;
+    pct: string;
+    amount: string;
+    color: string;
+  } | null>(null);
 
   // Core Data States
   const [plans, setPlans] = useState<PlanData[]>(INITIAL_PLANS);
@@ -209,7 +485,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
     const newLog: ActivityLogItem = {
       id: `log_${Date.now()}`,
       adminName: "Amit Kavathekar",
-      adminRole: "Super Admin",
+      adminRole: "Admin",
       action,
       target,
       type,
@@ -490,7 +766,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
           {activeAdminScreen === "admin-dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {/* KPI Metrics Widgets */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 10 }}>
                 <div className="glass-card" style={{ padding: "10px 14px", borderLeft: "4px solid #10b981" }}>
                   <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "JetBrains Mono" }}>
                     Total Revenue (MRR)
@@ -525,7 +801,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
               </div>
 
               {/* Main Chart + Quick Actions (65% / 35% Layout) */}
-              <div style={{ display: "flex", gap: 14, width: "100%", flexWrap: "wrap", marginTop: 10 }}>
+              <div style={{ display: "flex", gap: 14, width: "100%", flexWrap: "wrap", marginTop: 20 }}>
                 {/* Revenue Growth Bar Chart (65% WIDTH) */}
                 <div className="glass-card" style={{ flex: "1 1 calc(65% - 7px)", width: "calc(65% - 7px)", minWidth: 320, padding: "18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380 }}>
                   <div>
@@ -579,205 +855,152 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                 </div>
 
                 {/* Payment Method Distribution (Donut Chart) (35% WIDTH) */}
-                <div className="glass-card" style={{ flex: "1 1 calc(35% - 7px)", width: "calc(35% - 7px)", minWidth: 240, padding: "18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380 }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                      <div>
-                        <h3 style={{ margin: 0, fontSize: 16, color: "white", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                          <span>📱</span> Payment Method Distribution
-                        </h3>
-                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Real-time payment mode breakdown</div>
-                      </div>
-                      <span style={{ fontSize: 10, background: "rgba(52, 211, 153, 0.15)", border: "1px solid rgba(52, 211, 153, 0.3)", color: "#34d399", padding: "3px 10px", borderRadius: 10, fontWeight: 700, fontFamily: "JetBrains Mono", display: "flex", alignItems: "center", gap: 4 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", display: "inline-block" }}></span>
-                        98.8% SUCCESS
-                      </span>
+                <div className="glass-card" style={{ flex: "1 1 calc(35% - 7px)", width: "calc(35% - 7px)", minWidth: 240, padding: "20px 22px", display: "flex", flexDirection: "column", minHeight: 380 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: 16, color: "white", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>📱</span> Payment Method Distribution
+                      </h3>
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Real-time payment mode breakdown</div>
                     </div>
-
-                    {/* Donut Chart & Center Stats */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", margin: "10px 0 16px", position: "relative" }}>
-                      <svg width="150" height="150" viewBox="0 0 140 140" style={{ transform: "rotate(-90deg)" }}>
-                        <defs>
-                          <linearGradient id="grad-upi" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#34d399" />
-                            <stop offset="100%" stopColor="#059669" />
-                          </linearGradient>
-                          <linearGradient id="grad-cards" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#ec4899" />
-                            <stop offset="100%" stopColor="#8b5cf6" />
-                          </linearGradient>
-                          <linearGradient id="grad-netbank" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#38bdf8" />
-                            <stop offset="100%" stopColor="#0284c7" />
-                          </linearGradient>
-                          <linearGradient id="grad-wallets" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#a855f7" />
-                            <stop offset="100%" stopColor="#7e22ce" />
-                          </linearGradient>
-                          <linearGradient id="grad-paylater" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#f59e0b" />
-                            <stop offset="100%" stopColor="#d97706" />
-                          </linearGradient>
-                        </defs>
-                        {/* Background track */}
-                        <circle cx="70" cy="70" r="50" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
-
-                        {/* 1. UPI (GPay, PhonePe, Paytm) (64%) */}
-                        <circle
-                          cx="70"
-                          cy="70"
-                          r="50"
-                          fill="transparent"
-                          stroke="url(#grad-upi)"
-                          strokeWidth="18"
-                          strokeDasharray="201.06 113.10"
-                          strokeDashoffset="0"
-                          style={{ transition: "all 0.5s ease" }}
-                        />
-                        {/* 2. Credit & Debit Cards (22%) */}
-                        <circle
-                          cx="70"
-                          cy="70"
-                          r="50"
-                          fill="transparent"
-                          stroke="url(#grad-cards)"
-                          strokeWidth="18"
-                          strokeDasharray="69.12 245.04"
-                          strokeDashoffset="-201.06"
-                          style={{ transition: "all 0.5s ease" }}
-                        />
-                        {/* 3. Net Banking (9%) */}
-                        <circle
-                          cx="70"
-                          cy="70"
-                          r="50"
-                          fill="transparent"
-                          stroke="url(#grad-netbank)"
-                          strokeWidth="18"
-                          strokeDasharray="28.27 285.89"
-                          strokeDashoffset="-270.18"
-                          style={{ transition: "all 0.5s ease" }}
-                        />
-                        {/* 4. Digital Wallets (3%) */}
-                        <circle
-                          cx="70"
-                          cy="70"
-                          r="50"
-                          fill="transparent"
-                          stroke="url(#grad-wallets)"
-                          strokeWidth="18"
-                          strokeDasharray="9.42 304.74"
-                          strokeDashoffset="-298.45"
-                          style={{ transition: "all 0.5s ease" }}
-                        />
-                        {/* 5. Pay Later (2%) */}
-                        <circle
-                          cx="70"
-                          cy="70"
-                          r="50"
-                          fill="transparent"
-                          stroke="url(#grad-paylater)"
-                          strokeWidth="18"
-                          strokeDasharray="6.28 307.88"
-                          strokeDashoffset="-307.87"
-                          style={{ transition: "all 0.5s ease" }}
-                        />
-                      </svg>
-
-                      {/* Donut Center Display */}
-                      <div
-                        style={{
-                          position: "absolute",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          textAlign: "center",
-                        }}
-                      >
-                        <span style={{ fontSize: 19, fontWeight: 900, color: "white", fontFamily: "JetBrains Mono", lineHeight: 1 }}>₹72.6L</span>
-                        <span style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 3 }}>Total Volume</span>
-                      </div>
-                    </div>
-
-                    {/* Breakdown List Legend */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                      {/* Item 1 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#34d399" }}></span>
-                            UPI (GPay / PhonePe / Paytm)
-                          </span>
-                          <span style={{ color: "#34d399", fontWeight: 700, fontFamily: "JetBrains Mono" }}>64% (₹46.46L)</span>
-                        </div>
-                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ width: "64%", height: "100%", background: "linear-gradient(90deg, #34d399, #059669)", borderRadius: 4 }}></div>
-                        </div>
-                      </div>
-
-                      {/* Item 2 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#ec4899" }}></span>
-                            Credit & Debit Cards
-                          </span>
-                          <span style={{ color: "#f472b6", fontWeight: 700, fontFamily: "JetBrains Mono" }}>22% (₹15.97L)</span>
-                        </div>
-                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ width: "22%", height: "100%", background: "linear-gradient(90deg, #ec4899, #8b5cf6)", borderRadius: 4 }}></div>
-                        </div>
-                      </div>
-
-                      {/* Item 3 */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#38bdf8" }}></span>
-                            Net Banking (SBI / HDFC / ICICI)
-                          </span>
-                          <span style={{ color: "#38bdf8", fontWeight: 700, fontFamily: "JetBrains Mono" }}>9% (₹6.53L)</span>
-                        </div>
-                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ width: "9%", height: "100%", background: "linear-gradient(90deg, #38bdf8, #0284c7)", borderRadius: 4 }}></div>
-                        </div>
-                      </div>
-
-                      {/* Item 4 - Wallets */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#a855f7" }}></span>
-                            Wallets (Paytm / Mobikwik / Amazon)
-                          </span>
-                          <span style={{ color: "#c084fc", fontWeight: 700, fontFamily: "JetBrains Mono" }}>3% (₹2.18L)</span>
-                        </div>
-                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ width: "3%", height: "100%", background: "linear-gradient(90deg, #a855f7, #7e22ce)", borderRadius: 4 }}></div>
-                        </div>
-                      </div>
-
-                      {/* Item 5 - Pay Later */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                          <span style={{ color: "#e2e8f0", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#f59e0b" }}></span>
-                            Pay Later (LazyPay / Simpl / FlexiPay)
-                          </span>
-                          <span style={{ color: "#fbbf24", fontWeight: 700, fontFamily: "JetBrains Mono" }}>2% (₹1.45L)</span>
-                        </div>
-                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ width: "2%", height: "100%", background: "linear-gradient(90deg, #f59e0b, #d97706)", borderRadius: 4 }}></div>
-                        </div>
-                      </div>
-                    </div>
+                    <span style={{ fontSize: 10, background: "rgba(52, 211, 153, 0.15)", border: "1px solid rgba(52, 211, 153, 0.3)", color: "#34d399", padding: "3px 10px", borderRadius: 10, fontWeight: 700, fontFamily: "JetBrains Mono", display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", display: "inline-block" }}></span>
+                      98.8% SUCCESS
+                    </span>
                   </div>
 
-                  {/* Donut Footer Info */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 11, color: "#94a3b8" }}>
-                    <div>Avg Speed: <strong style={{ color: "#34d399" }}>&lt;1.8s</strong></div>
-                    <div>Failure Rate: <strong style={{ color: "#38bdf8" }}>1.2%</strong></div>
+                  {/* Centered Large Donut Chart */}
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", padding: "16px 0" }}>
+                    <svg width="240" height="240" viewBox="0 0 140 140" style={{ transform: "rotate(-90deg)", filter: "drop-shadow(0 0 16px rgba(0,0,0,0.5))" }}>
+                      <defs>
+                        <linearGradient id="grad-upi" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#34d399" />
+                          <stop offset="100%" stopColor="#059669" />
+                        </linearGradient>
+                        <linearGradient id="grad-cards" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#ec4899" />
+                          <stop offset="100%" stopColor="#8b5cf6" />
+                        </linearGradient>
+                        <linearGradient id="grad-netbank" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#38bdf8" />
+                          <stop offset="100%" stopColor="#0284c7" />
+                        </linearGradient>
+                        <linearGradient id="grad-wallets" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#a855f7" />
+                          <stop offset="100%" stopColor="#7e22ce" />
+                        </linearGradient>
+                        <linearGradient id="grad-paylater" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#f59e0b" />
+                          <stop offset="100%" stopColor="#d97706" />
+                        </linearGradient>
+                      </defs>
+                      {/* Background track */}
+                      <circle cx="70" cy="70" r="50" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
+
+                      {/* 1. UPI (GPay, PhonePe, Paytm) (64%) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r="50"
+                        fill="transparent"
+                        stroke="url(#grad-upi)"
+                        strokeWidth="18"
+                        strokeDasharray="201.06 113.10"
+                        strokeDashoffset="0"
+                        onMouseEnter={() => setHoveredPaymentMethod({ name: "UPI (GPay / PhonePe)", pct: "64%", amount: "₹46.46L", color: "#34d399" })}
+                        onMouseLeave={() => setHoveredPaymentMethod(null)}
+                        style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                      />
+                      {/* 2. Credit & Debit Cards (22%) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r="50"
+                        fill="transparent"
+                        stroke="url(#grad-cards)"
+                        strokeWidth="18"
+                        strokeDasharray="69.12 245.04"
+                        strokeDashoffset="-201.06"
+                        onMouseEnter={() => setHoveredPaymentMethod({ name: "Credit & Debit Cards", pct: "22%", amount: "₹15.97L", color: "#ec4899" })}
+                        onMouseLeave={() => setHoveredPaymentMethod(null)}
+                        style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                      />
+                      {/* 3. Net Banking (9%) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r="50"
+                        fill="transparent"
+                        stroke="url(#grad-netbank)"
+                        strokeWidth="18"
+                        strokeDasharray="28.27 285.89"
+                        strokeDashoffset="-270.18"
+                        onMouseEnter={() => setHoveredPaymentMethod({ name: "Net Banking (SBI / HDFC)", pct: "9%", amount: "₹6.53L", color: "#38bdf8" })}
+                        onMouseLeave={() => setHoveredPaymentMethod(null)}
+                        style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                      />
+                      {/* 4. Digital Wallets (3%) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r="50"
+                        fill="transparent"
+                        stroke="url(#grad-wallets)"
+                        strokeWidth="18"
+                        strokeDasharray="9.42 304.74"
+                        strokeDashoffset="-298.45"
+                        onMouseEnter={() => setHoveredPaymentMethod({ name: "Wallets (Paytm / Amazon)", pct: "3%", amount: "₹2.18L", color: "#a855f7" })}
+                        onMouseLeave={() => setHoveredPaymentMethod(null)}
+                        style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                      />
+                      {/* 5. Pay Later (2%) */}
+                      <circle
+                        cx="70"
+                        cy="70"
+                        r="50"
+                        fill="transparent"
+                        stroke="url(#grad-paylater)"
+                        strokeWidth="18"
+                        strokeDasharray="6.28 307.88"
+                        strokeDashoffset="-307.87"
+                        onMouseEnter={() => setHoveredPaymentMethod({ name: "Pay Later (LazyPay / Simpl)", pct: "2%", amount: "₹1.45L", color: "#f59e0b" })}
+                        onMouseLeave={() => setHoveredPaymentMethod(null)}
+                        style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                      />
+                    </svg>
+
+                    {/* Donut Center Display */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        pointerEvents: "none",
+                        width: 140,
+                      }}
+                    >
+                      {hoveredPaymentMethod ? (
+                        <>
+                          <span style={{ fontSize: 26, fontWeight: 900, color: hoveredPaymentMethod.color, fontFamily: "JetBrains Mono", lineHeight: 1 }}>
+                            {hoveredPaymentMethod.pct}
+                          </span>
+                          <span style={{ fontSize: 15, fontWeight: 800, color: "white", fontFamily: "JetBrains Mono", marginTop: 4 }}>
+                            {hoveredPaymentMethod.amount}
+                          </span>
+                          <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: 4 }}>
+                            {hoveredPaymentMethod.name}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: 24, fontWeight: 900, color: "white", fontFamily: "JetBrains Mono", lineHeight: 1 }}>₹72.6L</span>
+                          <span style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 4, fontWeight: 700 }}>Total Volume</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -890,10 +1113,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                   <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "white" }}>
                     Membership & Subscription Tiers
                   </h3>
-
                 </div>
-                <br></br>
-                <br></br>
                 <button
                   className="btn-primary"
                   onClick={() => {
@@ -908,111 +1128,16 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
                 {plans.map((plan) => (
-                  <div
+                  <MembershipPlanCard
                     key={plan.id}
-                    className="glass-card"
-                    style={{
-                      padding: 22,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      position: "relative",
-                      border: plan.popular ? "1px solid rgba(236, 72, 153, 0.6)" : "1px solid rgba(255,255,255,0.08)",
-                      background: plan.popular ? "rgba(236, 72, 153, 0.06)" : "rgba(255,255,255,0.02)",
+                    plan={plan}
+                    coupons={coupons}
+                    onToggleStatus={promptTogglePlanStatus}
+                    onEditPlan={(p) => {
+                      setEditingPlan(p);
+                      setIsPlanModalOpen(true);
                     }}
-                  >
-                    {plan.badge && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: -12,
-                          right: 16,
-                          background: plan.popular ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "#06b6d4",
-                          color: "white",
-                          padding: "2px 10px",
-                          borderRadius: 20,
-                          fontSize: 10,
-                          fontWeight: 800,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-                        }}
-                      >
-                        {plan.badge}
-                      </span>
-                    )}
-
-                    <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "JetBrains Mono", color: "#ec4899", textTransform: "uppercase" }}>
-                          {plan.duration} ({plan.months} Month{plan.months > 1 ? "s" : ""})
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            padding: "2px 8px",
-                            borderRadius: 4,
-                            background: plan.status === "Active" ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                            color: plan.status === "Active" ? "#34d399" : "#f87171",
-                            fontWeight: 600,
-                          }}
-                        >
-                          ● {plan.status}
-                        </span>
-                      </div>
-
-                      <h4 style={{ fontSize: 20, fontWeight: 800, color: "white", margin: "8px 0 4px" }}>{plan.name}</h4>
-
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "10px 0 16px" }}>
-                        <span style={{ fontSize: 28, fontWeight: 800, color: "#ffffff" }}>₹{plan.priceINR}</span>
-                        <span style={{ fontSize: 13, textDecoration: "line-through", color: "#64748b" }}>₹{plan.originalPriceINR}</span>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>/ total</span>
-                      </div>
-
-                      <ul style={{ paddingLeft: 16, margin: "0 0 16px", fontSize: 12, color: "#cbd5e1", display: "flex", flexDirection: "column", gap: 6 }}>
-                        {plan.features.map((feat, idx) => (
-                          <li key={idx}>{feat}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                      <button
-                        onClick={() => promptTogglePlanStatus(plan)}
-                        style={{
-                          flex: 1,
-                          padding: "8px 12px",
-                          borderRadius: 6,
-                          fontSize: 12,
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          background: "rgba(255,255,255,0.05)",
-                          color: plan.status === "Active" ? "#f87171" : "#34d399",
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {plan.status === "Active" ? "Pause Plan" : "Activate Plan"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingPlan(plan);
-                          setIsPlanModalOpen(true);
-                        }}
-                        style={{
-                          padding: "8px 14px",
-                          borderRadius: 6,
-                          fontSize: 12,
-                          border: "1px solid rgba(236,72,153,0.3)",
-                          background: "rgba(236,72,153,0.15)",
-                          color: "#f472b6",
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
-                      >
-                        Edit Plan
-                      </button>
-                    </div>
-                  </div>
+                  />
                 ))}
               </div>
             </div>
@@ -1077,7 +1202,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                           </div>
 
                           <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
-                            Redeemed: <span style={{ color: "#06b6d4", fontWeight: 700 }}>{c.timesUsed}</span> / {c.usageLimit} times
+                            Usage Limit: <span style={{ color: "#06b6d4", fontWeight: 700 }}>{c.usageLimit}</span> times use
                           </div>
 
                           <div style={{ fontSize: 11, color: "#64748b", marginTop: 2, fontFamily: "JetBrains Mono" }}>
@@ -1171,7 +1296,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                         <option value="Plus">Plus (3 Months)</option>
                         <option value="Pro">Pro (6 Months)</option>
                         <option value="Elite">Elite (1 Year)</option>
-                        <option value="Super Admin">Super Admin</option>
                       </select>
                     </div>
 
@@ -1240,7 +1364,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
                           <thead>
                             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8" }}>
-                              <th style={{ padding: 10 }}>ID</th>
                               <th style={{ padding: 10 }}>Candidate</th>
                               <th style={{ padding: 10 }}>Active Plan</th>
                               <th style={{ padding: 10 }}>Plan Expiry</th>
@@ -1253,7 +1376,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
                           <tbody>
                             {paginatedUsers.map((usr) => (
                               <tr key={usr.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                                <td style={{ padding: 10, fontFamily: "JetBrains Mono", color: "#94a3b8" }}>{usr.id}</td>
                                 <td style={{ padding: 10 }}>
                                   <div style={{ fontWeight: 600, color: "white" }}>{usr.name}</div>
                                   <div style={{ fontSize: 11, color: "#64748b" }}>{usr.email}</div>
@@ -1326,76 +1448,14 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
             <SupportTicketsScreen />
           )}
 
-          {/* 5. SYSTEM: AI TOKENS & MODELS */}
+          {/* 5. SYSTEM: AI TOKENS & MODELS (ERD SCHEMA BASED) */}
           {activeAdminScreen === "admin-ai-models" && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-              <div className="glass-card" style={{ padding: 22 }}>
-                <h3 style={{ margin: "0 0 12px", fontSize: 16, color: "white" }}>AI Engine & Model Router</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div>
-                    <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 4 }}>Mock Interview Evaluator Model:</label>
-                    <select style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "white", padding: 8, borderRadius: 6 }}>
-                      <option value="gemini-1.5-pro">Google Gemini 1.5 Pro (Recommended)</option>
-                      <option value="gpt-4o">OpenAI GPT-4o</option>
-                      <option value="claude-3-5-sonnet">Anthropic Claude 3.5 Sonnet</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 4 }}>ATS Resume Parser Engine:</label>
-                    <select style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "white", padding: 8, borderRadius: 6 }}>
-                      <option value="gemini-flash">Gemini 1.5 Flash (Ultra Fast)</option>
-                      <option value="gpt-4o-mini">GPT-4o Mini</option>
-                    </select>
-                  </div>
-                  <button
-                    className="btn-primary"
-                    onClick={() => showNotification("AI Model Router Saved!")}
-                    style={{ marginTop: 10, fontSize: 12, padding: "8px 14px", borderRadius: 6, background: "linear-gradient(135deg, #ec4899, #7c3aed)" }}
-                  >
-                    Save Model Routing Config
-                  </button>
-                </div>
-              </div>
-
-              <div className="glass-card" style={{ padding: 22 }}>
-                <h3 style={{ margin: "0 0 12px", fontSize: 16, color: "white" }}>AI Token Limits per Tier</h3>
-                <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.8 }}>
-                  <p style={{ margin: 0 }}>• Free Users: Max 50,000 tokens / month</p>
-                  <p style={{ margin: 0 }}>• 1 Month Subscribers: Max 500,000 tokens / month</p>
-                  <p style={{ margin: 0 }}>• 3 Month Subscribers: Max 1,800,000 tokens / qtr</p>
-                  <p style={{ margin: 0 }}>• 6 Month Subscribers: Max 4,500,000 tokens / 6mo</p>
-                  <p style={{ margin: 0 }}>• 1 Year Pass Subscribers: Max 10,000,000 tokens / yr</p>
-                </div>
-              </div>
-            </div>
+            <AiModelsScreen />
           )}
 
           {/* 7. SYSTEM: NOTIFICATIONS SETTINGS */}
           {activeAdminScreen === "admin-notifications" && (
-            <div className="glass-card" style={{ padding: 22, maxWidth: 600 }}>
-              <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white" }}>Automated Notification & Reminder Settings</h3>
-              <div style={{ fontSize: 13, color: "#cbd5e1", display: "flex", flexDirection: "column", gap: 12 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8 }}>
-                  <input type="checkbox" defaultChecked />
-                  <span>Send Renewal Alert 3 Days Prior to Subscription Expiry</span>
-                </label>
-                <label style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8 }}>
-                  <input type="checkbox" defaultChecked />
-                  <span>Send WhatsApp Score Card after AI Mock Interview completion</span>
-                </label>
-                <label style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8 }}>
-                  <input type="checkbox" defaultChecked />
-                  <span>Send Automated Email Invoice Receipt on successful payment</span>
-                </label>
-              </div>
-              <button
-                className="btn-primary"
-                onClick={() => showNotification("Notification preferences saved!")}
-                style={{ marginTop: 16, fontSize: 12, padding: "8px 16px", borderRadius: 8, background: "linear-gradient(135deg, #ec4899, #7c3aed)" }}
-              >
-                Save Notification Settings
-              </button>
-            </div>
+            <NotificationSettingsScreen />
           )}
 
           {/* 8. SYSTEM: ACTIVITY LOG SCREEN */}

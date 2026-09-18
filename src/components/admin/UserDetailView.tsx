@@ -197,8 +197,6 @@ export default function UserDetailView({
             <div style={{ display: "flex", gap: 16, marginTop: 4, fontSize: 13, color: "#94a3b8" }}>
               <span>✉ {user.email}</span>
               <span>•</span>
-              <span style={{ fontFamily: "JetBrains Mono" }}>ID: {user.id}</span>
-              <span>•</span>
               <span>📅 Joined: {user.joined}</span>
             </div>
           </div>

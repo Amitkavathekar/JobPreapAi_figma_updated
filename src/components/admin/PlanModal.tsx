@@ -6,13 +6,13 @@ export interface PlanData {
   duration: string;
   months: number;
   priceINR: number;
-  originalPriceINR: number;
+  originalPriceINR?: number;
   badge?: string;
   popular?: boolean;
   features: string[];
   mockLimit: string;
   atsLimit: string;
-  aiCredits: number;
+  aiCredits?: number;
   status: "Active" | "Draft" | "Archived";
   subscribersCount: number;
 }
@@ -29,12 +29,10 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
   const [duration, setDuration] = useState(initialData?.duration || "3 Months");
   const [months, setMonths] = useState(initialData?.months || 3);
   const [priceINR, setPriceINR] = useState(initialData?.priceINR || 1499);
-  const [originalPriceINR, setOriginalPriceINR] = useState(initialData?.originalPriceINR || 2499);
-  const [aiCredits, setAiCredits] = useState(initialData?.aiCredits || 2000);
   const [mockLimit, setMockLimit] = useState(initialData?.mockLimit || "40 Interviews / qtr");
   const [atsLimit, setAtsLimit] = useState(initialData?.atsLimit || "80 Resume Scans / qtr");
   const [status, setStatus] = useState<"Active" | "Draft" | "Archived">(initialData?.status || "Active");
-  const [badge, setBadge] = useState(initialData?.badge || "Save 40%");
+  
   const [features, setFeatures] = useState<string[]>(
     initialData?.features || [
       "AI Mock Interviews with Speech Analysis",
@@ -65,13 +63,10 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
       duration,
       months: Number(months),
       priceINR: Number(priceINR),
-      originalPriceINR: Number(originalPriceINR),
-      badge: badge.trim() ? badge : undefined,
-      popular: badge.toLowerCase().includes("popular"),
+      originalPriceINR: Number(priceINR),
       features,
       mockLimit,
       atsLimit,
-      aiCredits: Number(aiCredits),
       status,
       subscribersCount: initialData?.subscribersCount || 0,
     };
@@ -242,48 +237,6 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
 
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Original Price (₹ INR)
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={originalPriceINR}
-                  onChange={(e) => setOriginalPriceINR(Number(e.target.value))}
-                  className="glass-input"
-                  style={{ marginTop: 4, padding: "8px 12px", fontSize: 13 }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  AI Credits
-                </label>
-                <input
-                  type="number"
-                  value={aiCredits}
-                  onChange={(e) => setAiCredits(Number(e.target.value))}
-                  className="glass-input"
-                  style={{ marginTop: 4, padding: "8px 10px", fontSize: 12 }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Badge Tag
-                </label>
-                <input
-                  type="text"
-                  value={badge}
-                  placeholder="e.g. Best Value"
-                  onChange={(e) => setBadge(e.target.value)}
-                  className="glass-input"
-                  style={{ marginTop: 4, padding: "8px 10px", fontSize: 12 }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Status
                 </label>
                 <select
@@ -295,9 +248,9 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
                     background: "rgba(255,255,255,0.06)",
                     border: "1px solid rgba(255,255,255,0.12)",
                     color: "white",
-                    padding: "8px",
+                    padding: "8px 12px",
                     borderRadius: 8,
-                    fontSize: 12,
+                    fontSize: 13,
                   }}
                 >
                   <option value="Active">Active</option>
@@ -415,32 +368,11 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
                 padding: 24,
                 borderRadius: 16,
                 position: "relative",
-                border: badge ? "1px solid rgba(236, 72, 153, 0.6)" : "1px solid rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.12)",
                 background: "linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(124, 58, 237, 0.12))",
                 boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
               }}
             >
-              {badge && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: -10,
-                    right: 16,
-                    background: "linear-gradient(135deg, #ec4899, #7c3aed)",
-                    color: "white",
-                    padding: "3px 12px",
-                    borderRadius: 20,
-                    fontSize: 10,
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    boxShadow: "0 4px 12px rgba(236, 72, 153, 0.4)",
-                  }}
-                >
-                  {badge}
-                </span>
-              )}
-
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "JetBrains Mono", color: "#ec4899", textTransform: "uppercase" }}>
                   {duration} ({months} Month{months > 1 ? "s" : ""})
@@ -465,9 +397,6 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
 
               <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "12px 0 16px" }}>
                 <span style={{ fontSize: 32, fontWeight: 800, color: "#ffffff" }}>₹{priceINR}</span>
-                <span style={{ fontSize: 14, textDecoration: "line-through", color: "#64748b" }}>
-                  ₹{originalPriceINR}
-                </span>
                 <span style={{ fontSize: 11, color: "#94a3b8" }}>/ total</span>
               </div>
 
@@ -480,10 +409,6 @@ export default function PlanModal({ isOpen, onClose, onSave, initialData }: Plan
                   <span style={{ color: "#06b6d4", fontWeight: 700, display: "block" }}>ATS Scans:</span>
                   {atsLimit}
                 </div>
-              </div>
-
-              <div style={{ fontSize: 11, color: "#a78bfa", fontFamily: "JetBrains Mono", marginBottom: 12 }}>
-                ⚡ {aiCredits.toLocaleString()} AI Tokens Included
               </div>
 
               <ul style={{ paddingLeft: 16, margin: "0 0 16px", fontSize: 12, color: "#cbd5e1", display: "flex", flexDirection: "column", gap: 6 }}>

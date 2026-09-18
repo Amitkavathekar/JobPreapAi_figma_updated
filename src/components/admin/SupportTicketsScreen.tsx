@@ -15,6 +15,9 @@ export default function SupportTicketsScreen() {
   const [modalStatus, setModalStatus] = useState<SupportTicket["status"]>("Open");
   const [toastMsg, setToastMsg] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
+
   const reloadTickets = () => {
     const list = getStoredTickets();
     setTickets(list);
@@ -71,6 +74,9 @@ export default function SupportTicketsScreen() {
 
     return matchesStatus && matchesCategory && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredTickets.length / pageSize) || 1;
+  const paginatedTickets = filteredTickets.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const getStatusBadge = (status: SupportTicket["status"]) => {
     switch (status) {
@@ -244,155 +250,183 @@ export default function SupportTicketsScreen() {
             <p style={{ margin: 0, fontSize: 13 }}>Try adjusting your search query or status filters.</p>
           </div>
         ) : (
-          filteredTickets.map((ticket) => {
-            const badge = getStatusBadge(ticket.status);
-            const priorityInfo = getPriorityBadge(ticket.priority);
+          <>
+            {paginatedTickets.map((ticket) => {
+              const badge = getStatusBadge(ticket.status);
+              const priorityInfo = getPriorityBadge(ticket.priority);
 
-            return (
-              <div
-                key={ticket.id}
-                style={{
-                  padding: 20,
-                  borderRadius: 16,
-                  background: "rgba(15, 23, 42, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 14,
-                  transition: "all 0.2s",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, fontFamily: "JetBrains Mono", color: "#ec4899", fontWeight: 700 }}>
-                        {ticket.id}
-                      </span>
+              return (
+                <div
+                  key={ticket.id}
+                  style={{
+                    padding: 20,
+                    borderRadius: 16,
+                    background: "rgba(15, 23, 42, 0.6)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 14,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        <span style={{ fontSize: 12, fontFamily: "JetBrains Mono", color: "#ec4899", fontWeight: 700 }}>
+                          {ticket.id}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            padding: "2px 8px",
+                            borderRadius: 4,
+                            background: priorityInfo.bg,
+                            color: priorityInfo.color,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {ticket.priority}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            padding: "2px 8px",
+                            borderRadius: 4,
+                            background: "rgba(255,255,255,0.05)",
+                            color: "#94a3b8",
+                          }}
+                        >
+                          {ticket.category}
+                        </span>
+                        <span style={{ fontSize: 11, color: "#64748b" }}>
+                          • Created: {new Date(ticket.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "white" }}>
+                        {ticket.subject}
+                      </h4>
+
+                      <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 4, display: "flex", alignItems: "center", gap: 8 }}>
+                        <span>👤 Candidate: <strong>{ticket.userName}</strong> ({ticket.userEmail})</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <span
                         style={{
-                          fontSize: 11,
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          background: priorityInfo.bg,
-                          color: priorityInfo.color,
+                          padding: "6px 14px",
+                          borderRadius: 20,
+                          fontSize: 12,
                           fontWeight: 700,
+                          background: badge.bg,
+                          border: `1px solid ${badge.border}`,
+                          color: badge.color,
                         }}
                       >
-                        {ticket.priority}
+                        {badge.label}
                       </span>
-                      <span
-                        style={{
-                          fontSize: 11,
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          background: "rgba(255,255,255,0.05)",
-                          color: "#94a3b8",
-                        }}
-                      >
-                        {ticket.category}
-                      </span>
-                      <span style={{ fontSize: 11, color: "#64748b" }}>
-                        • Created: {new Date(ticket.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
 
-                    <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "white" }}>
-                      {ticket.subject}
-                    </h4>
+                      {/* Quick Resolve Button */}
+                      {ticket.status !== "Resolved" && (
+                        <button
+                          onClick={() => handleQuickResolve(ticket)}
+                          title="Mark ticket status as Resolved"
+                          style={{
+                            padding: "7px 14px",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            background: "rgba(16, 185, 129, 0.2)",
+                            border: "1px solid rgba(16, 185, 129, 0.4)",
+                            color: "#34d399",
+                            cursor: "pointer",
+                            transition: "all 0.2s",
+                          }}
+                        >
+                          ✓ Mark Resolved
+                        </button>
+                      )}
 
-                    <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 4, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span>👤 Candidate: <strong>{ticket.userName}</strong> ({ticket.userEmail})</span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span
-                      style={{
-                        padding: "6px 14px",
-                        borderRadius: 20,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        background: badge.bg,
-                        border: `1px solid ${badge.border}`,
-                        color: badge.color,
-                      }}
-                    >
-                      {badge.label}
-                    </span>
-
-                    {/* Quick Resolve Button */}
-                    {ticket.status !== "Resolved" && (
+                      {/* View & Reply Button */}
                       <button
-                        onClick={() => handleQuickResolve(ticket)}
-                        title="Mark ticket status as Resolved"
+                        onClick={() => handleOpenDetailModal(ticket)}
                         style={{
                           padding: "7px 14px",
                           borderRadius: 8,
                           fontSize: 12,
                           fontWeight: 700,
-                          background: "rgba(16, 185, 129, 0.2)",
-                          border: "1px solid rgba(16, 185, 129, 0.4)",
-                          color: "#34d399",
+                          background: "rgba(236, 72, 153, 0.2)",
+                          border: "1px solid rgba(236, 72, 153, 0.4)",
+                          color: "#f472b6",
                           cursor: "pointer",
                           transition: "all 0.2s",
                         }}
                       >
-                        ✓ Mark Resolved
+                        💬 View & Reply
                       </button>
-                    )}
-
-                    {/* View & Reply Button */}
-                    <button
-                      onClick={() => handleOpenDetailModal(ticket)}
-                      style={{
-                        padding: "7px 14px",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        background: "rgba(236, 72, 153, 0.2)",
-                        border: "1px solid rgba(236, 72, 153, 0.4)",
-                        color: "#f472b6",
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      💬 View & Reply
-                    </button>
+                    </div>
                   </div>
-                </div>
 
-                <div
-                  style={{
-                    padding: 12,
-                    borderRadius: 10,
-                    background: "rgba(0, 0, 0, 0.25)",
-                    border: "1px solid rgba(255, 255, 255, 0.05)",
-                    fontSize: 13,
-                    color: "#e2e8f0",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {ticket.description}
-                </div>
-
-                {ticket.adminResponse && (
                   <div
                     style={{
                       padding: 12,
                       borderRadius: 10,
-                      background: "rgba(236, 72, 153, 0.08)",
-                      border: "1px solid rgba(236, 72, 153, 0.2)",
+                      background: "rgba(0, 0, 0, 0.25)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
                       fontSize: 13,
-                      color: "#f472b6",
+                      color: "#e2e8f0",
+                      lineHeight: 1.5,
                     }}
                   >
-                    <strong style={{ color: "#f43f5e" }}>Admin Reply: </strong>
-                    {ticket.adminResponse}
+                    {ticket.description}
                   </div>
-                )}
+
+                  {ticket.adminResponse && (
+                    <div
+                      style={{
+                        padding: 12,
+                        borderRadius: 10,
+                        background: "rgba(236, 72, 153, 0.08)",
+                        border: "1px solid rgba(236, 72, 153, 0.2)",
+                        fontSize: 13,
+                        color: "#f472b6",
+                      }}
+                    >
+                      <strong style={{ color: "#f43f5e" }}>Admin Reply: </strong>
+                      {ticket.adminResponse}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Pagination Controls */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, background: "rgba(255,255,255,0.02)", padding: 14, borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
+              <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                Showing Page {currentPage} of {totalPages} ({filteredTickets.length} total tickets)
+              </span>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className="btn-ghost"
+                  style={{ padding: "6px 14px", fontSize: 12, opacity: currentPage === 1 ? 0.4 : 1, cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
+                >
+                  Previous
+                </button>
+                <button
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  className="btn-ghost"
+                  style={{ padding: "6px 14px", fontSize: 12, opacity: currentPage >= totalPages ? 0.4 : 1, cursor: currentPage >= totalPages ? "not-allowed" : "pointer" }}
+                >
+                  Next
+                </button>
               </div>
-            );
-          })
+            </div>
+          </>
         )}
       </div>
 
