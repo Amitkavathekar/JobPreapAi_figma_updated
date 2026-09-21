@@ -133,9 +133,18 @@ export default function Dashboard({
 }: DashboardProps) {
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   const [documentsList, setDocumentsList] = useState<ResumeDocument[]>(INITIAL_DOCUMENTS);
+  const [pinnedDocs, setPinnedDocs] = useState<{ [key: number]: boolean }>({});
   const [selectedResumeForModal, setSelectedResumeForModal] = useState<ResumeDocument | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isModalEditable, setIsModalEditable] = useState(false);
+
+  const handleTogglePin = (id: number) => {
+    setPinnedDocs((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleDeleteDoc = (id: number) => {
+    setDocumentsList((prev) => prev.filter((d) => d.id !== id));
+  };
 
   // Pagination State for Resumes Table
   const [currentPage, setCurrentPage] = useState(1);
@@ -325,12 +334,11 @@ export default function Dashboard({
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Name</th>
-                  <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Job</th>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Created at</th>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>
                     Last edit <span style={{ fontSize: 11 }}>↓</span>
                   </th>
-                  <th style={{ padding: "12px 14px", width: 70, textAlign: "right" }}></th>
+                  <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)", textAlign: "center", width: 170 }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -353,7 +361,7 @@ export default function Dashboard({
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            maxWidth: 180,
+                            maxWidth: 210,
                             color: "#a78bfa",
                             fontWeight: 600,
                             textDecoration: "none",
@@ -367,58 +375,6 @@ export default function Dashboard({
                       </div>
                     </td>
 
-                    {/* Job */}
-                    <td style={{ padding: "14px", fontSize: 13 }}>
-                      {doc.job ? (
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                          <span
-                            style={{
-                              color: "#a78bfa",
-                              fontStyle: "italic",
-                              textDecoration: "underline",
-                              cursor: "pointer",
-                              fontWeight: 500,
-                              whiteSpace: "nowrap"
-                            }}
-                            onClick={() => onNavigate("job-resume")}
-                          >
-                            {doc.job}
-                          </span>
-                          {doc.score && (
-                            <span
-                              style={{
-                                background: "#10b981",
-                                color: "white",
-                                fontSize: 10,
-                                fontWeight: 700,
-                                padding: "2px 6px",
-                                borderRadius: 5,
-                                fontFamily: "JetBrains Mono"
-                              }}
-                            >
-                              {doc.score}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <button
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "rgba(148,163,184,0.7)",
-                            fontSize: 12,
-                            cursor: "pointer",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4
-                          }}
-                          onClick={() => onNavigate("job-resume")}
-                        >
-                          + Add
-                        </button>
-                      )}
-                    </td>
-
                     {/* Created at */}
                     <td style={{ padding: "14px", fontSize: 12, color: "rgba(148,163,184,0.7)", fontFamily: "JetBrains Mono", whiteSpace: "nowrap" }}>
                       {doc.createdAt}
@@ -429,72 +385,106 @@ export default function Dashboard({
                       {doc.lastEdit}
                     </td>
 
-                    {/* Actions — ONLY 3 dots button kept as requested */}
-                    <td style={{ padding: "14px", textAlign: "right", position: "relative" }}>
-                      <button
-                        title="More options"
-                        onClick={() => setActiveMenuId(activeMenuId === doc.id ? null : doc.id)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "rgba(226,232,240,0.7)",
-                          fontSize: 15,
-                          cursor: "pointer",
-                          padding: "4px 8px",
-                          borderRadius: 6,
-                          letterSpacing: 2
-                        }}
-                        className="glass-hover"
-                      >
-                        •••
-                      </button>
-
-                      {/* Options Menu Dropdown */}
-                      {activeMenuId === doc.id && (
-                        <div
-                          className="glass fade-in"
+                    {/* Actions — Action icons (Edit, Download, Pin, Delete) */}
+                    <td style={{ padding: "14px 10px", textAlign: "center" }}>
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>
+                        {/* 1. Sparkles / AI Edit */}
+                        <button
+                          title="Edit / AI Suggest"
+                          onClick={() => handleOpenPreviewModal(doc, true)}
                           style={{
-                            position: "absolute",
-                            right: 12,
-                            top: 42,
-                            zIndex: 50,
-                            width: 150,
-                            padding: "6px 0",
-                            boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            background: "#0d0d2b"
+                            background: "none",
+                            border: "none",
+                            color: "rgba(226,232,240,0.8)",
+                            cursor: "pointer",
+                            padding: 4,
+                            borderRadius: 4,
+                            display: "flex",
+                            alignItems: "center",
+                            transition: "all 0.15s ease"
                           }}
+                          className="hover:text-cyan-400 hover:scale-110"
                         >
-                          <div
-                            style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
-                            className="glass-hover"
-                            onClick={() => { setActiveMenuId(null); handleOpenPreviewModal(doc, false); }}
-                          >
-                            👁 View Resume
-                          </div>
-                          <div
-                            style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
-                            className="glass-hover"
-                            onClick={() => { setActiveMenuId(null); handleOpenPreviewModal(doc, true); }}
-                          >
-                            ✏️ Edit
-                          </div>
-                          <div
-                            style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
-                            className="glass-hover"
-                            onClick={() => { setActiveMenuId(null); handleDownload(doc.name); }}
-                          >
-                            📥 Download
-                          </div>
-                          <div
-                            style={{ padding: "8px 14px", fontSize: 12, color: "#ef4444", cursor: "pointer", textAlign: "left" }}
-                            className="glass-hover"
-                            onClick={() => setActiveMenuId(null)}
-                          >
-                            🗑 Delete
-                          </div>
-                        </div>
-                      )}
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                            <path d="M20 3v4" />
+                            <path d="M18 5h4" />
+                          </svg>
+                        </button>
+
+                        {/* 2. Download */}
+                        <button
+                          title="Download"
+                          onClick={() => handleDownload(doc.name)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "rgba(226,232,240,0.8)",
+                            cursor: "pointer",
+                            padding: 4,
+                            borderRadius: 4,
+                            display: "flex",
+                            alignItems: "center",
+                            transition: "all 0.15s ease"
+                          }}
+                          className="hover:text-sky-400 hover:scale-110"
+                        >
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                          </svg>
+                        </button>
+
+                        {/* 3. Pin (Replaces Favorite) */}
+                        <button
+                          title={pinnedDocs[doc.id] ? "Unpin Resume" : "Pin Resume"}
+                          onClick={() => handleTogglePin(doc.id)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: pinnedDocs[doc.id] ? "#f59e0b" : "rgba(226,232,240,0.8)",
+                            cursor: "pointer",
+                            padding: 4,
+                            borderRadius: 4,
+                            display: "flex",
+                            alignItems: "center",
+                            transition: "all 0.15s ease"
+                          }}
+                          className="hover:text-amber-400 hover:scale-110"
+                        >
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill={pinnedDocs[doc.id] ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="17" x2="12" y2="22"></line>
+                            <path d="M5 17h14l-1.5-6H6.5L5 17z"></path>
+                            <path d="M9 11V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7"></path>
+                          </svg>
+                        </button>
+
+                        {/* 4. Trash / Delete */}
+                        <button
+                          title="Delete"
+                          onClick={() => handleDeleteDoc(doc.id)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "rgba(226,232,240,0.8)",
+                            cursor: "pointer",
+                            padding: 4,
+                            borderRadius: 4,
+                            display: "flex",
+                            alignItems: "center",
+                            transition: "all 0.15s ease"
+                          }}
+                          className="hover:text-red-400 hover:scale-110"
+                        >
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
