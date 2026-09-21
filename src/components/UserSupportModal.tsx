@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { UserProfile, SupportTicket } from "../types";
 import {
   getStoredTickets,
@@ -11,12 +11,211 @@ interface UserSupportModalProps {
   userProfile: UserProfile;
 }
 
+interface FAQItem {
+  id: number;
+  question: string;
+  answer: string;
+  category: "ATS & Resume" | "Mock Interview" | "Billing & Plans" | "Technical Issue" | "Account & Privacy" | "Support";
+}
+
+const FAQ_LIST: FAQItem[] = [
+  {
+    id: 1,
+    question: "How does ATS Resume Scoring work?",
+    answer: "Our AI parses your resume text and compares formatting, skill keyword density, experience metrics, and section structure against your target Job Description to calculate an exact match percentage score out of 100.",
+    category: "ATS & Resume",
+  },
+  {
+    id: 2,
+    question: "How many free practice questions or scans do I get?",
+    answer: "Free tier candidates can view 2 practice questions per interview and run basic ATS scans. Upgrading to Pro or Elite unlocks unlimited questions, company-specific mock interviews, and live voice speech analysis.",
+    category: "Billing & Plans",
+  },
+  {
+    id: 3,
+    question: "What is STAR feedback in Voice Mock Interview?",
+    answer: "STAR stands for Situation, Task, Action, and Result. Our AI audio analyzer breaks down your spoken answers to check if you clearly covered the context, your specific technical role, and quantitative outcomes.",
+    category: "Mock Interview",
+  },
+  {
+    id: 4,
+    question: "How do I upgrade or manage my membership plan?",
+    answer: "Click the 'Upgrade' button in the top navigation or profile tab to choose between Basic (₹499), Plus (₹1,299), Pro (₹2,299), and Elite (₹3,999) plans with instant activation via UPI or cards.",
+    category: "Billing & Plans",
+  },
+  {
+    id: 5,
+    question: "Can I export my optimized resume to PDF format?",
+    answer: "Yes! The Live Resume Editor provides 1-click ATS-compliant PDF export with preserved formatting, bullet highlights, and clean typography.",
+    category: "ATS & Resume",
+  },
+  {
+    id: 6,
+    question: "What should I do if my microphone isn't capturing voice in Mock Interview?",
+    answer: "Ensure browser microphone permissions are allowed (check site permissions in your address bar). Use Google Chrome or Microsoft Edge for best Web Speech API support and verify that your microphone input device is selected.",
+    category: "Technical Issue",
+  },
+  {
+    id: 7,
+    question: "How do I target specific companies like Google, TCS, or Infosys?",
+    answer: "Go to Interview Prep & Question Bank or Voice Mock Interview, and filter by Company Tags (Google, TCS, Amazon, Microsoft, Infosys) to get company-specific past questions and evaluation rubrics.",
+    category: "Mock Interview",
+  },
+  {
+    id: 8,
+    question: "What payment methods are supported for plan upgrades?",
+    answer: "We support UPI (Google Pay, PhonePe, Paytm, BHIM), Credit & Debit Cards (Visa, Mastercard, RuPay), Net Banking, and Wallets through 256-bit SSL encrypted Razorpay checkout.",
+    category: "Billing & Plans",
+  },
+  {
+    id: 9,
+    question: "How long does it take for support tickets to be resolved?",
+    answer: "Urgent & High priority tickets receive responses from our support engineers within 1–2 hours. Medium and Low priority queries are resolved within 24 hours.",
+    category: "Support",
+  },
+  {
+    id: 10,
+    question: "Can I store multiple resume versions for different roles?",
+    answer: "Yes! Under 'Job & Resume Management', you can upload and save multiple versions of your CV tailored for different job profiles (e.g. Frontend Developer, Fullstack Engineer, Data Analyst).",
+    category: "ATS & Resume",
+  },
+  {
+    id: 11,
+    question: "How does speech speed and filler word detection work?",
+    answer: "During Voice Mock Interview, our AI audio engine computes your Words Per Minute (WPM), voice pauses, and detects filler words like 'um', 'ah', 'like', and 'you know' to score your communication confidence.",
+    category: "Technical Issue",
+  },
+  {
+    id: 12,
+    question: "What happens after my subscription plan expires?",
+    answer: "Your account automatically transitions to the standard plan. All your generated report cards, uploaded resumes, and interview history remain permanently stored in your account.",
+    category: "Billing & Plans",
+  },
+  {
+    id: 13,
+    question: "Is my personal resume data private and confidential?",
+    answer: "Absolutely. We use enterprise 256-bit encryption. Your personal resume information, contact details, and voice recordings are never shared, sold, or exposed to third parties.",
+    category: "Account & Privacy",
+  },
+  {
+    id: 14,
+    question: "How do coupons or promo discount codes work?",
+    answer: "During checkout in the Upgrade modal, enter your active promo code (e.g. WELCOME50 or PRO200) to apply instant percentage or flat discounts on your selected plan.",
+    category: "Billing & Plans",
+  },
+  {
+    id: 15,
+    question: "How can I submit feature requests or report a system bug?",
+    answer: "You can use the 'Raise Query' section in this Help & Support center to select 'Bug Report' or 'Feature Request', and our engineering team will evaluate it promptly.",
+    category: "Support",
+  },
+];
+
+function MessageFeedbackSection({
+  isLastBotMsg,
+  feedbackState,
+  onSatisfied,
+  onNotSatisfied,
+}: {
+  isLastBotMsg: boolean;
+  feedbackState?: 'satisfied' | 'not_satisfied';
+  onSatisfied: () => void;
+  onNotSatisfied: () => void;
+}) {
+  const [isRevealed, setIsRevealed] = useState(false);
+
+  useEffect(() => {
+    if (feedbackState || !isLastBotMsg) return;
+    const timer = setTimeout(() => {
+      setIsRevealed(true);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, [feedbackState, isLastBotMsg]);
+
+  if (feedbackState === 'satisfied') {
+    return (
+      <span style={{ fontSize: 11, color: '#34d399', fontWeight: 600 }}>
+        ✓ Satisfied with answer
+      </span>
+    );
+  }
+
+  if (feedbackState === 'not_satisfied') {
+    return (
+      <span style={{ fontSize: 11, color: '#f87171', fontWeight: 600 }}>
+        ✕ Ticket form unlocked below
+      </span>
+    );
+  }
+
+  if (!isLastBotMsg || !isRevealed) {
+    return null;
+  }
+
+  return (
+    <>
+      <span style={{ fontSize: 11, color: '#94a3b8' }}>Satisfied?</span>
+      <button
+        onClick={onSatisfied}
+        style={{
+          padding: '2px 8px',
+          borderRadius: 4,
+          background: 'rgba(16, 185, 129, 0.15)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          color: '#34d399',
+          fontSize: 11,
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        👍 Yes
+      </button>
+      <button
+        onClick={onNotSatisfied}
+        style={{
+          padding: '2px 8px',
+          borderRadius: 4,
+          background: 'rgba(239, 68, 68, 0.15)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#f87171',
+          fontSize: 11,
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        👎 No, Raise Query →
+      </button>
+    </>
+  );
+}
+
 export default function UserSupportModal({
   isOpen,
   onClose,
   userProfile,
 }: UserSupportModalProps) {
-  const [activeTab, setActiveTab] = useState<"raise" | "history">("raise");
+  // FAQ progressive state
+  const [faqSearch, setFaqSearch] = useState("");
+  const [expandedFaqId, setExpandedFaqId] = useState<number | null>(1);
+  const [faqSatisfaction, setFaqSatisfaction] = useState<"none" | "satisfied" | "not_satisfied">("none");
+
+  // AI Chatbot progressive state
+  const [aiSatisfaction, setAiSatisfaction] = useState<"none" | "satisfied" | "not_satisfied">("none");
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; sender: "bot" | "user"; text: string; time: string }>>([
+    {
+      id: "welcome-1",
+      sender: "bot",
+      text: `Hello ${userProfile.full_name || "Candidate"}! 👋 I'm your JobPrep AI Support Assistant. Since the FAQs didn't resolve your issue, please tell me what you need help with!`,
+      time: "Just now",
+    },
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [isBotTyping, setIsBotTyping] = useState(false);
+  const chatBottomRef = useRef<HTMLDivElement | null>(null);
+  const aiSectionRef = useRef<HTMLDivElement | null>(null);
+  const raiseSectionRef = useRef<HTMLDivElement | null>(null);
+
+  // Ticket Form state
   const [category, setCategory] = useState<SupportTicket["category"]>("Technical Issue");
   const [priority, setPriority] = useState<SupportTicket["priority"]>("Medium");
   const [subject, setSubject] = useState("");
@@ -24,6 +223,7 @@ export default function UserSupportModal({
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Load candidate's tickets
   const loadUserTickets = () => {
@@ -40,6 +240,9 @@ export default function UserSupportModal({
     if (isOpen) {
       loadUserTickets();
       setSuccessMsg("");
+      setFaqSatisfaction("none");
+      setAiSatisfaction("none");
+      setShowHistory(false);
     }
   }, [isOpen, userProfile.id, userProfile.email]);
 
@@ -49,15 +252,86 @@ export default function UserSupportModal({
     return () => window.removeEventListener("support_tickets_updated", handleUpdate);
   }, []);
 
+  const [modalMsgFeedback, setModalMsgFeedback] = useState<Record<string, 'satisfied' | 'not_satisfied'>>({});
+  const [submittedTicketObj, setSubmittedTicketObj] = useState<SupportTicket | null>(null);
+
+  useEffect(() => {
+    if (faqSatisfaction === "not_satisfied") {
+      setTimeout(() => {
+        aiSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [faqSatisfaction]);
+
+  useEffect(() => {
+    if (aiSatisfaction === "not_satisfied") {
+      setTimeout(() => {
+        raiseSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [aiSatisfaction]);
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, isBotTyping]);
+
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // FAQ list
+  const filteredFaqs = FAQ_LIST;
+
+  // Chatbot logic
+  const handleSendChatMessage = (textToSend?: string) => {
+    const query = (textToSend || chatInput).trim();
+    if (!query) return;
+
+    const userMsg = {
+      id: "msg-" + Date.now(),
+      sender: "user" as const,
+      text: query,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+    setIsBotTyping(true);
+
+    setTimeout(() => {
+      let botReply = "I understand your issue! If you'd like our technical team to look into your specific account details, you can use the 'Raise Support Ticket' form below.";
+      const q = query.toLowerCase();
+
+      if (q.includes("ats") || q.includes("score") || q.includes("match")) {
+        botReply = "Your ATS match score is computed by comparing your resume text against target Job Description keywords, formatting structure, and section metrics. Use the Live Resume Editor to add missing keywords for an instant score boost!";
+      } else if (q.includes("mock") || q.includes("voice") || q.includes("audio") || q.includes("mic")) {
+        botReply = "For Voice Mock Interviews: Ensure browser microphone permissions are enabled, use Google Chrome or Edge, and speak clearly. Our AI evaluates your STAR structure (Situation, Task, Action, Result) and speech clarity.";
+      } else if (q.includes("plan") || q.includes("upgrade") || q.includes("payment") || q.includes("price") || q.includes("refund")) {
+        botReply = "We offer Basic (₹499), Plus (₹1,299), Pro (₹2,299), and Elite (₹3,999) plans with instant activation via UPI, Debit/Credit Cards, and NetBanking via 256-bit SSL Razorpay checkout.";
+      } else if (q.includes("pdf") || q.includes("export") || q.includes("download")) {
+        botReply = "You can export your resume to ATS-friendly PDF anytime from the Live Resume Editor. Simply click the 'Export PDF' button at the top right of the editor screen.";
+      } else if (q.includes("ticket") || q.includes("human") || q.includes("contact") || q.includes("admin")) {
+        botReply = "I can transfer you directly to our human support queue! Scroll down to 'Step 3: Raise Support Ticket' to submit your issue directly to our engineers.";
+      }
+
+      const botMsg = {
+        id: "msg-bot-" + Date.now(),
+        sender: "bot" as const,
+        text: botReply,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+
+      setChatMessages((prev) => [...prev, botMsg]);
+      setIsBotTyping(false);
+    }, 700);
+  };
+
+  // Submit Ticket Logic
+  const handleSubmitTicket = (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !description.trim()) return;
 
     setSubmitting(true);
     setTimeout(() => {
-      createNewTicket(
+      const created = createNewTicket(
         {
           id: userProfile.id,
           name: userProfile.full_name,
@@ -71,17 +345,12 @@ export default function UserSupportModal({
         }
       );
 
+      setSubmittedTicketObj(created);
       setSubmitting(false);
-      setSuccessMsg("Your query has been submitted successfully! Support team will respond shortly.");
+      setSuccessMsg(`Your support query (${created.id}) has been submitted successfully! SLA: 2 hours.`);
       setSubject("");
       setDescription("");
       loadUserTickets();
-
-      // Switch to history tab after 1.2 sec
-      setTimeout(() => {
-        setActiveTab("history");
-        setSuccessMsg("");
-      }, 1200);
     }, 400);
   };
 
@@ -130,8 +399,9 @@ export default function UserSupportModal({
       <div
         style={{
           width: "100%",
-          maxWidth: 640,
-          maxHeight: "90vh",
+          maxWidth: 720,
+          height: "90vh",
+          maxHeight: 780,
           background: "linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(10, 10, 26, 0.98))",
           border: "1px solid rgba(124, 58, 237, 0.3)",
           borderRadius: 20,
@@ -143,10 +413,10 @@ export default function UserSupportModal({
           animation: "modalFadeIn 0.25s ease-out",
         }}
       >
-        {/* Header */}
+        {/* Modal Header */}
         <div
           style={{
-            padding: "20px 24px",
+            padding: "18px 24px",
             borderBottom: "1px solid rgba(255,255,255,0.08)",
             display: "flex",
             alignItems: "center",
@@ -175,7 +445,7 @@ export default function UserSupportModal({
                 Help & Support Center
               </h3>
               <p style={{ margin: 0, fontSize: 12, color: "rgba(148,163,184,0.7)" }}>
-                Submit queries or report issues directly to our AI JobPrep support team
+                Scroll down FAQs → AI Chatbot Assistant → Raise Priority Ticket
               </p>
             </div>
           </div>
@@ -201,365 +471,483 @@ export default function UserSupportModal({
           </button>
         </div>
 
-        {/* Navigation Tabs */}
-        <div
-          style={{
-            display: "flex",
-            padding: "8px 24px",
-            gap: 12,
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            background: "rgba(0,0,0,0.2)",
-          }}
-        >
-          <button
-            onClick={() => setActiveTab("raise")}
+        {/* Modal Main Mode 1-Style Chat Window */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          {/* Main Chat Stream Container */}
+          <div
             style={{
-              padding: "8px 16px",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              background: activeTab === "raise" ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "transparent",
-              color: activeTab === "raise" ? "#ffffff" : "#94a3b8",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
+              flex: 1,
+              padding: '20px 22px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18,
+              background: 'rgba(7,7,26,0.3)',
+              overflowY: 'auto',
             }}
           >
-            <span>➕ Raise New Query</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("history")}
-            style={{
-              padding: "8px 16px",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              background: activeTab === "history" ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "transparent",
-              color: activeTab === "history" ? "#ffffff" : "#94a3b8",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <span>🎫 My Submitted Queries</span>
-            {tickets.length > 0 && (
-              <span
+            {/* 1. INITIAL FAQ BOT CHAT BUBBLE */}
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <div
                 style={{
-                  fontSize: 11,
-                  padding: "2px 7px",
-                  borderRadius: 20,
-                  background: activeTab === "history" ? "rgba(255,255,255,0.25)" : "rgba(124, 58, 237, 0.3)",
-                  color: "#white",
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 15,
+                  flexShrink: 0,
+                  marginTop: 2,
+                  fontWeight: 700,
+                  color: 'white',
                 }}
               >
-                {tickets.length}
-              </span>
-            )}
-          </button>
-        </div>
+                🤖
+              </div>
 
-        {/* Tab Body */}
-        <div style={{ padding: 24, overflowY: "auto", flex: 1 }}>
-          {successMsg && (
-            <div
-              style={{
-                marginBottom: 20,
-                padding: "12px 16px",
-                borderRadius: 12,
-                background: "rgba(16, 185, 129, 0.15)",
-                border: "1px solid rgba(16, 185, 129, 0.4)",
-                color: "#34d399",
-                fontSize: 13,
-                fontWeight: 600,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <span>✓</span>
-              <span>{successMsg}</span>
-            </div>
-          )}
-
-          {activeTab === "raise" ? (
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              {/* Category & Priority Selectors */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
-                    Issue Category
-                  </label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value as any)}
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      borderRadius: 10,
-                      background: "rgba(255, 255, 255, 0.05)",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
-                      color: "white",
-                      fontSize: 13,
-                      outline: "none",
-                    }}
-                  >
-                    <option value="Technical Issue" style={{ background: "#0f172a", color: "white" }}>Technical Issue</option>
-                    <option value="Billing & Payment" style={{ background: "#0f172a", color: "white" }}>Billing & Payment</option>
-                    <option value="Resume AI" style={{ background: "#0f172a", color: "white" }}>Resume AI / ATS</option>
-                    <option value="Mock Interview" style={{ background: "#0f172a", color: "white" }}>Mock Interview</option>
-                    <option value="Account & Other" style={{ background: "#0f172a", color: "white" }}>Account & Other</option>
-                  </select>
+              <div style={{ maxWidth: '90%', flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontFamily: 'JetBrains Mono',
+                    color: '#a78bfa',
+                    marginBottom: 4,
+                    fontWeight: 700,
+                  }}
+                >
+                  AI ASSISTANT · HELP CENTER
                 </div>
 
-                <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
-                    Priority Level
-                  </label>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    {(["Low", "Medium", "High", "Urgent"] as const).map((p) => {
-                      const isSelected = priority === p;
-                      const badge = getPriorityBadge(p);
+                <div
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '14px 14px 14px 2px',
+                    padding: '16px 18px',
+                    color: 'white',
+                    fontSize: 13.5,
+                    lineHeight: 1.6,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 14,
+                  }}
+                >
+                  <div>
+                    👋 Welcome to <strong>JobPrepAI Help & Support</strong>! Browse our 15 Frequently Asked Questions below. If you need further help, click <strong>"No, Talk to AI Assistant"</strong> or ask any question directly in the chat input below!
+                  </div>
+
+                  {/* 15 FAQs Accordion List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {filteredFaqs.map((faq) => {
+                      const isExpanded = expandedFaqId === faq.id;
                       return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setPriority(p)}
+                        <div
+                          key={faq.id}
                           style={{
-                            flex: 1,
-                            padding: "8px 0",
-                            borderRadius: 8,
-                            fontSize: 11,
-                            fontWeight: 700,
-                            border: isSelected ? `1.5px solid ${badge.color}` : "1px solid rgba(255,255,255,0.1)",
-                            background: isSelected ? badge.bg : "rgba(255,255,255,0.03)",
-                            color: isSelected ? badge.color : "#94a3b8",
-                            cursor: "pointer",
-                            transition: "all 0.2s",
+                            borderRadius: 10,
+                            background: isExpanded ? 'rgba(124, 58, 237, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                            border: isExpanded ? '1px solid rgba(124, 58, 237, 0.4)' : '1px solid rgba(255, 255, 255, 0.12)',
+                            overflow: 'hidden',
+                            transition: 'all 0.2s ease',
                           }}
                         >
-                          {p}
-                        </button>
+                          <button
+                            onClick={() => setExpandedFaqId(isExpanded ? null : faq.id)}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: 'none',
+                              border: 'none',
+                              color: 'white',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: 13,
+                              fontWeight: 600,
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(6, 182, 212, 0.2)', color: '#22d3ee', fontFamily: 'JetBrains Mono', fontWeight: 700 }}>
+                                #{faq.id}
+                              </span>
+                              <span style={{ color: 'white' }}>{faq.question}</span>
+                            </div>
+                            <span style={{ color: '#c4b5fd', fontSize: 12, marginLeft: 10 }}>
+                              {isExpanded ? '▲' : '▼'}
+                            </span>
+                          </button>
+
+                          {isExpanded && (
+                            <div style={{ padding: '0 16px 14px', fontSize: 12.5, color: 'rgba(226, 232, 240, 0.9)', lineHeight: 1.5, borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 10 }}>
+                              <div>{faq.answer}</div>
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
-                </div>
-              </div>
 
-              {/* Subject Input */}
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
-                  Subject / Summary
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. ATS scan stuck at 90% or Refund query"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    background: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "white",
-                    fontSize: 13,
-                    outline: "none",
-                  }}
-                />
-              </div>
+                  {/* FAQ SATISFACTION CHECK BOX AT THE END OF FAQs */}
+                  <div
+                    style={{
+                      marginTop: 10,
+                      padding: '14px 16px',
+                      borderRadius: 12,
+                      background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(6, 182, 212, 0.12))',
+                      border: '1px solid rgba(124, 58, 237, 0.3)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 10,
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                      🤔 Did these 15 FAQs resolve your query?
+                    </div>
 
-              {/* Description Input */}
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
-                  Detailed Description of Problem
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Describe what happened, error messages, or details of your request..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 14px",
-                    borderRadius: 10,
-                    background: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "white",
-                    fontSize: 13,
-                    outline: "none",
-                    resize: "vertical",
-                    fontFamily: "inherit",
-                  }}
-                />
-              </div>
-
-              {/* User Auto Info */}
-              <div
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: 12,
-                  color: "#94a3b8",
-                }}
-              >
-                <span>Submitting as: <strong style={{ color: "white" }}>{userProfile.full_name}</strong> ({userProfile.email})</span>
-                <span style={{ color: "#06b6d4", fontSize: 11 }}>● Priority SLA ~ 2 hrs</span>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={submitting}
-                style={{
-                  padding: "12px 20px",
-                  borderRadius: 12,
-                  background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
-                  border: "none",
-                  color: "white",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  boxShadow: "0 4px 15px rgba(124, 58, 237, 0.4)",
-                  transition: "all 0.2s",
-                }}
-              >
-                {submitting ? "Submitting Ticket..." : "🚀 Submit Support Ticket"}
-              </button>
-            </form>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {tickets.length === 0 ? (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "40px 20px",
-                    color: "#94a3b8",
-                  }}
-                >
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>📬</div>
-                  <h4 style={{ margin: "0 0 6px", color: "white", fontSize: 16 }}>No support queries yet</h4>
-                  <p style={{ margin: 0, fontSize: 13 }}>
-                    If you run into any issue or have questions, click "Raise New Query" above!
-                  </p>
-                </div>
-              ) : (
-                tickets.map((t) => {
-                  const badge = getStatusBadge(t.status);
-                  const priorityInfo = getPriorityBadge(t.priority);
-                  return (
-                    <div
-                      key={t.id}
-                      style={{
-                        padding: 18,
-                        borderRadius: 14,
-                        background: "rgba(255, 255, 255, 0.03)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                        <div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                            <span style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "#a78bfa", fontWeight: 700 }}>
-                              {t.id}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: 10,
-                                padding: "2px 8px",
-                                borderRadius: 4,
-                                background: priorityInfo.bg,
-                                color: priorityInfo.color,
-                                fontWeight: 700,
-                              }}
-                            >
-                              {t.priority} Priority
-                            </span>
-                            <span style={{ fontSize: 10, color: "#64748b" }}>
-                              • {t.category}
-                            </span>
-                          </div>
-                          <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "white" }}>
-                            {t.subject}
-                          </h4>
-                        </div>
-
-                        <span
-                          style={{
-                            padding: "4px 10px",
-                            borderRadius: 20,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            background: badge.bg,
-                            border: `1px solid ${badge.border}`,
-                            color: badge.color,
-                            whiteSpace: "nowrap",
-                          }}
+                    {faqSatisfaction === 'satisfied' ? (
+                      <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399', fontSize: 13, fontWeight: 600 }}>
+                        🎉 Awesome! We are glad we could help. Happy job preparation! 🚀
+                      </div>
+                    ) : faqSatisfaction === 'not_satisfied' ? (
+                      <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.35)', color: '#c4b5fd', fontSize: 12.5, fontWeight: 600 }}>
+                        🤖 AI Support Assistant Activated Below 👇
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => setFaqSatisfaction('satisfied')}
+                          style={{ padding: '8px 16px', borderRadius: 8, background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
-                          {badge.label}
-                        </span>
+                          👍 Yes, I'm Satisfied
+                        </button>
+                        <button
+                          onClick={() => setFaqSatisfaction('not_satisfied')}
+                          style={{ padding: '8px 16px', borderRadius: 8, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', border: 'none', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: '0 0 15px rgba(124, 58, 237, 0.4)' }}
+                        >
+                          👎 No, Talk to AI Assistant →
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. CHAT MESSAGES STREAM (REVEALED WHEN FAQ NOT SATISFIED) */}
+            {faqSatisfaction === 'not_satisfied' && (() => {
+              const lastBotMsgId = [...chatMessages].reverse().find((m) => m.sender === 'bot')?.id;
+              return chatMessages.map((msg) => {
+                const isUser = msg.sender === 'user';
+                const isLastBotMsg = msg.id === lastBotMsgId;
+                return (
+                  <div key={msg.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: isUser ? 'row-reverse' : 'row' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: isUser ? 'linear-gradient(135deg, #06b6d4, #10b981)' : 'linear-gradient(135deg, #7c3aed, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0, marginTop: 2, fontWeight: 700, color: 'white' }}>
+                      {isUser ? 'AK' : '🤖'}
+                    </div>
+
+                    <div style={{ maxWidth: '82%' }}>
+                      <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: isUser ? '#67e8f9' : '#a78bfa', marginBottom: 4, fontWeight: 700, textAlign: isUser ? 'right' : 'left' }}>
+                        {isUser ? 'YOU' : 'AI ASSISTANT'} · {msg.time}
                       </div>
 
-                      <p style={{ margin: 0, fontSize: 13, color: "#cbd5e1", lineHeight: 1.5, background: "rgba(0,0,0,0.2)", padding: 10, borderRadius: 8 }}>
-                        {t.description}
-                      </p>
+                      <div style={{ background: isUser ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.05)', border: isUser ? '1px solid rgba(6,182,212,0.3)' : '1px solid rgba(255,255,255,0.1)', borderRadius: isUser ? '14px 14px 2px 14px' : '14px 14px 14px 2px', padding: '14px 18px', color: 'white', fontSize: 13.5, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                        <div>{msg.text}</div>
 
-                      {/* Admin Response Box if available */}
-                      {t.adminResponse && (
-                        <div
-                          style={{
-                            marginTop: 4,
-                            padding: 12,
-                            borderRadius: 10,
-                            background: "rgba(124, 58, 237, 0.12)",
-                            border: "1px solid rgba(124, 58, 237, 0.3)",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 6,
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: "#a78bfa", display: "flex", alignItems: "center", gap: 6 }}>
-                              <span>🛡</span> Official Admin Response
-                            </span>
-                            {t.responseAt && (
-                              <span style={{ fontSize: 10, color: "rgba(167,139,250,0.7)" }}>
-                                {new Date(t.responseAt).toLocaleDateString()} {new Date(t.responseAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            )}
+                        {!isUser && (
+                          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <MessageFeedbackSection
+                              isLastBotMsg={isLastBotMsg}
+                              feedbackState={modalMsgFeedback[msg.id]}
+                              onSatisfied={() => setModalMsgFeedback((prev) => ({ ...prev, [msg.id]: 'satisfied' }))}
+                              onNotSatisfied={() => {
+                                setModalMsgFeedback((prev) => ({ ...prev, [msg.id]: 'not_satisfied' }));
+                                setAiSatisfaction('not_satisfied');
+                              }}
+                            />
                           </div>
-                          <p style={{ margin: 0, fontSize: 13, color: "#f1f5f9", lineHeight: 1.5, fontWeight: 500 }}>
-                            {t.adminResponse}
-                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+
+            {isBotTyping && (
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', color: '#06b6d4', fontSize: 12 }}>
+                <span>🤖</span> AI Assistant is typing response...
+              </div>
+            )}
+
+            {/* 3. PRIORITY SUPPORT TICKET FORM (UNLOCKED IN CHAT STREAM WHEN AI NOT SATISFIED) */}
+            {aiSatisfaction === 'not_satisfied' && (
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #ef4444)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0, marginTop: 2, fontWeight: 700, color: 'white' }}>
+                  🎫
+                </div>
+
+                <div style={{ maxWidth: '85%', width: '100%' }}>
+                  <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono', color: '#f59e0b', marginBottom: 4, fontWeight: 700 }}>
+                    PRIORITY SUPPORT TICKET FORM
+                  </div>
+
+                  {!submittedTicketObj ? (
+                    <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '14px', padding: '18px', color: 'white' }}>
+                      {successMsg && (
+                        <div style={{ marginBottom: 12, padding: '10px 14px', borderRadius: 10, background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399', fontSize: 12.5, fontWeight: 600 }}>
+                          ✓ {successMsg}
                         </div>
                       )}
 
-                      <div style={{ fontSize: 11, color: "#64748b", display: "flex", justifyContent: "space-between", paddingTop: 4 }}>
-                        <span>Submitted: {new Date(t.createdAt).toLocaleDateString()}</span>
-                        <span>Updated: {new Date(t.updatedAt).toLocaleDateString()}</span>
+                      <form onSubmit={handleSubmitTicket} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        {/* Row 1: Issue Category & Priority Level */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 14 }} className="stack-on-mobile">
+                          <div>
+                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                              Issue Category
+                            </label>
+                            <select
+                              value={category}
+                              onChange={(e) => setCategory(e.target.value as any)}
+                              style={{
+                                width: '100%',
+                                padding: '9px 12px',
+                                borderRadius: 8,
+                                background: '#0f172a',
+                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                color: 'white',
+                                fontSize: 12.5,
+                                outline: 'none',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <option value="Technical Issue">Technical Issue</option>
+                              <option value="Billing & Payment">Billing & Payment</option>
+                              <option value="Resume AI / ATS">Resume AI / ATS</option>
+                              <option value="Mock Interview">Mock Interview</option>
+                              <option value="Account & Other">Account & Other</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                              Priority Level
+                            </label>
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                              {(['Low', 'Medium', 'High', 'Urgent'] as const).map((p) => {
+                                const isSelected = priority === p;
+                                return (
+                                  <button
+                                    key={p}
+                                    type="button"
+                                    onClick={() => setPriority(p)}
+                                    style={{
+                                      flex: 1,
+                                      padding: '7px 0',
+                                      textAlign: 'center',
+                                      borderRadius: 6,
+                                      fontSize: 11.5,
+                                      fontWeight: isSelected ? 700 : 500,
+                                      background: isSelected
+                                        ? p === 'Urgent' ? 'rgba(239, 68, 68, 0.2)' : p === 'High' ? 'rgba(249, 115, 22, 0.2)' : p === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'
+                                        : 'rgba(255, 255, 255, 0.05)',
+                                      border: isSelected
+                                        ? p === 'Urgent' ? '1px solid #ef4444' : p === 'High' ? '1px solid #f97316' : p === 'Medium' ? '1px solid #f59e0b' : '1px solid #10b981'
+                                        : '1px solid rgba(255, 255, 255, 0.15)',
+                                      color: isSelected
+                                        ? p === 'Urgent' ? '#f87171' : p === 'High' ? '#fb923c' : p === 'Medium' ? '#fbbf24' : '#34d399'
+                                        : '#94a3b8',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s ease',
+                                    }}
+                                  >
+                                    {p}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Row 2: Subject / Summary */}
+                        <div>
+                          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                            Subject / Summary
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                            placeholder="e.g. ATS scan stuck at 90% or Refund query"
+                            style={{
+                              width: '100%',
+                              padding: '9px 12px',
+                              borderRadius: 8,
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.15)',
+                              color: 'white',
+                              fontSize: 12.5,
+                              outline: 'none',
+                            }}
+                          />
+                        </div>
+
+                        {/* Row 3: Detailed Description of Problem */}
+                        <div>
+                          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                            Detailed Description of Problem
+                          </label>
+                          <textarea
+                            required
+                            rows={3}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Describe what happened, error messages, or details of your request..."
+                            style={{
+                              width: '100%',
+                              padding: '10px 12px',
+                              borderRadius: 8,
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.15)',
+                              color: 'white',
+                              fontSize: 12.5,
+                              outline: 'none',
+                              resize: 'vertical',
+                              fontFamily: 'inherit',
+                            }}
+                          />
+                        </div>
+
+                        {/* Row 4: Submitting user info line & Priority SLA */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11.5, color: '#94a3b8' }}>
+                          <div>
+                            Submitting as: <strong style={{ color: 'white' }}>{userProfile.full_name || 'Candidate'}</strong> ({userProfile.email})
+                          </div>
+                          <div style={{ color: '#06b6d4', fontWeight: 600 }}>
+                            • Priority SLA – 2 hrs
+                          </div>
+                        </div>
+
+                        {/* Row 5: Submit Button */}
+                        <button
+                          type="submit"
+                          style={{
+                            width: '100%',
+                            padding: '12px 20px',
+                            borderRadius: 10,
+                            background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                            border: 'none',
+                            color: 'white',
+                            fontSize: 13.5,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          🚀 Submit Support Ticket
+                        </button>
+                      </form>
+                    </div>
+                  ) : (
+                    /* SUBMITTED QUERY DISPLAY CARD (FORM TURNS OFF AFTER SUBMISSION) */
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <div style={{ maxWidth: '100%', width: '100%' }}>
+                        <div
+                          style={{
+                            fontSize: 10,
+                            fontFamily: 'JetBrains Mono',
+                            color: '#34d399',
+                            marginBottom: 4,
+                            fontWeight: 700,
+                          }}
+                        >
+                          YOUR SUBMITTED PRIORITY QUERY
+                        </div>
+
+                        <div
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.08)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            borderRadius: '14px',
+                            padding: '16px 18px',
+                            color: 'white',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: '#34d399' }}>{submittedTicketObj.id}</span>
+                              <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(6, 182, 212, 0.2)', color: '#38bdf8', border: '1px solid rgba(6, 182, 212, 0.4)' }}>
+                                {submittedTicketObj.category}
+                              </span>
+                              <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                                Priority: {submittedTicketObj.priority}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', fontWeight: 600 }}>
+                              ● Open (SLA: 2 hrs)
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 6 }}>
+                            {submittedTicketObj.subject}
+                          </div>
+
+                          <div style={{ fontSize: 12.5, color: '#cbd5e1', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: 12 }}>
+                            {submittedTicketObj.description}
+                          </div>
+
+                          <div style={{ paddingTop: 10, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: '#94a3b8' }}>
+                            <span>Submitted on: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <button
+                              onClick={() => setSubmittedTicketObj(null)}
+                              style={{ background: 'none', border: 'none', color: '#06b6d4', fontSize: 11, cursor: 'pointer', textDecoration: 'underline' }}
+                            >
+                              + Submit Another Ticket
+                            </button>
+                          </div>
+
+                          {/* AI System Acknowledgement Reply */}
+                          <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 8, background: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.3)', fontSize: 12, color: '#c4b5fd', lineHeight: 1.5 }}>
+                            🤖 <strong>AI Support System:</strong> Your query has been logged under ID <strong>{submittedTicketObj.id}</strong>. Our senior engineers have been notified and will review your issue within 2 hours.
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
-          )}
+                  )}
+                    </div>
+                  </div>
+                )}
+
+            <div ref={chatBottomRef} />
+          </div>
+
+          {/* 4. FIXED CHAT INPUT BAR AT THE BOTTOM OF MODAL CHAT WINDOW */}
+          <div style={{ padding: '14px 22px', background: 'rgba(15, 23, 42, 0.8)', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: 12, alignItems: 'center' }}>
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (faqSatisfaction === 'none') setFaqSatisfaction('not_satisfied');
+                  handleSendChatMessage();
+                }
+              }}
+              style={{ flex: 1, padding: '12px 16px', borderRadius: 10, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.15)', color: 'white', fontSize: 13, outline: 'none' }}
+            />
+            <button
+              onClick={() => {
+                if (faqSatisfaction === 'none') setFaqSatisfaction('not_satisfied');
+                handleSendChatMessage();
+              }}
+              style={{ padding: '12px 20px', borderRadius: 10, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 0 15px rgba(124, 58, 237, 0.4)' }}
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
     </div>

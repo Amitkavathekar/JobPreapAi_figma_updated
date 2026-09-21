@@ -185,9 +185,6 @@ export default function InterviewPrep({ onNavigate, hasActiveSubscription, onOpe
               ⚡ Upgrade Plan to Unlock All Questions
             </button>
           )}
-          <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("mock-interview")}>
-            Start Voice Mock Interview →
-          </button>
         </div>
       </div>
 

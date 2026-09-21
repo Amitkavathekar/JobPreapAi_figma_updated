@@ -412,13 +412,6 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
                       </div>
                       <div style={{ fontSize: 13, color: "rgba(148,163,184,0.7)" }}>{g.detail}</div>
                     </div>
-                    <button
-                      className="btn-primary"
-                      style={{ padding: "6px 14px", fontSize: 12, flexShrink: 0 }}
-                      onClick={() => onNavigate("resume-editor")}
-                    >
-                      Fix →
-                    </button>
                   </div>
                 );
               })}
@@ -482,11 +475,7 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
                       <div style={{ width: 28, height: 28, borderRadius: 7, background: s.impact === "high" ? "rgba(16,185,129,0.2)" : s.impact === "medium" ? "rgba(245,158,11,0.2)" : "rgba(6,182,212,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: s.impact === "high" ? "#10b981" : s.impact === "medium" ? "#f59e0b" : "#06b6d4", fontFamily: "JetBrains Mono", flexShrink: 0 }}>{s.id}</div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", gap: 8, marginBottom: 7 }}>
-                          <span className={`tag ${s.impact === "high" ? "tag-green" : s.impact === "medium" ? "tag-amber" : "tag-cyan"}`}>{s.impact} impact</span>
-                          <span className="tag tag-purple">{s.category}</span>
-                          {isApplied && <span className="tag tag-green">✓ Live Applied</span>}
-                        </div>
+
                         <div style={{ fontSize: 14, color: "rgba(226,232,240,0.85)", lineHeight: 1.5 }}>{s.text}</div>
                       </div>
                       {isApplied ? (

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Screen } from '../types';
+import { Screen, SupportTicket } from '../types';
+import { createNewTicket } from '../services/supportTickets';
 
 interface MockInterviewProps {
   onNavigate: (s: Screen) => void;
@@ -700,6 +701,84 @@ interface ChatgptHistoryItem {
   messages: { id: string; sender: 'user' | 'bot'; text: string; imageUrl?: string; imageName?: string; time: string }[];
 }
 
+function MessageFeedbackSection({
+  isLastBotMsg,
+  feedbackState,
+  onSatisfied,
+  onNotSatisfied,
+}: {
+  isLastBotMsg: boolean;
+  feedbackState?: 'satisfied' | 'not_satisfied';
+  onSatisfied: () => void;
+  onNotSatisfied: () => void;
+}) {
+  const [isRevealed, setIsRevealed] = useState(false);
+
+  useEffect(() => {
+    if (feedbackState || !isLastBotMsg) return;
+    const timer = setTimeout(() => {
+      setIsRevealed(true);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, [feedbackState, isLastBotMsg]);
+
+  if (feedbackState === 'satisfied') {
+    return (
+      <span style={{ fontSize: 11, color: '#34d399', fontWeight: 600 }}>
+        ✓ Satisfied with answer
+      </span>
+    );
+  }
+
+  if (feedbackState === 'not_satisfied') {
+    return (
+      <span style={{ fontSize: 11, color: '#f87171', fontWeight: 600 }}>
+        ✕ Ticket form unlocked below
+      </span>
+    );
+  }
+
+  if (!isLastBotMsg || !isRevealed) {
+    return null;
+  }
+
+  return (
+    <>
+      <span style={{ fontSize: 11, color: '#94a3b8' }}>Satisfied?</span>
+      <button
+        onClick={onSatisfied}
+        style={{
+          padding: '2px 8px',
+          borderRadius: 4,
+          background: 'rgba(16, 185, 129, 0.15)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          color: '#34d399',
+          fontSize: 11,
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        👍 Yes
+      </button>
+      <button
+        onClick={onNotSatisfied}
+        style={{
+          padding: '2px 8px',
+          borderRadius: 4,
+          background: 'rgba(239, 68, 68, 0.15)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#f87171',
+          fontSize: 11,
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        👎 No, Raise Query →
+      </button>
+    </>
+  );
+}
+
 export default function MockInterview({
   onNavigate,
   onComplete,
@@ -726,6 +805,19 @@ export default function MockInterview({
   const [chatgptImageName, setChatgptImageName] = useState<string | null>(null);
   const chatgptFileInputRef = useRef<HTMLInputElement | null>(null);
   const chatgptBottomRef = useRef<HTMLDivElement | null>(null);
+
+  // Dedicated state for Help & Support FAQ workflow
+  const [faqSearchQuery, setFaqSearchQuery] = useState('');
+  const [expandedFaqId, setExpandedFaqId] = useState<number | null>(null);
+  const [faqSatisfiedState, setFaqSatisfiedState] = useState<'none' | 'satisfied' | 'not_satisfied'>('none');
+  const [aiSatisfiedState, setAiSatisfiedState] = useState<'none' | 'satisfied' | 'not_satisfied'>('none');
+  const [msgFeedbackState, setMsgFeedbackState] = useState<Record<string, 'satisfied' | 'not_satisfied'>>({});
+  const [ticketCategory, setTicketCategory] = useState<'Technical Issue' | 'Billing & Payment' | 'Resume AI / ATS' | 'Mock Interview' | 'Account & Other'>('Technical Issue');
+  const [ticketPriority, setTicketPriority] = useState<'Low' | 'Medium' | 'High' | 'Urgent'>('Medium');
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketDesc, setTicketDesc] = useState('');
+  const [ticketSuccess, setTicketSuccess] = useState('');
+  const [submittedTicketObj, setSubmittedTicketObj] = useState<SupportTicket | null>(null);
 
   const [chatgptHistory, setChatgptHistory] = useState<ChatgptHistoryItem[]>([
     {
@@ -846,6 +938,7 @@ export default function MockInterview({
     if (!textToSend && !imageToSend) return;
 
     setChatgptInput('');
+    setChatInputText('');
     setChatgptImage(null);
     setChatgptImageName(null);
 
@@ -1312,8 +1405,8 @@ export default function MockInterview({
                     padding: '6px 16px',
                     borderRadius: 8,
                     border: 'none',
-                    background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                    color: 'white',
+                    background: setupMode === 'preset' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
+                    color: setupMode === 'preset' ? 'white' : 'rgba(148,163,184,0.7)',
                     fontWeight: 700,
                     fontSize: 12,
                     cursor: isStep2Enabled ? 'pointer' : 'not-allowed',
@@ -1336,9 +1429,9 @@ export default function MockInterview({
                     padding: '6px 16px',
                     borderRadius: 8,
                     border: 'none',
-                    background: 'transparent',
-                    color: 'rgba(148,163,184,0.7)',
-                    fontWeight: 600,
+                    background: setupMode === 'jd-qa' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
+                    color: setupMode === 'jd-qa' ? 'white' : 'rgba(148,163,184,0.7)',
+                    fontWeight: 700,
                     fontSize: 12,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -1349,7 +1442,7 @@ export default function MockInterview({
                     gap: 6,
                   }}
                 >
-                  💬 Mode 2: ChatGPT
+                  🎧 Help & Support
                 </button>
               </div>
 
@@ -1973,7 +2066,7 @@ export default function MockInterview({
           </div>
         )}
 
-        {/* MODE 2: GENERAL CHATGPT OPEN CHAT ASSISTANT WITH IMAGE UPLOAD */}
+        {/* HELP & SUPPORT SEQUENTIAL WORKFLOW (REPLACING OLD MODE 2 CHATGPT) */}
         {setupMode === 'jd-qa' && (
           <div
             className="glass fade-in"
@@ -1987,7 +2080,7 @@ export default function MockInterview({
               boxShadow: '0 10px 40px rgba(7, 7, 26, 0.6)',
               display: 'flex',
               flexDirection: 'column',
-              minHeight: 580,
+              minHeight: 600,
               flex: 1,
             }}
           >
@@ -2009,48 +2102,28 @@ export default function MockInterview({
                   style={{
                     width: 38,
                     height: 38,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #06b6d4, #10b981)',
+                    borderRadius: 10,
+                    background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: 20,
-                    position: 'relative',
                     flexShrink: 0,
                   }}
-                  className="pulse-glow"
                 >
-                  🤖
-                  <span
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      right: 0,
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: '#10b981',
-                      border: '2px solid #07071a',
-                    }}
-                  />
+                  🎧
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                    }}
-                  >
-                    ChatGPT · General AI Assistant
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>
+                    Help & Support Center
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.7)' }}>
+                    Scroll 15 FAQs → AI Assistant → Raise Ticket
                   </div>
                 </div>
               </div>
 
-              {/* Centered Mode Toggle Switch */}
+              {/* Mode Toggle Pills */}
               <div
                 style={{
                   display: 'flex',
@@ -2073,9 +2146,9 @@ export default function MockInterview({
                     padding: '6px 16px',
                     borderRadius: 8,
                     border: 'none',
-                    background: 'transparent',
-                    color: 'rgba(148,163,184,0.7)',
-                    fontWeight: 600,
+                    background: setupMode === 'preset' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
+                    color: setupMode === 'preset' ? 'white' : 'rgba(148,163,184,0.7)',
+                    fontWeight: 700,
                     fontSize: 12,
                     cursor: isStep2Enabled ? 'pointer' : 'not-allowed',
                     opacity: isStep2Enabled ? 1 : 0.45,
@@ -2096,8 +2169,8 @@ export default function MockInterview({
                     padding: '6px 16px',
                     borderRadius: 8,
                     border: 'none',
-                    background: 'linear-gradient(135deg, #06b6d4, #7c3aed)',
-                    color: 'white',
+                    background: setupMode === 'jd-qa' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
+                    color: setupMode === 'jd-qa' ? 'white' : 'rgba(148,163,184,0.7)',
                     fontWeight: 700,
                     fontSize: 12,
                     cursor: 'pointer',
@@ -2109,319 +2182,29 @@ export default function MockInterview({
                     gap: 6,
                   }}
                 >
-                  💬 Mode 2: ChatGPT
+                  🎧 Help & Support
                 </button>
               </div>
 
-              {/* Right: History & New Chat Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowHistoryDrawer(!showHistoryDrawer)}
-                  title="View conversation history"
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: 8,
-                    border: showHistoryDrawer
-                      ? '1px solid #06b6d4'
-                      : '1px solid rgba(255,255,255,0.12)',
-                    background: showHistoryDrawer
-                      ? 'rgba(6,182,212,0.2)'
-                      : 'rgba(255,255,255,0.05)',
-                    color: showHistoryDrawer ? '#67e8f9' : 'white',
-                    fontWeight: 600,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    fontFamily: 'Outfit',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <span>📜</span>
-                  <span>History</span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      background: 'rgba(6,182,212,0.3)',
-                      color: '#67e8f9',
-                      padding: '1px 6px',
-                      borderRadius: 10,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {chatgptHistory.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleNewChat}
-                  title="Save current chat & start a new session"
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: 8,
-                    border: '1px solid rgba(6,182,212,0.4)',
-                    background: 'rgba(6,182,212,0.15)',
-                    color: '#67e8f9',
-                    fontWeight: 600,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    fontFamily: 'Outfit',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <span>✨</span>
-                  <span>+ New Chat</span>
-                </button>
-              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }} />
             </div>
 
-            {/* Chat Body with Optional History Drawer */}
-            <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
-              {/* History Side Drawer Overlay */}
-              {showHistoryDrawer && (
-                <div
-                  style={{
-                    width: 280,
-                    background: 'rgba(10,11,26,0.95)',
-                    borderRight: '1px solid rgba(255,255,255,0.08)',
-                    padding: 16,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                    overflowY: 'auto',
-                    backdropFilter: 'blur(10px)',
-                    flexShrink: 0,
-                    zIndex: 10,
-                  }}
-                  className="fade-in"
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>📜</span> Chat History
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowHistoryDrawer(false)}
-                      style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 14 }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleNewChat}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: 8,
-                      border: '1px dashed rgba(6,182,212,0.4)',
-                      background: 'rgba(6,182,212,0.1)',
-                      color: '#67e8f9',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 6,
-                      fontFamily: 'Outfit',
-                    }}
-                  >
-                    <span>✨</span> + Start New Chat
-                  </button>
-
-                  <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono', color: 'rgba(148,163,184,0.6)', marginTop: 4, fontWeight: 700 }}>
-                    RECENT CHATS ({chatgptHistory.length})
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {chatgptHistory.map((item) => {
-                      const isSelected = item.id === activeHistoryId;
-                      return (
-                        <div
-                          key={item.id}
-                          onClick={() => handleSelectHistoryItem(item)}
-                          style={{
-                            padding: '10px 12px',
-                            borderRadius: 8,
-                            border: isSelected ? '1px solid rgba(6,182,212,0.4)' : '1px solid rgba(255,255,255,0.06)',
-                            background: isSelected ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.03)',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          <div style={{ fontSize: 12, fontWeight: 600, color: isSelected ? '#67e8f9' : 'white', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span>💬</span>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                              {item.title}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', display: 'flex', justifyContent: 'space-between' }}>
-                            <span>{item.date}</span>
-                            <span>{item.messageCount} msgs</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Message Stream Column */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div
-                  style={{
-                    flex: 1,
-                    padding: '20px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 18,
-                    background: 'rgba(7,7,26,0.3)',
-                    overflowY: 'auto',
-                  }}
-                >
-              {chatgptMessages.length === 0 ? (
-                <div
-                  style={{
-                    margin: 'auto 0',
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 16,
-                    padding: '40px 20px',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #06b6d4, #7c3aed)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 28,
-                      boxShadow: '0 8px 30px rgba(6, 182, 212, 0.3)',
-                    }}
-                  >
-                    🤖
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: 'white' }}>
-                    What's on the agenda today?
-                  </div>
-                </div>
-              ) : (
-                chatgptMessages.map((msg) => {
-                  const isUser = msg.sender === 'user';
-                  return (
-                    <div
-                      key={msg.id}
-                      style={{
-                        display: 'flex',
-                        gap: 12,
-                        alignItems: 'flex-start',
-                        flexDirection: isUser ? 'row-reverse' : 'row',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          background: isUser
-                            ? 'linear-gradient(135deg, #06b6d4, #10b981)'
-                            : 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 15,
-                          flexShrink: 0,
-                          marginTop: 2,
-                          fontWeight: 700,
-                          color: 'white',
-                        }}
-                      >
-                        {isUser ? 'AK' : '🤖'}
-                      </div>
-
-                      <div style={{ maxWidth: '82%' }}>
-                        <div
-                          style={{
-                            fontSize: 10,
-                            fontFamily: 'JetBrains Mono',
-                            color: isUser ? '#67e8f9' : '#a78bfa',
-                            marginBottom: 4,
-                            fontWeight: 700,
-                            textAlign: isUser ? 'right' : 'left',
-                          }}
-                        >
-                          {isUser ? 'YOU' : 'CHATGPT'} · {msg.time}
-                        </div>
-
-                        <div
-                          style={{
-                            background: isUser
-                              ? 'rgba(6,182,212,0.15)'
-                              : 'rgba(255,255,255,0.05)',
-                            border: isUser
-                              ? '1px solid rgba(6,182,212,0.3)'
-                              : '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: isUser
-                              ? '14px 14px 2px 14px'
-                              : '14px 14px 14px 2px',
-                            padding: '14px 18px',
-                            color: 'white',
-                            fontSize: 14,
-                            lineHeight: 1.6,
-                            whiteSpace: 'pre-wrap',
-                          }}
-                        >
-                          {msg.imageUrl && (
-                            <div
-                              style={{
-                                marginBottom: 12,
-                                borderRadius: 10,
-                                overflow: 'hidden',
-                                border: '1px solid rgba(6, 182, 212, 0.4)',
-                                background: 'rgba(0, 0, 0, 0.4)',
-                                padding: 8,
-                              }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 11, color: '#67e8f9', fontWeight: 600 }}>
-                                <span>🖼️ Uploaded Screenshot:</span>
-                                <span style={{ color: 'white' }}>{msg.imageName || 'image.png'}</span>
-                              </div>
-                              <img
-                                src={msg.imageUrl}
-                                alt="Uploaded"
-                                style={{
-                                  maxWidth: '100%',
-                                  maxHeight: 240,
-                                  borderRadius: 6,
-                                  objectFit: 'cover',
-                                  display: 'block',
-                                }}
-                              />
-                            </div>
-                          )}
-                          {msg.text}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-
-              {isChatgptTyping && (
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            {/* Help & Support Mode 1-Style Chat Window */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+              {/* Main Chat Stream Container */}
+              <div
+                style={{
+                  flex: 1,
+                  padding: '20px 22px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 18,
+                  background: 'rgba(7,7,26,0.3)',
+                  overflowY: 'auto',
+                }}
+              >
+                {/* 1. INITIAL FAQ BOT CHAT BUBBLE */}
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <div
                     style={{
                       width: 32,
@@ -2432,158 +2215,655 @@ export default function MockInterview({
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: 15,
+                      flexShrink: 0,
+                      marginTop: 2,
+                      fontWeight: 700,
+                      color: 'white',
                     }}
                   >
                     🤖
                   </div>
-                  <div style={{ fontSize: 12, fontFamily: 'JetBrains Mono', color: '#a78bfa', fontStyle: 'italic' }}>
-                    ChatGPT is analyzing answer...
+
+                  <div style={{ maxWidth: '90%', flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        fontFamily: 'JetBrains Mono',
+                        color: '#a78bfa',
+                        marginBottom: 4,
+                        fontWeight: 700,
+                      }}
+                    >
+                      AI ASSISTANT · HELP CENTER
+                    </div>
+
+                    <div
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '14px 14px 14px 2px',
+                        padding: '16px 18px',
+                        color: 'white',
+                        fontSize: 13.5,
+                        lineHeight: 1.6,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 14,
+                      }}
+                    >
+                      <div>
+                        👋 Welcome to <strong>JobPrepAI Help & Support</strong>! Browse our 15 Frequently Asked Questions below. If you need further help, click <strong>"No, Talk to AI Assistant"</strong> or ask any question directly in the chat input below!
+                      </div>
+
+                      {/* 15 FAQs List */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {[
+                          { id: 1, q: 'How does ATS Resume Scoring work?', a: 'Our AI parses your resume text and compares formatting, skill keyword density, experience metrics, and section structure against your target Job Description to calculate an exact match percentage score out of 100.' },
+                          { id: 2, q: 'How many free practice questions or scans do I get?', a: 'Free tier candidates can view 2 practice questions per interview and run basic ATS scans. Upgrading to Pro or Elite unlocks unlimited questions, company-specific mock interviews, and live voice speech analysis.' },
+                          { id: 3, q: 'What is STAR feedback in Voice Mock Interview?', a: 'STAR stands for Situation, Task, Action, and Result. Our AI audio analyzer breaks down your spoken answers to check if you clearly covered the context, your specific technical role, and quantitative outcomes.' },
+                          { id: 4, q: 'How do I upgrade or manage my membership plan?', a: 'Click the "Upgrade" button in the top navigation or profile tab to choose between Basic (₹499), Plus (₹1,299), Pro (₹2,299), and Elite (₹3,999) plans with instant activation via UPI or cards.' },
+                          { id: 5, q: 'Can I export my optimized resume to PDF format?', a: 'Yes! The Live Resume Editor provides 1-click ATS-compliant PDF export with preserved formatting, bullet highlights, and clean typography.' },
+                          { id: 6, q: 'What should I do if my microphone isn\'t capturing voice in Mock Interview?', a: 'Ensure browser microphone permissions are allowed (check site permissions in your address bar). Use Google Chrome or Microsoft Edge for best Web Speech API support and verify that your microphone input device is selected.' },
+                          { id: 7, q: 'How do I target specific companies like Google, TCS, or Infosys?', a: 'Go to Interview Prep & Question Bank or Voice Mock Interview, and filter by Company Tags (Google, TCS, Amazon, Microsoft, Infosys) to get company-specific past questions and evaluation rubrics.' },
+                          { id: 8, q: 'What payment methods are supported for plan upgrades?', a: 'We support UPI (Google Pay, PhonePe, Paytm, BHIM), Credit & Debit Cards (Visa, Mastercard, RuPay), Net Banking, and Wallets through 256-bit SSL encrypted Razorpay checkout.' },
+                          { id: 9, q: 'How long does it take for support tickets to be resolved?', a: 'Urgent & High priority tickets receive responses from our support engineers within 1–2 hours. Medium and Low priority queries are resolved within 24 hours.' },
+                          { id: 10, q: 'Can I store multiple resume versions for different roles?', a: 'Yes! Under "Job & Resume Management", you can upload and save multiple versions of your CV tailored for different job profiles (e.g. Frontend Developer, Fullstack Engineer, Data Analyst).' },
+                          { id: 11, q: 'How does speech speed and filler word detection work?', a: 'During Voice Mock Interview, our AI audio engine computes your Words Per Minute (WPM), voice pauses, and detects filler words like "um", "ah", "like", and "you know" to score your communication confidence.' },
+                          { id: 12, q: 'What happens after my subscription plan expires?', a: 'Your account automatically transitions to the standard plan. All your generated report cards, uploaded resumes, and interview history remain permanently stored in your account.' },
+                          { id: 13, q: 'Is my personal resume data private and confidential?', a: 'Absolutely. We use enterprise 256-bit encryption. Your personal resume information, contact details, and voice recordings are never shared, sold, or exposed to third parties.' },
+                          { id: 14, q: 'How do coupons or promo discount codes work?', a: 'During checkout in the Upgrade modal, enter your active promo code (e.g. WELCOME50 or PRO200) to apply instant percentage or flat discounts on your selected plan.' },
+                          { id: 15, q: 'How can I submit feature requests or report a system bug?', a: 'You can use the "Raise Query" section in this Help & Support center to select "Bug Report" or "Feature Request", and our engineering team will evaluate it promptly.' },
+                        ]
+                          .filter((item) => item.q.toLowerCase().includes(faqSearchQuery.toLowerCase()) || item.a.toLowerCase().includes(faqSearchQuery.toLowerCase()))
+                          .map((item) => {
+                            const isExpanded = expandedFaqId === item.id;
+                            return (
+                              <div
+                                key={item.id}
+                                style={{
+                                  borderRadius: 10,
+                                  background: isExpanded ? 'rgba(124, 58, 237, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                                  border: isExpanded ? '1px solid rgba(124, 58, 237, 0.4)' : '1px solid rgba(255, 255, 255, 0.12)',
+                                  overflow: 'hidden',
+                                  transition: 'all 0.2s ease',
+                                }}
+                              >
+                                <button
+                                  onClick={() => setExpandedFaqId(isExpanded ? null : item.id)}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#f8fafc',
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(6, 182, 212, 0.2)', color: '#22d3ee', fontFamily: 'JetBrains Mono', fontWeight: 700 }}>
+                                      #{item.id}
+                                    </span>
+                                    <span style={{ color: 'white' }}>{item.q}</span>
+                                  </div>
+                                  <span style={{ color: '#c4b5fd', fontSize: 12, marginLeft: 10 }}>
+                                    {isExpanded ? '▲' : '▼'}
+                                  </span>
+                                </button>
+
+                                {isExpanded && (
+                                  <div style={{ padding: '0 16px 14px', fontSize: 12.5, color: 'rgba(226, 232, 240, 0.9)', lineHeight: 1.5, borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 10 }}>
+                                    {item.a}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                      </div>
+
+                      {/* FAQ SATISFACTION CHECK BOX AT THE END OF FAQs */}
+                      <div
+                        style={{
+                          marginTop: 10,
+                          padding: '14px 16px',
+                          borderRadius: 12,
+                          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(6, 182, 212, 0.12))',
+                          border: '1px solid rgba(124, 58, 237, 0.3)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                          🤔 Did these 15 FAQs resolve your query?
+                        </div>
+
+                        {faqSatisfiedState === 'satisfied' ? (
+                          <div
+                            style={{
+                              padding: '10px 14px',
+                              borderRadius: 10,
+                              background: 'rgba(16, 185, 129, 0.2)',
+                              border: '1px solid rgba(16, 185, 129, 0.4)',
+                              color: '#34d399',
+                              fontSize: 13,
+                              fontWeight: 600,
+                            }}
+                          >
+                            🎉 Awesome! We are glad we could help. Happy job preparation! 🚀
+                          </div>
+                        ) : faqSatisfiedState === 'not_satisfied' ? (
+                          <div
+                            style={{
+                              padding: '10px 14px',
+                              borderRadius: 10,
+                              background: 'rgba(124, 58, 237, 0.15)',
+                              border: '1px solid rgba(124, 58, 237, 0.35)',
+                              color: '#c4b5fd',
+                              fontSize: 12.5,
+                              fontWeight: 600,
+                            }}
+                          >
+                            🤖 AI Support Assistant Activated Below 👇
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => setFaqSatisfiedState('satisfied')}
+                              style={{
+                                padding: '8px 16px',
+                                borderRadius: 8,
+                                background: 'rgba(16, 185, 129, 0.2)',
+                                border: '1px solid rgba(16, 185, 129, 0.4)',
+                                color: '#34d399',
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              👍 Yes, I'm Satisfied
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setFaqSatisfiedState('not_satisfied');
+                                if (chatgptMessages.length === 0) {
+                                  setChatgptMessages([
+                                    {
+                                      id: 'init-ai-welcome',
+                                      sender: 'bot',
+                                      text: "Hello! 👋 I'm your AI Support Assistant. How can I help resolve your query today? Ask any technical, subscription, or interview question below!",
+                                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                    },
+                                  ]);
+                                }
+                              }}
+                              style={{
+                                padding: '8px 16px',
+                                borderRadius: 8,
+                                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                                border: 'none',
+                                color: 'white',
+                                fontSize: 12,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                boxShadow: '0 0 15px rgba(124, 58, 237, 0.4)',
+                              }}
+                            >
+                              👎 No, Talk to AI Assistant →
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              )}
-              <div ref={chatgptBottomRef} />
-            </div>
 
-            {/* Quick Suggestions Chips */}
-            <div
-              style={{
-                padding: '8px 16px',
-                background: 'rgba(0,0,0,0.2)',
-                borderTop: '1px solid rgba(255,255,255,0.06)',
-                display: 'flex',
-                gap: 8,
-                overflowX: 'auto',
-                flexShrink: 0,
-              }}
-            >
-              {[
-                '🖼️ Analyze Code Screenshot',
-                '⚡ React 18 Concurrent Rendering',
-                '🔒 JWT Auth Security Checklist',
-                '💻 SQL Window Functions',
-              ].map((chip, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSendChatgpt(chip)}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(6,182,212,0.3)',
-                    background: 'rgba(6,182,212,0.1)',
-                    color: '#67e8f9',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
+                {/* 2. CHAT MESSAGES STREAM (REVEALED WHEN FAQ NOT SATISFIED) */}
+                {faqSatisfiedState === 'not_satisfied' && (() => {
+                  const lastBotMsgId = [...chatgptMessages].reverse().find((m) => m.sender === 'bot')?.id;
+                  return chatgptMessages.map((msg) => {
+                    const isUser = msg.sender === 'user';
+                    const isLastBotMsg = msg.id === lastBotMsgId;
+                    return (
+                      <div
+                        key={msg.id}
+                        style={{
+                          display: 'flex',
+                          gap: 12,
+                          alignItems: 'flex-start',
+                          flexDirection: isUser ? 'row-reverse' : 'row',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            background: isUser
+                              ? 'linear-gradient(135deg, #06b6d4, #10b981)'
+                              : 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 15,
+                            flexShrink: 0,
+                            marginTop: 2,
+                            fontWeight: 700,
+                            color: 'white',
+                          }}
+                        >
+                          {isUser ? 'AK' : '🤖'}
+                        </div>
 
-            {/* Chat Input Bar */}
-            <div
-              style={{
-                padding: '14px 20px',
-                background: 'rgba(255,255,255,0.03)',
-                borderTop: '1px solid rgba(255,255,255,0.08)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                flexShrink: 0,
-              }}
-            >
-              <input
-                type="file"
-                ref={chatgptFileInputRef}
-                accept="image/*"
-                onChange={handleChatgptImageUpload}
-                style={{ display: 'none' }}
-              />
+                        <div style={{ maxWidth: '82%' }}>
+                          <div
+                            style={{
+                              fontSize: 10,
+                              fontFamily: 'JetBrains Mono',
+                              color: isUser ? '#67e8f9' : '#a78bfa',
+                              marginBottom: 4,
+                              fontWeight: 700,
+                              textAlign: isUser ? 'right' : 'left',
+                            }}
+                          >
+                            {isUser ? 'YOU' : 'AI ASSISTANT'} · {msg.time}
+                          </div>
 
-              {chatgptImage && (
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '4px 10px',
-                    borderRadius: 8,
-                    background: 'rgba(6, 182, 212, 0.15)',
-                    border: '1px solid rgba(6, 182, 212, 0.4)',
-                    width: 'fit-content',
-                    fontSize: 12,
-                    color: 'white',
-                  }}
-                >
-                  <img src={chatgptImage} alt="Thumb" style={{ width: 20, height: 20, borderRadius: 4, objectFit: 'cover' }} />
-                  <span style={{ fontWeight: 600, color: '#67e8f9' }}>🖼️ {chatgptImageName || 'image.png'}</span>
-                  <button
-                    type="button"
-                    onClick={() => { setChatgptImage(null); setChatgptImageName(null); }}
-                    style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: 13 }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
+                          <div
+                            style={{
+                              background: isUser
+                                ? 'rgba(6,182,212,0.15)'
+                                : 'rgba(255,255,255,0.05)',
+                              border: isUser
+                                ? '1px solid rgba(6,182,212,0.3)'
+                                : '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: isUser
+                                ? '14px 14px 2px 14px'
+                                : '14px 14px 14px 2px',
+                              padding: '14px 18px',
+                              color: 'white',
+                              fontSize: 13.5,
+                              lineHeight: 1.6,
+                              whiteSpace: 'pre-wrap',
+                            }}
+                          >
+                            <div>{msg.text}</div>
 
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <button
-                  type="button"
-                  onClick={() => chatgptFileInputRef.current?.click()}
-                  title="Upload Image"
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    border: '1px solid rgba(6,182,212,0.3)',
-                    background: 'rgba(6,182,212,0.1)',
-                    color: '#67e8f9',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    flexShrink: 0,
-                  }}
-                >
-                  <span>➕</span>
-                  <span>Image</span>
-                </button>
+                            {!isUser && (
+                              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <MessageFeedbackSection
+                                  isLastBotMsg={isLastBotMsg}
+                                  feedbackState={msgFeedbackState[msg.id]}
+                                  onSatisfied={() => setMsgFeedbackState((prev) => ({ ...prev, [msg.id]: 'satisfied' }))}
+                                  onNotSatisfied={() => {
+                                    setMsgFeedbackState((prev) => ({ ...prev, [msg.id]: 'not_satisfied' }));
+                                    setAiSatisfiedState('not_satisfied');
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
 
+                {isChatgptTyping && (
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', color: '#06b6d4', fontSize: 12 }}>
+                    <span>🤖</span> AI Assistant is typing response...
+                  </div>
+                )}
+
+                {/* 3. PRIORITY SUPPORT TICKET FORM (UNLOCKED IN CHAT STREAM WHEN AI NOT SATISFIED) */}
+                {aiSatisfiedState === 'not_satisfied' && (
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 15,
+                        flexShrink: 0,
+                        marginTop: 2,
+                        fontWeight: 700,
+                        color: 'white',
+                      }}
+                    >
+                      🎫
+                    </div>
+
+                    <div style={{ maxWidth: '85%', width: '100%' }}>
+                      <div
+                        style={{
+                          fontSize: 10,
+                          fontFamily: 'JetBrains Mono',
+                          color: '#f59e0b',
+                          marginBottom: 4,
+                          fontWeight: 700,
+                        }}
+                      >
+                        PRIORITY SUPPORT TICKET FORM
+                      </div>
+
+                      {!submittedTicketObj ? (
+                        <div
+                          style={{
+                            background: 'rgba(245, 158, 11, 0.08)',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                            borderRadius: '14px',
+                            padding: '18px',
+                            color: 'white',
+                          }}
+                        >
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              const newTicket = createNewTicket(
+                                { id: 'usr_arjun', name: 'Arjun Kumar', email: 'arjun.kumar@gmail.com' },
+                                {
+                                  category: ticketCategory,
+                                  subject: ticketSubject.trim() || 'Priority Support Query',
+                                  description: ticketDesc.trim() || 'Details submitted via Help & Support Assistant.',
+                                  priority: ticketPriority,
+                                }
+                              );
+                              setSubmittedTicketObj(newTicket);
+                              setTicketSuccess(`Support Ticket ${newTicket.id} registered! SLA: 2 hours.`);
+                              setTicketSubject('');
+                              setTicketDesc('');
+                            }}
+                            style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+                          >
+                            {/* Row 1: Issue Category & Priority Level */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 14 }} className="stack-on-mobile">
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                                  Issue Category
+                                </label>
+                                <select
+                                  value={ticketCategory}
+                                  onChange={(e) => setTicketCategory(e.target.value as any)}
+                                  style={{
+                                    width: '100%',
+                                    padding: '9px 12px',
+                                    borderRadius: 8,
+                                    background: '#0f172a',
+                                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                                    color: 'white',
+                                    fontSize: 12.5,
+                                    outline: 'none',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  <option value="Technical Issue">Technical Issue</option>
+                                  <option value="Billing & Payment">Billing & Payment</option>
+                                  <option value="Resume AI / ATS">Resume AI / ATS</option>
+                                  <option value="Mock Interview">Mock Interview</option>
+                                  <option value="Account & Other">Account & Other</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                                  Priority Level
+                                </label>
+                                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                  {(['Low', 'Medium', 'High', 'Urgent'] as const).map((p) => {
+                                    const isSelected = ticketPriority === p;
+                                    return (
+                                      <button
+                                        key={p}
+                                        type="button"
+                                        onClick={() => setTicketPriority(p)}
+                                        style={{
+                                          flex: 1,
+                                          padding: '7px 0',
+                                          textAlign: 'center',
+                                          borderRadius: 6,
+                                          fontSize: 11.5,
+                                          fontWeight: isSelected ? 700 : 500,
+                                          background: isSelected
+                                            ? p === 'Urgent' ? 'rgba(239, 68, 68, 0.2)' : p === 'High' ? 'rgba(249, 115, 22, 0.2)' : p === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'
+                                            : 'rgba(255, 255, 255, 0.05)',
+                                          border: isSelected
+                                            ? p === 'Urgent' ? '1px solid #ef4444' : p === 'High' ? '1px solid #f97316' : p === 'Medium' ? '1px solid #f59e0b' : '1px solid #10b981'
+                                            : '1px solid rgba(255, 255, 255, 0.15)',
+                                          color: isSelected
+                                            ? p === 'Urgent' ? '#f87171' : p === 'High' ? '#fb923c' : p === 'Medium' ? '#fbbf24' : '#34d399'
+                                            : '#94a3b8',
+                                          cursor: 'pointer',
+                                          transition: 'all 0.15s ease',
+                                        }}
+                                      >
+                                        {p}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Row 2: Subject / Summary */}
+                            <div>
+                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                                Subject / Summary
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={ticketSubject}
+                                onChange={(e) => setTicketSubject(e.target.value)}
+                                placeholder="e.g. ATS scan stuck at 90% or Refund query"
+                                style={{
+                                  width: '100%',
+                                  padding: '9px 12px',
+                                  borderRadius: 8,
+                                  background: 'rgba(255, 255, 255, 0.05)',
+                                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                                  color: 'white',
+                                  fontSize: 12.5,
+                                  outline: 'none',
+                                }}
+                              />
+                            </div>
+
+                            {/* Row 3: Detailed Description of Problem */}
+                            <div>
+                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                                Detailed Description of Problem
+                              </label>
+                              <textarea
+                                required
+                                rows={3}
+                                value={ticketDesc}
+                                onChange={(e) => setTicketDesc(e.target.value)}
+                                placeholder="Describe what happened, error messages, or details of your request..."
+                                style={{
+                                  width: '100%',
+                                  padding: '10px 12px',
+                                  borderRadius: 8,
+                                  background: 'rgba(255, 255, 255, 0.05)',
+                                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                                  color: 'white',
+                                  fontSize: 12.5,
+                                  outline: 'none',
+                                  resize: 'vertical',
+                                  fontFamily: 'inherit',
+                                }}
+                              />
+                            </div>
+
+                            {/* Row 4: Submitting user info line & Priority SLA */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11.5, color: '#94a3b8' }}>
+                              <div>
+                                Submitting as: <strong style={{ color: 'white' }}>Arjun Kumar</strong> (arjun.kumar@gmail.com)
+                              </div>
+                              <div style={{ color: '#06b6d4', fontWeight: 600 }}>
+                                • Priority SLA – 2 hrs
+                              </div>
+                            </div>
+
+                            {/* Row 5: Submit Button */}
+                            <button
+                              type="submit"
+                              style={{
+                                width: '100%',
+                                padding: '12px 20px',
+                                borderRadius: 10,
+                                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                                border: 'none',
+                                color: 'white',
+                                fontSize: 13.5,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(124, 58, 237, 0.4)',
+                              }}
+                            >
+                              🚀 Submit Support Ticket
+                            </button>
+                          </form>
+                        </div>
+                      ) : (
+                        /* SUBMITTED QUERY DISPLAY CARD (FORM TURNS OFF AFTER SUBMISSION) */
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                          <div style={{ maxWidth: '100%', width: '100%' }}>
+                            <div
+                              style={{
+                                fontSize: 10,
+                                fontFamily: 'JetBrains Mono',
+                                color: '#34d399',
+                                marginBottom: 4,
+                                fontWeight: 700,
+                              }}
+                            >
+                              YOUR SUBMITTED PRIORITY QUERY
+                            </div>
+
+                            <div
+                              style={{
+                                background: 'rgba(16, 185, 129, 0.08)',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                borderRadius: '14px',
+                                padding: '16px 18px',
+                                color: 'white',
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: '#34d399' }}>{submittedTicketObj.id}</span>
+                                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(6, 182, 212, 0.2)', color: '#38bdf8', border: '1px solid rgba(6, 182, 212, 0.4)' }}>
+                                    {submittedTicketObj.category}
+                                  </span>
+                                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                                    Priority: {submittedTicketObj.priority}
+                                  </span>
+                                </div>
+                                <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', fontWeight: 600 }}>
+                                  ● Open (SLA: 2 hrs)
+                                </span>
+                              </div>
+
+                              <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 6 }}>
+                                {submittedTicketObj.subject}
+                              </div>
+
+                              <div style={{ fontSize: 12.5, color: '#cbd5e1', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: 12 }}>
+                                {submittedTicketObj.description}
+                              </div>
+
+                              <div style={{ paddingTop: 10, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: '#94a3b8' }}>
+                                <span>Submitted on: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <button
+                                  onClick={() => setSubmittedTicketObj(null)}
+                                  style={{ background: 'none', border: 'none', color: '#06b6d4', fontSize: 11, cursor: 'pointer', textDecoration: 'underline' }}
+                                >
+                                  + Submit Another Ticket
+                                </button>
+                              </div>
+
+                              {/* AI System Acknowledgement Reply */}
+                              <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 8, background: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.3)', fontSize: 12, color: '#c4b5fd', lineHeight: 1.5 }}>
+                                🤖 <strong>AI Support System:</strong> Your query has been logged under ID <strong>{submittedTicketObj.id}</strong>. Our senior engineers have been notified and will review your issue within 2 hours.
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div ref={chatgptBottomRef} />
+              </div>
+
+              {/* 4. FIXED CHAT INPUT BAR AT THE BOTTOM OF MODE 2 CHAT WINDOW */}
+              <div
+                style={{
+                  padding: '14px 22px',
+                  background: 'rgba(15, 23, 42, 0.8)',
+                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  display: 'flex',
+                  gap: 12,
+                  alignItems: 'center',
+                }}
+              >
                 <input
-                  className="glass-input"
-                  placeholder="Ask anything or upload image/code snippet..."
-                  value={chatgptInput}
-                  onChange={(e) => setChatgptInput(e.target.value)}
+                  type="text"
+                  value={chatInputText}
+                  onChange={(e) => setChatInputText(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      handleSendChatgpt();
+                      if (faqSatisfiedState === 'none') setFaqSatisfiedState('not_satisfied');
+                      handleSendChatgpt(chatInputText);
                     }
                   }}
-                  style={{ flex: 1, fontSize: 13 }}
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    borderRadius: 10,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: 'white',
+                    fontSize: 13,
+                    outline: 'none',
+                  }}
                 />
-
                 <button
-                  className="btn-primary"
-                  style={{ padding: '10px 22px', fontSize: 13, flexShrink: 0 }}
-                  onClick={() => handleSendChatgpt()}
-                  disabled={!chatgptInput.trim() && !chatgptImage}
+                  onClick={() => {
+                    if (faqSatisfiedState === 'none') setFaqSatisfiedState('not_satisfied');
+                    handleSendChatgpt(chatInputText);
+                  }}
+                  style={{
+                    padding: '12px 20px',
+                    borderRadius: 10,
+                    background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                    border: 'none',
+                    color: 'white',
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    boxShadow: '0 0 15px rgba(124, 58, 237, 0.4)',
+                  }}
                 >
-                  Send ↵
+                  Send
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
-    )}
-  </div>
-);
+    );
   }
 
   // Phase 2: Live Interview Session

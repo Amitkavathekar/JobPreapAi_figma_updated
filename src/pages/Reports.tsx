@@ -305,15 +305,14 @@ export default function Reports() {
       {/* Analysis History Tab */}
       {activeTab === "analysis" && (
         <div className="glass" style={{ overflow: "hidden" }}>
-          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 120px 80px 80px 110px 90px", gap: 16 }}>
-            {["Role & Company", "Date", "Match", "ATS", "Status", "Action"].map((h) => (
+          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 140px 100px 100px 90px", gap: 16 }}>
+            {["Role & Company", "Date", "Match", "ATS", "Action"].map((h) => (
               <div key={h} style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)", fontWeight: 600, letterSpacing: "0.06em" }}>
                 {h.toUpperCase()}
               </div>
             ))}
           </div>
           {analysisHistory.map((a, i) => {
-            const ss = statusStyles[a.status];
             return (
               <div
                 key={a.id}
@@ -321,7 +320,7 @@ export default function Reports() {
                   padding: "16px 22px",
                   borderBottom: i < analysisHistory.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                   display: "grid",
-                  gridTemplateColumns: "1fr 120px 80px 80px 110px 90px",
+                  gridTemplateColumns: "1fr 140px 100px 100px 90px",
                   gap: 16,
                   alignItems: "center",
                   transition: "background 0.15s",
@@ -338,11 +337,6 @@ export default function Reports() {
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: a.ats >= 80 ? "#10b981" : a.ats >= 65 ? "#f59e0b" : "#ef4444", fontFamily: "JetBrains Mono" }}>
                   {a.ats}%
-                </div>
-                <div>
-                  <span style={{ padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 500, background: ss.bg, color: ss.color }}>
-                    {ss.label}
-                  </span>
                 </div>
                 <button
                   className="btn-ghost"

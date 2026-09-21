@@ -67,6 +67,7 @@ export default function LandingPage({ onNavigateToApp, onNavigateToLogin }: Land
             { label: "About", id: "about" },
             { label: "Modules", id: "modules" },
             { label: "Workflow", id: "workflow" },
+            { label: "Membership Plans", id: "pricing" },
           ].map((link) => (
             <button
               key={link.id}
@@ -608,6 +609,312 @@ export default function LandingPage({ onNavigateToApp, onNavigateToLogin }: Land
                 <p style={{ fontSize: 12, color: "rgba(148, 163, 184, 0.7)", lineHeight: 1.5 }}>{step.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+
+
+      {/* 8. MEMBERSHIP PLANS / PRICING SECTION */}
+      <section
+        id="pricing"
+        style={{
+          padding: "90px 40px",
+          background: "radial-gradient(ellipse 80% 50% at 50% 30%, rgba(124, 58, 237, 0.15) 0%, transparent 70%), linear-gradient(180deg, #07071a 0%, #0d0d2b 100%)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          position: "relative",
+        }}
+      >
+        <div style={{ maxWidth: 1240, margin: "0 auto", textAlign: "center" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 16px",
+              borderRadius: 999,
+              background: "rgba(6, 182, 212, 0.12)",
+              border: "1px solid rgba(6, 182, 212, 0.3)",
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#06b6d4",
+              marginBottom: 16,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
+          >
+            <span>💎</span> Membership Plans
+          </div>
+          <h2 style={{ fontSize: 40, fontWeight: 800, color: "white", marginBottom: 12, letterSpacing: "-0.02em" }}>
+            Choose the Right Plan for Your Career Success
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(148, 163, 184, 0.8)", maxWidth: 680, margin: "0 auto 50px", lineHeight: 1.6 }}>
+            Transparent pricing with no hidden fees. Flexible plans for students, job seekers, and active interview preparation.
+          </p>
+
+          {/* Pricing Cards Grid (4 Plans) */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24, alignItems: "stretch" }}>
+            {[
+              {
+                id: "plan-monthly",
+                name: "Basic",
+                badge: "1 Month Access",
+                priceINR: 499,
+                period: "/ 1 month",
+                moEquivalent: "₹499/mo",
+                mockLimit: "10 AI Interviews",
+                atsLimit: "25 Resume Scans",
+                popular: false,
+                color: "#94a3b8",
+                features: [
+                  "10 AI Mock Interviews per month",
+                  "25 ATS Resume Analysis scans",
+                  "Standard AI Feedback & Score",
+                  "Basic Career Dashboard",
+                  "Email Support",
+                ],
+                cta: "Get Basic Plan",
+              },
+              {
+                id: "plan-quarterly",
+                name: "Plus",
+                badge: "3 Months Access",
+                priceINR: 1299,
+                period: "/ 3 months",
+                moEquivalent: "₹433/mo",
+                mockLimit: "35 AI Interviews",
+                atsLimit: "75 Resume Scans",
+                popular: false,
+                color: "#06b6d4",
+                features: [
+                  "35 AI Mock Interviews (3 Months)",
+                  "75 ATS Resume Scans",
+                  "Deep Detailed AI Audio Feedback",
+                  "Resume PDF Exporter & Editor",
+                  "Priority Chat Support",
+                ],
+                cta: "Get Plus Plan",
+              },
+              {
+                id: "plan-halfyearly",
+                name: "Pro",
+                badge: "6 Months Access",
+                tag: "🔥 MOST POPULAR",
+                priceINR: 2299,
+                period: "/ 6 months",
+                moEquivalent: "₹383/mo",
+                mockLimit: "Unlimited Interviews",
+                atsLimit: "Unlimited Resume Scans",
+                popular: true,
+                color: "#7c3aed",
+                features: [
+                  "Unlimited AI Mock Interviews",
+                  "Unlimited ATS Scans & Resume Tailoring",
+                  "Company-Specific Interview Simulations (Google, TCS, Infosys)",
+                  "Live Speech Speed & Filler Word AI Analysis",
+                  "Export PDF Reports with Custom Branding",
+                  "1-on-1 AI Resume Optimization Assistant",
+                ],
+                cta: "Upgrade to Pro",
+              },
+              {
+                id: "plan-annual",
+                name: "Elite VIP",
+                badge: "1 Year Access",
+                tag: "👑 BEST VALUE",
+                priceINR: 3999,
+                period: "/ 1 year",
+                moEquivalent: "₹333/mo",
+                mockLimit: "Unlimited + VIP Priority",
+                atsLimit: "Unlimited + VIP Priority",
+                popular: false,
+                isElite: true,
+                color: "#f59e0b",
+                features: [
+                  "All Pro Plan Features Included",
+                  "VIP Priority Queue for AI Speech Processing",
+                  "Unlimited Mock Interviews & Revisions for 365 Days",
+                  "Job Application Tracker & Referral Assistant",
+                  "Dedicated Placement & Interview Consultation",
+                  "Certificate of Job Readiness",
+                ],
+                cta: "Get Elite VIP",
+              },
+            ].map((plan) => (
+              <div
+                key={plan.id}
+                style={{
+                  background: plan.popular
+                    ? "linear-gradient(180deg, rgba(124, 58, 237, 0.18) 0%, rgba(15, 23, 42, 0.95) 100%)"
+                    : plan.isElite
+                    ? "linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%)"
+                    : "rgba(255, 255, 255, 0.03)",
+                  borderRadius: 20,
+                  padding: 28,
+                  textAlign: "left",
+                  border: plan.popular
+                    ? "2px solid #7c3aed"
+                    : plan.isElite
+                    ? "1px solid rgba(245, 158, 11, 0.5)"
+                    : "1px solid rgba(255, 255, 255, 0.08)",
+                  boxShadow: plan.popular
+                    ? "0 20px 40px rgba(124, 58, 237, 0.3)"
+                    : "0 10px 30px rgba(0, 0, 0, 0.3)",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "none";
+                }}
+              >
+                <div>
+                  {/* Tag Header if Popular / Elite */}
+                  {plan.tag && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: -14,
+                        right: 20,
+                        background: plan.popular
+                          ? "linear-gradient(135deg, #7c3aed, #ec4899)"
+                          : "linear-gradient(135deg, #f59e0b, #d97706)",
+                        color: "white",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: "4px 12px",
+                        borderRadius: 999,
+                        letterSpacing: "0.05em",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                      }}
+                    >
+                      {plan.tag}
+                    </div>
+                  )}
+
+                  {/* Plan Name & Badge */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <h3 style={{ fontSize: 22, fontWeight: 800, color: "white" }}>{plan.name}</h3>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: plan.color,
+                        background: "rgba(255, 255, 255, 0.05)",
+                        padding: "4px 10px",
+                        borderRadius: 8,
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                      }}
+                    >
+                      {plan.badge}
+                    </span>
+                  </div>
+
+                  {/* Price Display */}
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                    <span style={{ fontSize: 36, fontWeight: 800, color: "white", fontFamily: "JetBrains Mono" }}>
+                      ₹{plan.priceINR.toLocaleString("en-IN")}
+                    </span>
+                    <span style={{ fontSize: 13, color: "rgba(148, 163, 184, 0.7)" }}>{plan.period}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#06b6d4", fontWeight: 600, marginBottom: 20 }}>
+                    Equivalent to ~{plan.moEquivalent}
+                  </div>
+
+                  {/* Usage limits pill box */}
+                  <div
+                    style={{
+                      background: "rgba(0, 0, 0, 0.25)",
+                      borderRadius: 10,
+                      padding: "10px 14px",
+                      marginBottom: 20,
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      fontSize: 12,
+                      color: "rgba(226, 232, 240, 0.9)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 4,
+                    }}
+                  >
+                    <div>🎤 <strong>Mock:</strong> {plan.mockLimit}</div>
+                    <div>📊 <strong>ATS:</strong> {plan.atsLimit}</div>
+                  </div>
+
+                  {/* Divider */}
+                  <div style={{ height: 1, background: "rgba(255, 255, 255, 0.08)", marginBottom: 20 }} />
+
+                  {/* Feature Checklist */}
+                  <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 10 }}>
+                    {plan.features.map((feat, idx) => (
+                      <li key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "rgba(226, 232, 240, 0.85)", lineHeight: 1.4 }}>
+                        <span style={{ color: plan.color, fontWeight: 800, fontSize: 14 }}>✓</span>
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Action CTA Button */}
+                <button
+                  onClick={() => onNavigateToLogin("register")}
+                  style={{
+                    width: "100%",
+                    padding: "12px 18px",
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    border: "none",
+                    transition: "all 0.2s ease",
+                    background: plan.popular
+                      ? "linear-gradient(135deg, #7c3aed, #06b6d4)"
+                      : plan.isElite
+                      ? "linear-gradient(135deg, #f59e0b, #d97706)"
+                      : "rgba(255, 255, 255, 0.08)",
+                    color: "white",
+                    boxShadow: plan.popular ? "0 0 20px rgba(124, 58, 237, 0.4)" : "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = "0.9";
+                    e.currentTarget.style.transform = "scale(1.02)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                    e.currentTarget.style.transform = "scale(1)";
+                  }}
+                >
+                  {plan.cta} →
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Guarantee / Security badges */}
+          <div
+            style={{
+              marginTop: 50,
+              padding: "16px 24px",
+              borderRadius: 12,
+              background: "rgba(255, 255, 255, 0.02)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 36,
+              flexWrap: "wrap",
+              fontSize: 13,
+              color: "rgba(148, 163, 184, 0.75)",
+            }}
+          >
+            <span>🔒 256-bit SSL Encrypted Payment</span>
+            <span>⚡ Instant Membership Activation</span>
+            <span>💳 UPI, Credit/Debit Cards, NetBanking</span>
+            <span>💬 24/7 Priority Support</span>
           </div>
         </div>
       </section>

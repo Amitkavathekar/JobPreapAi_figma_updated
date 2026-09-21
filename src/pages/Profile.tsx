@@ -887,50 +887,7 @@ export default function Profile({
                 </div>
               </form>
 
-              <hr className="glass-divider" style={{ margin: "28px 0" }} />
-              <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 16 }}>
-                Two-Factor Authentication
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "14px 18px",
-                  borderRadius: 12,
-                  background: is2FAEnabled
-                    ? "rgba(16,185,129,0.08)"
-                    : "rgba(255,255,255,0.04)",
-                  border: is2FAEnabled
-                    ? "1px solid rgba(16,185,129,0.2)"
-                    : "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <div>
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: is2FAEnabled ? "#6ee7b7" : "rgba(148,163,184,0.8)",
-                    }}
-                  >
-                    2FA {is2FAEnabled ? "Enabled" : "Disabled"}
-                  </div>
-                  <div style={{ fontSize: 12, color: "rgba(148,163,184,0.6)", marginTop: 2 }}>
-                    Authenticator app configuration
-                  </div>
-                </div>
-                <button
-                  className="btn-ghost"
-                  style={{ padding: "7px 16px", fontSize: 13 }}
-                  onClick={() => {
-                    setIs2FAEnabled(!is2FAEnabled);
-                    handleSave();
-                  }}
-                >
-                  {is2FAEnabled ? "Disable" : "Enable"}
-                </button>
-              </div>
+
             </div>
           )}
 
