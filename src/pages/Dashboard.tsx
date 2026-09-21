@@ -118,6 +118,9 @@ const recentActivity = [
   { icon: "◉", text: "ATS Score improved to 74% (+11)", time: "Yesterday", color: "#10b981" },
   { icon: "◷", text: "Mock interview: System Design (78/100)", time: "2 days ago", color: "#f59e0b" },
   { icon: "⬆", text: "New job description added: Notion PM", time: "3 days ago", color: "#a78bfa" },
+  { icon: "⚡", text: "ATS Scan executed for Tech Lead role", time: "4 days ago", color: "#ec4899" },
+  { icon: "📄", text: "Exported Data Analyst Resume (PDF)", time: "5 days ago", color: "#3b82f6" },
+  { icon: "🎯", text: "Completed AI Mock Interview: Frontend Lead", time: "1 week ago", color: "#10b981" },
 ];
 
 export default function Dashboard({
@@ -305,9 +308,9 @@ export default function Dashboard({
       </div>
 
       {/* SIDE-BY-SIDE GRID: Documents (70%) | Recent Activity (30%) */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 7fr) minmax(0, 3fr)", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 7fr) minmax(0, 3fr)", gap: 20, alignItems: "stretch" }}>
         {/* LEFT COLUMN: DOCUMENTS (70%) */}
-        <div className="glass" style={{ padding: "24px 28px" }}>
+        <div className="glass" style={{ padding: "24px 28px", height: 395, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0 }}>Resumes</h2>
             <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
@@ -575,11 +578,22 @@ export default function Dashboard({
         </div>
 
         {/* RIGHT COLUMN: RECENT ACTIVITY (30%) */}
-        <div className="glass" style={{ padding: "24px 22px", display: "flex", flexDirection: "column", height: "100%" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div className="glass" style={{ padding: "24px 22px", height: 395, display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexShrink: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: "white" }}>Recent Activity</div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              flex: 1,
+              overflowY: "auto",
+              minHeight: 0,
+              paddingRight: 4,
+            }}
+            className="custom-scrollbar"
+          >
             {recentActivity.map((a, i) => (
               <div key={i} style={{ display: "flex", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }} className="glass-hover">
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${a.color}22`, border: `1px solid ${a.color}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>
@@ -592,9 +606,6 @@ export default function Dashboard({
               </div>
             ))}
           </div>
-          <button className="btn-ghost" style={{ width: "100%", padding: "9px", fontSize: 12, marginTop: 14 }} onClick={() => onNavigate("reports")}>
-            View All History →
-          </button>
         </div>
       </div>
 
