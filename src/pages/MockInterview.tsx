@@ -8,6 +8,7 @@ interface MockInterviewProps {
   hasActiveSubscription?: boolean;
   onOpenUpgradeModal?: () => void;
   isStep2Enabled?: boolean;
+  onOpenSupportModal?: () => void;
 }
 
 export type InterviewType =
@@ -586,15 +587,6 @@ interface ChatMessage {
   nextQNum?: number;
 }
 
-const quickPromptChips = [
-  '⚡ JavaScript basic concepts',
-  '🎯 Interview questions (2.5+ Years Exp)',
-  '🧩 Array methods (map, filter, reduce)',
-  '📝 Output-based code programs',
-  '🗣 STAR method & behavioral guidance',
-  '🛠 Code explain / bug fix simulator',
-];
-
 interface JdPresetOption {
   id: string;
   title: string;
@@ -785,18 +777,13 @@ export default function MockInterview({
   hasActiveSubscription,
   onOpenUpgradeModal,
   isStep2Enabled = false,
+  onOpenSupportModal,
 }: MockInterviewProps) {
   const [phase, setPhase] = useState<'setup' | 'interview' | 'feedback'>(
     'setup'
   );
 
-  const [setupMode, setSetupMode] = useState<'preset' | 'jd-qa'>('jd-qa');
-
-  useEffect(() => {
-    if (!isStep2Enabled && setupMode === 'preset') {
-      setSetupMode('jd-qa');
-    }
-  }, [isStep2Enabled, setupMode]);
+  const [setupMode, setSetupMode] = useState<'preset' | 'jd-qa'>('preset');
 
   // State for Mode 2: ChatGPT Chat Assistant with Image Upload support
   const [chatgptInput, setChatgptInput] = useState('');
@@ -1366,87 +1353,17 @@ export default function MockInterview({
                     }}
                   >
                     Alex · AI Interview Chatbot Assistant
-                    <span
-                      style={{
-                        fontSize: 10,
-                        fontFamily: 'JetBrains Mono',
-                        color: '#10b981',
-                        background: 'rgba(16,185,129,0.15)',
-                        padding: '2px 6px',
-                        borderRadius: 4,
-                      }}
-                    >
-                      ONLINE
-                    </span>
+
                   </div>
                 </div>
               </div>
 
-              {/* Centered Segmented Mode Toggle Pill */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  background: 'rgba(0,0,0,0.35)',
-                  padding: 4,
-                  borderRadius: 10,
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  justifySelf: 'center',
-                }}
-                className="mobile-hide"
-              >
-                <button
-                  type="button"
-                  onClick={() => isStep2Enabled && setSetupMode('preset')}
-                  disabled={!isStep2Enabled}
-                  title={!isStep2Enabled ? "🔒 Fill Job Description & Upload Resume in Step 1 to unlock Mode 1: Interview" : "Switch to Mode 1"}
-                  style={{
-                    padding: '6px 16px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: setupMode === 'preset' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
-                    color: setupMode === 'preset' ? 'white' : 'rgba(148,163,184,0.7)',
-                    fontWeight: 700,
-                    fontSize: 12,
-                    cursor: isStep2Enabled ? 'pointer' : 'not-allowed',
-                    opacity: isStep2Enabled ? 1 : 0.45,
-                    transition: 'all 0.2s ease',
-                    fontFamily: 'Outfit',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
-                  🎯 Mode 1: Interview {!isStep2Enabled && '🔒'}
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => setSetupMode('jd-qa')}
-                  style={{
-                    padding: '6px 16px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: setupMode === 'jd-qa' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
-                    color: setupMode === 'jd-qa' ? 'white' : 'rgba(148,163,184,0.7)',
-                    fontWeight: 700,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    fontFamily: 'Outfit',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
-                  🎧 Help & Support
-                </button>
+
+              {/* Headphone Action Button -> Opens Help & Support */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12 }}>
+              
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12 }} />
             </div>
 
             {/* Chatbot Message Stream */}
@@ -1996,40 +1913,6 @@ export default function MockInterview({
               <div ref={chatBottomRef} />
             </div>
 
-            {/* Quick Suggestions Pills (ChatGPT style) */}
-            <div
-              style={{
-                padding: '8px 16px',
-                background: 'rgba(0,0,0,0.2)',
-                borderTop: '1px solid rgba(255,255,255,0.06)',
-                display: 'flex',
-                gap: 8,
-                overflowX: 'auto',
-                flexShrink: 0,
-              }}
-            >
-              {quickPromptChips.map((chip, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => triggerUserQuery(chip)}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(124,58,237,0.3)',
-                    background: 'rgba(124,58,237,0.1)',
-                    color: '#c4b5fd',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
 
             {/* Chatbot Input Footer Bar */}
             <div
@@ -2123,54 +2006,37 @@ export default function MockInterview({
                 </div>
               </div>
 
-              {/* Mode Toggle Pills */}
+              {/* Help & Support Center Badge */}
               <div
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 4,
-                  background: 'rgba(0,0,0,0.35)',
-                  padding: 4,
-                  borderRadius: 10,
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  gap: 6,
+                  padding: '6px 18px',
+                  borderRadius: 20,
+                  background: 'linear-gradient(135deg, rgba(6,182,212,0.25), rgba(124,58,237,0.25))',
+                  border: '1px solid rgba(6,182,212,0.4)',
+                  color: '#38bdf8',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  fontFamily: 'Outfit',
                   justifySelf: 'center',
                 }}
                 className="mobile-hide"
               >
+                🎧 Help & Support Center
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
                 <button
                   type="button"
-                  onClick={() => isStep2Enabled && setSetupMode('preset')}
-                  disabled={!isStep2Enabled}
-                  title={!isStep2Enabled ? "🔒 Fill Job Description & Upload Resume in Step 1 to unlock Mode 1: Interview" : "Switch to Mode 1"}
+                  onClick={() => setSetupMode('preset')}
                   style={{
-                    padding: '6px 16px',
+                    padding: '7px 16px',
                     borderRadius: 8,
-                    border: 'none',
-                    background: setupMode === 'preset' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
-                    color: setupMode === 'preset' ? 'white' : 'rgba(148,163,184,0.7)',
-                    fontWeight: 700,
-                    fontSize: 12,
-                    cursor: isStep2Enabled ? 'pointer' : 'not-allowed',
-                    opacity: isStep2Enabled ? 1 : 0.45,
-                    transition: 'all 0.2s ease',
-                    fontFamily: 'Outfit',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
-                  🎯 Mode 1: Interview {!isStep2Enabled && '🔒'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSetupMode('jd-qa')}
-                  style={{
-                    padding: '6px 16px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: setupMode === 'jd-qa' ? 'linear-gradient(135deg, #7c3aed, #06b6d4)' : 'transparent',
-                    color: setupMode === 'jd-qa' ? 'white' : 'rgba(148,163,184,0.7)',
+                    border: '1px solid rgba(124,58,237,0.4)',
+                    background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                    color: 'white',
                     fontWeight: 700,
                     fontSize: 12,
                     cursor: 'pointer',
@@ -2182,11 +2048,9 @@ export default function MockInterview({
                     gap: 6,
                   }}
                 >
-                  🎧 Help & Support
+
                 </button>
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }} />
             </div>
 
             {/* Help & Support Mode 1-Style Chat Window */}

@@ -314,7 +314,7 @@ export default function InterviewPrep({ onNavigate, hasActiveSubscription, onOpe
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className="glass" style={{ padding: "20px 22px" }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 4 }}>7-Day Study Plan</div>
-            <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginBottom: 16 }}>Personalized for your schedule</div>
+            <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginBottom: 16 }}>According to your questions, this plan is generated</div>
             {studyPlan.map((day) => {
               const statusColors = { done: "#10b981", "in-progress": "#7c3aed", upcoming: "rgba(148,163,184,0.3)" };
               const c = statusColors[day.status as keyof typeof statusColors];

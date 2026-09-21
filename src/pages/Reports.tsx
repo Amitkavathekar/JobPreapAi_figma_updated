@@ -262,11 +262,22 @@ export default function Reports() {
       {/* Summary Stats (3 Cards as requested - Offers Received and Acceptance Rate cards removed) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
         {[
-          { label: "Total Analyses", value: "38", color: "#7c3aed", sub: "Resumes & JD Scans" },
+          { label: "Total ATS Analyses", value: "38", color: "#7c3aed", sub: "Resumes & JD Scans" },
           { label: "Avg Match Score", value: "74%", color: "#06b6d4", sub: "Top Candidate Percentile" },
           { label: "Mock Interviews", value: "12", color: "#10b981", sub: "AI Voice Sessions" },
         ].map((s) => (
-          <div key={s.label} className="glass glass-hover" style={{ padding: "20px 22px" }}>
+          <div
+            key={s.label}
+            className="glass glass-hover"
+            style={{
+              padding: "20px 22px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
             <div style={{ fontSize: 11, color: "rgba(148,163,184,0.5)", fontFamily: "JetBrains Mono", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
               {s.label}
             </div>
@@ -280,7 +291,7 @@ export default function Reports() {
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: 4, width: "fit-content" }}>
-        {([["analysis", "Analysis History"], ["interviews", "Interview History"]] as const).map(([id, label]) => (
+        {([["analysis", "ATS Analysis History"], ["interviews", "Interview History"]] as const).map(([id, label]) => (
           <button
             key={id}
             onClick={() => setActiveTab(id)}
@@ -305,9 +316,19 @@ export default function Reports() {
       {/* Analysis History Tab */}
       {activeTab === "analysis" && (
         <div className="glass" style={{ overflow: "hidden" }}>
-          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 140px 100px 100px 90px", gap: 16 }}>
-            {["Role & Company", "Date", "Match", "ATS", "Action"].map((h) => (
-              <div key={h} style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)", fontWeight: 600, letterSpacing: "0.06em" }}>
+          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 140px 100px 90px", gap: 16 }}>
+            {["Name", "Date", "ATS", "View"].map((h, idx) => (
+              <div
+                key={h}
+                style={{
+                  fontSize: 11,
+                  fontFamily: "JetBrains Mono",
+                  color: "rgba(148,163,184,0.4)",
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  textAlign: idx === 0 ? "left" : "center",
+                }}
+              >
                 {h.toUpperCase()}
               </div>
             ))}
@@ -320,7 +341,7 @@ export default function Reports() {
                   padding: "16px 22px",
                   borderBottom: i < analysisHistory.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                   display: "grid",
-                  gridTemplateColumns: "1fr 140px 100px 100px 90px",
+                  gridTemplateColumns: "1fr 140px 100px 90px",
                   gap: 16,
                   alignItems: "center",
                   transition: "background 0.15s",
@@ -329,29 +350,27 @@ export default function Reports() {
               >
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "white" }}>{a.role}</div>
-                  <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)" }}>{a.company}</div>
                 </div>
-                <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono" }}>{a.date}</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: a.score >= 80 ? "#10b981" : a.score >= 65 ? "#f59e0b" : "#ef4444", fontFamily: "JetBrains Mono" }}>
-                  {a.score}%
-                </div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: a.ats >= 80 ? "#10b981" : a.ats >= 65 ? "#f59e0b" : "#ef4444", fontFamily: "JetBrains Mono" }}>
+                <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono", textAlign: "center" }}>{a.date}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: a.ats >= 80 ? "#10b981" : a.ats >= 65 ? "#f59e0b" : "#ef4444", fontFamily: "JetBrains Mono", textAlign: "center" }}>
                   {a.ats}%
                 </div>
-                <button
-                  className="btn-ghost"
-                  style={{
-                    padding: "6px 14px",
-                    fontSize: 12,
-                    borderColor: "rgba(124, 58, 237, 0.4)",
-                    color: "#a78bfa",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
-                  onClick={() => setSelectedAnalysis(a)}
-                >
-                  👁 View
-                </button>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <button
+                    className="btn-ghost"
+                    style={{
+                      padding: "6px 14px",
+                      fontSize: 12,
+                      borderColor: "rgba(124, 58, 237, 0.4)",
+                      color: "#a78bfa",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                    onClick={() => setSelectedAnalysis(a)}
+                  >
+                    👁 View
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -361,9 +380,19 @@ export default function Reports() {
       {/* Interview History Tab */}
       {activeTab === "interviews" && (
         <div className="glass" style={{ overflow: "hidden" }}>
-          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 110px 120px 90px 90px 90px", gap: 16 }}>
-            {["Type & Role", "Date", "Duration", "Questions", "Score", "Action"].map((h) => (
-              <div key={h} style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "rgba(148,163,184,0.4)", fontWeight: 600, letterSpacing: "0.06em" }}>
+          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 110px 110px 160px 80px 90px", gap: 16 }}>
+            {["Type & Role", "Date", "Duration", "Attempted Questions", "Score", "View"].map((h, idx) => (
+              <div
+                key={h}
+                style={{
+                  fontSize: 11,
+                  fontFamily: "JetBrains Mono",
+                  color: "rgba(148,163,184,0.4)",
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  textAlign: idx === 0 ? "left" : "center",
+                }}
+              >
                 {h.toUpperCase()}
               </div>
             ))}
@@ -375,7 +404,7 @@ export default function Reports() {
                 padding: "16px 22px",
                 borderBottom: i < interviewHistory.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                 display: "grid",
-                gridTemplateColumns: "1fr 110px 120px 90px 90px 90px",
+                gridTemplateColumns: "1fr 110px 110px 160px 80px 90px",
                 gap: 16,
                 alignItems: "center",
               }}
@@ -385,26 +414,28 @@ export default function Reports() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: "white" }}>{iv.type}</div>
                 <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)" }}>{iv.role}</div>
               </div>
-              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono" }}>{iv.date}</div>
-              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)" }}>{iv.duration}</div>
-              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono" }}>{iv.questions} Q</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: iv.score >= 80 ? "#10b981" : iv.score >= 65 ? "#f59e0b" : "#ef4444", fontFamily: "JetBrains Mono" }}>
+              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono", textAlign: "center" }}>{iv.date}</div>
+              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", textAlign: "center" }}>{iv.duration}</div>
+              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", fontFamily: "JetBrains Mono", textAlign: "center" }}>{iv.questions} Q</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: iv.score >= 80 ? "#10b981" : iv.score >= 65 ? "#f59e0b" : "#ef4444", fontFamily: "JetBrains Mono", textAlign: "center" }}>
                 {iv.score}/100
               </div>
-              <button
-                className="btn-ghost"
-                style={{
-                  padding: "6px 14px",
-                  fontSize: 12,
-                  borderColor: "rgba(6, 182, 212, 0.4)",
-                  color: "#06b6d4",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                }}
-                onClick={() => setSelectedInterview(iv)}
-              >
-                📋 Review
-              </button>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <button
+                  className="btn-ghost"
+                  style={{
+                    padding: "6px 14px",
+                    fontSize: 12,
+                    borderColor: "rgba(6, 182, 212, 0.4)",
+                    color: "#06b6d4",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                  onClick={() => setSelectedInterview(iv)}
+                >
+                  📋 Review
+                </button>
+              </div>
             </div>
           ))}
         </div>

@@ -222,8 +222,12 @@ export default function ResumeEditor({ onNavigate, hasActiveSubscription, onOpen
       {/* Header */}
       <div className="stack-on-mobile" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexShrink: 0, gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>Resume <span className="gradient-text">Editor & Suggestions</span></h1>
-          <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>Review AI recommendations on the left and accept to edit your live resume on the right.</p>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>
+            Step 3: Resume <span className="gradient-text">Editor & Refactor</span>
+          </h1>
+          <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>
+            Refactor and tailor your existing resume with AI-driven suggestions and live real-time editing.
+          </p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("ats-analysis")}>Step 4: Check ATS Score →</button>

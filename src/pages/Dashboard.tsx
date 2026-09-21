@@ -77,6 +77,39 @@ const INITIAL_DOCUMENTS: ResumeDocument[] = [
     candidateName: "Arjun Kumar",
     title: "Analytics Consultant",
   },
+  {
+    id: 6,
+    name: "Senior Full Stack Dev - Stripe",
+    job: "Stripe",
+    score: "94%",
+    type: "Resume",
+    createdAt: "Aug 20, 2026",
+    lastEdit: "5 days ago",
+    candidateName: "Arjun Kumar",
+    title: "Full Stack Engineer",
+  },
+  {
+    id: 7,
+    name: "Backend Engineer - Amazon",
+    job: "Amazon",
+    score: "87%",
+    type: "Resume",
+    createdAt: "Aug 15, 2026",
+    lastEdit: "1 week ago",
+    candidateName: "Arjun Kumar",
+    title: "Backend Engineer",
+  },
+  {
+    id: 8,
+    name: "UI/UX Developer - Notion",
+    job: "Notion",
+    score: "91%",
+    type: "Resume",
+    createdAt: "Aug 10, 2026",
+    lastEdit: "2 weeks ago",
+    candidateName: "Arjun Kumar",
+    title: "Frontend Architect",
+  },
 ];
 
 const recentActivity = [
@@ -100,6 +133,13 @@ export default function Dashboard({
   const [selectedResumeForModal, setSelectedResumeForModal] = useState<ResumeDocument | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isModalEditable, setIsModalEditable] = useState(false);
+
+  // Pagination State for Resumes Table
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+  const totalPages = Math.ceil(documentsList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedDocs = documentsList.slice(startIndex, startIndex + itemsPerPage);
 
   const handleOpenPreviewModal = (doc: ResumeDocument, editable: boolean = false) => {
     setSelectedResumeForModal(doc);
@@ -242,9 +282,20 @@ export default function Dashboard({
       {/* Stats */}
       <div className="grid-responsive-3col" style={{ marginBottom: 24 }}>
         {stats.map((s) => (
-          <div key={s.label} className="glass glass-hover" style={{ padding: "20px 22px" }}>
+          <div
+            key={s.label}
+            className="glass glass-hover"
+            style={{
+              padding: "20px 22px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
             <div style={{ fontSize: 11, color: "rgba(148,163,184,0.5)", marginBottom: 10, fontFamily: "JetBrains Mono", letterSpacing: "0.06em", textTransform: "uppercase" }}>{s.label}</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 2, marginBottom: 8 }}>
               <span style={{ fontSize: 36, fontWeight: 800, color: s.color, letterSpacing: "-0.04em" }}>{s.value}</span>
               <span style={{ fontSize: 16, color: "rgba(148,163,184,0.5)", fontWeight: 500 }}>{s.unit}</span>
             </div>
@@ -260,12 +311,7 @@ export default function Dashboard({
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: "white", margin: 0 }}>Resumes</h2>
             <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-              <button
-                onClick={() => onNavigate("reports")}
-                style={{ background: "none", border: "none", color: "#a78bfa", fontSize: 13, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
-              >
-                All Documents
-              </button>
+
 
             </div>
           </div>
@@ -277,7 +323,6 @@ export default function Dashboard({
                 <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Name</th>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Job</th>
-                  <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Type</th>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>Created at</th>
                   <th style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "rgba(226,232,240,0.8)" }}>
                     Last edit <span style={{ fontSize: 11 }}>↓</span>
@@ -286,11 +331,11 @@ export default function Dashboard({
                 </tr>
               </thead>
               <tbody>
-                {documentsList.map((doc, idx) => (
+                {paginatedDocs.map((doc, idx) => (
                   <tr
                     key={doc.id}
                     style={{
-                      borderBottom: idx < documentsList.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                      borderBottom: idx < paginatedDocs.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                       transition: "background 0.15s ease",
                     }}
                     className="glass-hover"
@@ -371,11 +416,6 @@ export default function Dashboard({
                       )}
                     </td>
 
-                    {/* Type */}
-                    <td style={{ padding: "14px", fontSize: 12, color: "rgba(226,232,240,0.8)" }}>
-                      {doc.type}
-                    </td>
-
                     {/* Created at */}
                     <td style={{ padding: "14px", fontSize: 12, color: "rgba(148,163,184,0.7)", fontFamily: "JetBrains Mono", whiteSpace: "nowrap" }}>
                       {doc.createdAt}
@@ -434,7 +474,7 @@ export default function Dashboard({
                             className="glass-hover"
                             onClick={() => { setActiveMenuId(null); handleOpenPreviewModal(doc, true); }}
                           >
-                            ✏️ Preview & Edit
+                            ✏️ Edit
                           </div>
                           <div
                             style={{ padding: "8px 14px", fontSize: 12, color: "white", cursor: "pointer", textAlign: "left" }}
@@ -458,6 +498,80 @@ export default function Dashboard({
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.06)", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ fontSize: 12, color: "rgba(148,163,184,0.6)" }}>
+                Showing <span style={{ color: "white", fontWeight: 600 }}>{startIndex + 1}</span> to{" "}
+                <span style={{ color: "white", fontWeight: 600 }}>{Math.min(startIndex + itemsPerPage, documentsList.length)}</span> of{" "}
+                <span style={{ color: "white", fontWeight: 600 }}>{documentsList.length}</span> resumes
+              </div>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  style={{
+                    padding: "5px 12px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    borderRadius: 8,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: currentPage === 1 ? "rgba(148,163,184,0.3)" : "rgba(226,232,240,0.8)",
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                  className={currentPage !== 1 ? "glass-hover" : ""}
+                >
+                  ← Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    style={{
+                      width: 30,
+                      height: 30,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      borderRadius: 8,
+                      border: page === currentPage ? "none" : "1px solid rgba(255,255,255,0.1)",
+                      background: page === currentPage ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "rgba(255,255,255,0.03)",
+                      color: page === currentPage ? "#ffffff" : "rgba(226,232,240,0.8)",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: page === currentPage ? "0 2px 10px rgba(124,58,237,0.4)" : "none",
+                    }}
+                    className={page !== currentPage ? "glass-hover" : ""}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  style={{
+                    padding: "5px 12px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    borderRadius: 8,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: currentPage === totalPages ? "rgba(148,163,184,0.3)" : "rgba(226,232,240,0.8)",
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                  className={currentPage !== totalPages ? "glass-hover" : ""}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN: RECENT ACTIVITY (30%) */}

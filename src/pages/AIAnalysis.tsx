@@ -248,14 +248,14 @@ export default function AIAnalysis({ onNavigate, onComplete, hasActiveSubscripti
       {/* Header */}
       <div className="stack-on-mobile" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexShrink: 0, gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>AI <span className="gradient-text">Analysis</span></h1>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>
+            Step 2: AI <span className="gradient-text">Analysis</span>
+          </h1>
+          <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>
+            Review AI-extracted match score, detected keywords, skill gaps, and suggestions for your target role.
+          </p>
         </div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {!hasActiveSubscription && (
-            <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13, background: "linear-gradient(135deg, #7c3aed, #06b6d4)" }} onClick={onOpenUpgradeModal}>
-              ⚡ Upgrade Plan to Unlock All
-            </button>
-          )}
           <button className="btn-ghost" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("job-resume")}>← Re-upload</button>
           <button className="btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => onNavigate("resume-editor")}>Step 3: Apply Suggestions →</button>
         </div>

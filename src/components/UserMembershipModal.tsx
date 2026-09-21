@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import { PlanData } from "./admin/PlanModal";
+import { Coupon } from "../types";
+import {
+  getStoredCoupons,
+  isCouponApplicableToPlan,
+  calculateCouponPrice,
+} from "../services/couponService";
 
 interface UserMembershipModalProps {
   isOpen: boolean;
@@ -17,34 +23,37 @@ export default function UserMembershipModal({
   onSubscribe,
 }: UserMembershipModalProps) {
   const [couponCode, setCouponCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
-  const [couponMsg, setCouponMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponMsg, setCouponMsg] = useState<{ type: "success" | "error" | "warning"; text: string } | null>(null);
 
   if (!isOpen) return null;
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanCode = couponCode.trim().toUpperCase();
-    if (cleanCode === "FESTIVE25") {
-      setAppliedDiscount(25);
-      setCouponMsg({ type: "success", text: "FESTIVE25 applied! 25% discount activated." });
-    } else if (cleanCode === "STUDENT50") {
-      setAppliedDiscount(50);
-      setCouponMsg({ type: "success", text: "STUDENT50 applied! 50% discount activated." });
-    } else if (cleanCode === "EARLYBIRD") {
-      setAppliedDiscount(15);
-      setCouponMsg({ type: "success", text: "EARLYBIRD applied! 15% discount activated." });
-    } else {
-      setAppliedDiscount(0);
-      setCouponMsg({ type: "error", text: "Invalid or expired coupon code." });
-    }
-  };
+    if (!cleanCode) return;
 
-  const calculateFinalPrice = (price: number) => {
-    if (appliedDiscount > 0) {
-      return Math.round(price * (1 - appliedDiscount / 100));
+    const couponsList = getStoredCoupons();
+    const found = couponsList.find((c) => c.code.trim().toUpperCase() === cleanCode);
+
+    if (!found) {
+      setAppliedCoupon(null);
+      setCouponMsg({ type: "error", text: `Invalid coupon code "${cleanCode}".` });
+      return;
     }
-    return price;
+
+    if (found.status === "Expired") {
+      setAppliedCoupon(null);
+      setCouponMsg({ type: "error", text: `Coupon "${found.code}" has expired.` });
+      return;
+    }
+
+    setAppliedCoupon(found);
+    const plansLabel = found.applicablePlans.join(", ");
+    setCouponMsg({
+      type: "success",
+      text: `Coupon "${found.code}" applied! (${found.discountType === "Percentage" ? found.discountValue + "% OFF" : "₹" + found.discountValue + " OFF"}). Valid for: ${plansLabel}.`,
+    });
   };
 
   return (
@@ -132,7 +141,7 @@ export default function UserMembershipModal({
             <span style={{ fontSize: 18 }}>🎟️</span>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>Have a Discount Coupon?</div>
-              <div style={{ fontSize: 11, color: "rgba(148,163,184,0.6)" }}>Use code FESTIVE25 for 25% OFF or STUDENT50 for 50% OFF</div>
+              <div style={{ fontSize: 11, color: "rgba(148,163,184,0.6)" }}>Use code FESTIVE25 for 25% OFF or STUDENT50 for 50% OFF (Pro & Elite)</div>
             </div>
           </div>
           <form onSubmit={handleApplyCoupon} style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -185,7 +194,10 @@ export default function UserMembershipModal({
           {plans.map((plan) => {
             const isCurrent = currentPlanId === plan.id;
             const isPopular = plan.popular || plan.badge?.toLowerCase().includes("popular");
-            const finalPrice = calculateFinalPrice(plan.priceINR);
+            const isEligible = appliedCoupon ? isCouponApplicableToPlan(appliedCoupon, plan.name) : false;
+            const finalPrice = (appliedCoupon && isEligible)
+              ? calculateCouponPrice(plan.priceINR, appliedCoupon)
+              : plan.priceINR;
 
             return (
               <div
@@ -195,13 +207,21 @@ export default function UserMembershipModal({
                   background: isPopular
                     ? "linear-gradient(160deg, rgba(124, 58, 237, 0.2), rgba(15, 15, 42, 0.9))"
                     : "rgba(255, 255, 255, 0.03)",
-                  border: isPopular ? "2px solid rgba(124, 58, 237, 0.7)" : "1px solid rgba(255, 255, 255, 0.08)",
+                  border: isEligible && appliedCoupon
+                    ? "2px solid #10b981"
+                    : isPopular
+                    ? "2px solid rgba(124, 58, 237, 0.7)"
+                    : "1px solid rgba(255, 255, 255, 0.08)",
                   borderRadius: 18,
                   padding: "24px 20px",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  boxShadow: isPopular ? "0 12px 30px rgba(124, 58, 237, 0.3)" : undefined,
+                  boxShadow: isEligible && appliedCoupon
+                    ? "0 8px 25px rgba(16, 185, 129, 0.25)"
+                    : isPopular
+                    ? "0 12px 30px rgba(124, 58, 237, 0.3)"
+                    : undefined,
                   transition: "transform 0.2s ease, border-color 0.2s ease",
                 }}
               >
@@ -235,19 +255,27 @@ export default function UserMembershipModal({
                   </h3>
 
                   {/* Price display */}
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 16 }}>
-                    <span style={{ fontSize: 28, fontWeight: 900, color: "white", letterSpacing: "-0.03em" }}>
-                      ₹{finalPrice.toLocaleString()}
-                    </span>
-                    {plan.originalPriceINR > plan.priceINR && (
-                      <span style={{ fontSize: 14, color: "rgba(148,163,184,0.5)", textDecoration: "line-through" }}>
-                        ₹{plan.originalPriceINR.toLocaleString()}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                      <span style={{ fontSize: 28, fontWeight: 900, color: "white", letterSpacing: "-0.03em" }}>
+                        ₹{finalPrice.toLocaleString()}
                       </span>
-                    )}
-                    {appliedDiscount > 0 && (
-                      <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700, fontFamily: "JetBrains Mono" }}>
-                        ({appliedDiscount}% OFF)
-                      </span>
+                      {(isEligible || (plan.originalPriceINR && plan.originalPriceINR > plan.priceINR)) && (
+                        <span style={{ fontSize: 14, color: "rgba(148,163,184,0.5)", textDecoration: "line-through" }}>
+                          ₹{(isEligible ? plan.priceINR : plan.originalPriceINR).toLocaleString()}
+                        </span>
+                      )}
+                      {appliedCoupon && isEligible && (
+                        <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700, fontFamily: "JetBrains Mono" }}>
+                          ({appliedCoupon.discountType === "Percentage" ? `${appliedCoupon.discountValue}% OFF` : `₹${appliedCoupon.discountValue} OFF`})
+                        </span>
+                      )}
+                    </div>
+
+                    {appliedCoupon && !isEligible && (
+                      <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                        ⚠️ Coupon {appliedCoupon.code} not valid for {plan.name}
+                      </div>
                     )}
                   </div>
 

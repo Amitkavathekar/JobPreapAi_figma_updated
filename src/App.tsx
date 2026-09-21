@@ -342,6 +342,7 @@ export default function App() {
             hasActiveSubscription={hasActiveSubscription}
             onOpenUpgradeModal={() => setShowUpgradeModal(true)}
             isStep2Enabled={isStep2Enabled}
+            onOpenSupportModal={() => setShowSupportModal(true)}
           />
         );
       case "reports":

@@ -118,100 +118,126 @@ export default function JobResume({ onNavigate, onComplete, onStep2EnabledChange
           </div>
         </div>
 
-        {/* RIGHT — Upload Resume */}
-        <div className="glass" style={{ padding: "24px 28px", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span>
-              Upload Resume <span style={{ color: "#ef4444", marginLeft: 4 }}>*</span>
-            </span>
-            {uploaded ? (
-              <span className="tag tag-green">✓ Uploaded</span>
-            ) : (
-              <span className="tag tag-amber">* Required</span>
-            )}
-          </div>
-          <div style={{ fontSize: 13, color: "rgba(148,163,184,0.5)", marginBottom: 20 }}>PDF or DOCX · Max 5MB · We parse text, structure, and formatting.</div>
+        {/* RIGHT — Upload Resume & Step 2 Button */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Upload Resume Box */}
+          <div className="glass" style={{ padding: "20px 24px", display: "flex", flexDirection: "column" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span>
+                Upload Resume <span style={{ color: "#ef4444", marginLeft: 4 }}>*</span>
+              </span>
+              {uploaded ? (
+                <span className="tag tag-green">✓ Uploaded</span>
+              ) : (
+                <span className="tag tag-amber">* Required</span>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginBottom: 12 }}>PDF or DOCX · Max 5MB · We parse text, structure, and formatting.</div>
 
-          <div
-            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              const droppedFile = e.dataTransfer.files?.[0];
-              if (droppedFile) {
-                const kb = Math.round(droppedFile.size / 1024);
-                handleUpload(droppedFile.name, `${kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB"}`);
-              } else {
-                handleUpload();
-              }
-            }}
-            onClick={() => {
-              if (!uploaded && fileInputRef.current) {
-                fileInputRef.current.click();
-              }
-            }}
-            style={{
-              border: `2px dashed ${dragging ? "rgba(124,58,237,0.7)" : uploaded ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.15)"}`,
-              borderRadius: 14, padding: "40px 24px", textAlign: "center",
-              cursor: uploaded ? "default" : "pointer",
-              background: dragging ? "rgba(124,58,237,0.08)" : uploaded ? "rgba(16,185,129,0.05)" : "rgba(255,255,255,0.02)",
-              transition: "all 0.2s", flex: 1,
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            }}
-          >
-            <div style={{ fontSize: 40, marginBottom: 12 }}>{uploaded ? "📄" : "⬆"}</div>
-            {!uploaded ? (
-              <>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "white", marginBottom: 6 }}>Drop your resume here</div>
-                <div style={{ fontSize: 13, color: "rgba(148,163,184,0.5)", marginBottom: 16 }}>or click to browse files</div>
-                <div style={{ display: "inline-flex", gap: 8 }}>
-                  <span className="tag tag-purple">PDF</span>
-                  <span className="tag tag-cyan">DOCX</span>
-                  <span className="tag tag-green">TXT</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={{ fontSize: 14, fontWeight: 600, color: validating ? "#f59e0b" : "#10b981", marginBottom: 6 }}>
-                  {validating ? "Parsing document..." : fileName}
-                </div>
-                <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginBottom: 12 }}>
-                  {validating ? "Extracting fields..." : `${fileSize} · Successfully parsed`}
-                </div>
-                {!validating && (
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <span className="tag tag-green">✓ Parsed</span>
-                    <span className="tag tag-cyan">{fileSize}</span>
-                  </div>
-                )}
-                {validating && (
-                  <div className="progress-bar" style={{ height: 4, width: 120 }}>
-                    <div className="progress-fill" style={{ width: "60%" }} />
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {uploaded && !validating && (
-            <button
-              className="btn-ghost"
-              style={{ marginTop: 12, padding: "8px 0", fontSize: 13, width: "100%" }}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                const droppedFile = e.dataTransfer.files?.[0];
+                if (droppedFile) {
+                  const kb = Math.round(droppedFile.size / 1024);
+                  handleUpload(droppedFile.name, `${kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB"}`);
+                } else {
+                  handleUpload();
+                }
+              }}
               onClick={() => {
-                setUploaded(false);
-                setValidated(false);
-                setValidating(false);
-                if (fileInputRef.current) fileInputRef.current.value = "";
+                if (!uploaded && fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
+              }}
+              style={{
+                border: `2px dashed ${dragging ? "rgba(124,58,237,0.7)" : uploaded ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.15)"}`,
+                borderRadius: 14, padding: "22px 16px", textAlign: "center",
+                cursor: uploaded ? "default" : "pointer",
+                background: dragging ? "rgba(124,58,237,0.08)" : uploaded ? "rgba(16,185,129,0.05)" : "rgba(255,255,255,0.02)",
+                transition: "all 0.2s", flex: 1,
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
               }}
             >
-              ↺ Replace File
+              <div style={{ fontSize: 32, marginBottom: 8 }}>{uploaded ? "📄" : "⬆"}</div>
+              {!uploaded ? (
+                <>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "white", marginBottom: 4 }}>Drop your resume here</div>
+                  <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", marginBottom: 12 }}>or click to browse files</div>
+                  <div style={{ display: "inline-flex", gap: 6 }}>
+                    <span className="tag tag-purple">PDF</span>
+                    <span className="tag tag-cyan">DOCX</span>
+                    <span className="tag tag-green">TXT</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: validating ? "#f59e0b" : "#10b981", marginBottom: 4 }}>
+                    {validating ? "Parsing document..." : fileName}
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(148,163,184,0.5)", marginBottom: 10 }}>
+                    {validating ? "Extracting fields..." : `${fileSize} · Successfully parsed`}
+                  </div>
+                  {!validating && (
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <span className="tag tag-green">✓ Parsed</span>
+                      <span className="tag tag-cyan">{fileSize}</span>
+                    </div>
+                  )}
+                  {validating && (
+                    <div className="progress-bar" style={{ height: 4, width: 120 }}>
+                      <div className="progress-fill" style={{ width: "60%" }} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {uploaded && !validating && (
+              <button
+                className="btn-ghost"
+                style={{ marginTop: 10, padding: "6px 0", fontSize: 12, width: "100%" }}
+                onClick={() => {
+                  setUploaded(false);
+                  setValidated(false);
+                  setValidating(false);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+              >
+                ↺ Replace File
+              </button>
+            )}
+          </div>
+
+          {/* Step 2 Validate button */}
+          {!showValidation && (
+            <button
+              className="btn-primary"
+              disabled={!isFormValid}
+              style={{
+                width: "100%",
+                padding: "12px 20px",
+                fontSize: 14,
+                fontWeight: 600,
+                opacity: isFormValid ? 1 : 0.45,
+                cursor: isFormValid ? "pointer" : "not-allowed",
+                background: isFormValid ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "rgba(255, 255, 255, 0.1)",
+                border: isFormValid ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(255, 255, 255, 0.1)",
+                boxShadow: isFormValid ? "0 4px 15px rgba(124, 58, 237, 0.4)" : "none",
+                transition: "all 0.25s ease",
+              }}
+              onClick={handleValidate}
+            >
+              Step 2: Validate Data & Proceed to AI Analysis →
             </button>
           )}
         </div>
       </div>
 
-      {/* Tip */}
+      {/* Tip (Original Full-Width Box) */}
       <div className="glass" style={{ padding: "14px 20px", marginBottom: 20, display: "flex", gap: 12, alignItems: "center" }}>
         <span style={{ fontSize: 20 }}>💡</span>
         <div>
@@ -219,30 +245,6 @@ export default function JobResume({ onNavigate, onComplete, onStep2EnabledChange
           <span style={{ fontSize: 13, color: "rgba(148,163,184,0.6)" }}>Both Job Description and Resume PDF are required (*). Once both are provided, Step 2 button will be enabled.</span>
         </div>
       </div>
-
-      {/* Validate button */}
-      {!showValidation && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-          <button
-            className="btn-primary"
-            disabled={!isFormValid}
-            style={{
-              padding: "11px 28px",
-              fontSize: 14,
-              opacity: isFormValid ? 1 : 0.45,
-              cursor: isFormValid ? "pointer" : "not-allowed",
-              background: isFormValid ? "linear-gradient(135deg, #7c3aed, #06b6d4)" : "rgba(255, 255, 255, 0.1)",
-              border: isFormValid ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: isFormValid ? "0 4px 15px rgba(124, 58, 237, 0.4)" : "none",
-              transition: "all 0.25s ease",
-            }}
-            onClick={handleValidate}
-          >
-            Step 2: Validate Data & Proceed to AI Analysis →
-          </button>
-
-        </div>
-      )}
 
       {/* Validation results */}
       {showValidation && (

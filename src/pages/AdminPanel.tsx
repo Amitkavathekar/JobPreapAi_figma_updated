@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AdminScreen, Coupon, ActivityLogItem, AdminUser } from "../types";
+import { getStoredCoupons, saveStoredCoupons } from "../services/couponService";
 import AdminSidebar from "../components/AdminSidebar";
 
 // Import modular sub-components
@@ -438,7 +439,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
 
   // Core Data States
   const [plans, setPlans] = useState<PlanData[]>(INITIAL_PLANS);
-  const [coupons, setCoupons] = useState<Coupon[]>(INITIAL_COUPONS);
+  const [coupons, setCoupons] = useState<Coupon[]>(getStoredCoupons);
   const [users, setUsers] = useState<AdminUser[]>(INITIAL_USERS);
   const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>(INITIAL_ACTIVITY_LOGS);
 
@@ -591,15 +592,18 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
   const handleSaveCoupon = (coupon: Coupon) => {
     setCoupons((prev) => {
       const idx = prev.findIndex((c) => c.id === coupon.id);
+      let updated: Coupon[];
       if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = coupon;
-        return next;
+        updated = [...prev];
+        updated[idx] = coupon;
+      } else {
+        updated = [...prev, coupon];
       }
-      return [...prev, coupon];
+      saveStoredCoupons(updated);
+      return updated;
     });
-    showNotification(`Coupon ${coupon.code} created successfully!`);
-    addAuditLog(`Created coupon ${coupon.code}`, coupon.code, "Coupon");
+    showNotification(`Coupon ${coupon.code} saved successfully!`);
+    addAuditLog(`Saved coupon ${coupon.code}`, coupon.code, "Coupon");
   };
 
   const promptDeleteCoupon = (coupon: Coupon) => {
@@ -611,7 +615,11 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
       confirmLabel: "Delete Coupon",
       isDanger: true,
       onConfirm: () => {
-        setCoupons((prev) => prev.filter((c) => c.id !== coupon.id));
+        setCoupons((prev) => {
+          const updated = prev.filter((c) => c.id !== coupon.id);
+          saveStoredCoupons(updated);
+          return updated;
+        });
         showNotification(`Coupon ${coupon.code} deleted`);
         addAuditLog(`Deleted coupon ${coupon.code}`, coupon.code, "Coupon");
       },
