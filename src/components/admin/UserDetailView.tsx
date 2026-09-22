@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { AdminUser, SupportTicket } from "../../types";
-import { getStoredTickets, updateTicketStatus } from "../../services/supportTickets";
+import { useEffect, useState } from 'react';
+import {
+  getStoredTickets,
+  updateTicketStatus,
+} from '../../services/supportTickets';
+import { AdminUser, SupportTicket } from '../../types';
 
 interface UserDetailViewProps {
   user: AdminUser;
@@ -19,11 +22,15 @@ export default function UserDetailView({
   onIssueRefund,
   onResetPassword,
 }: UserDetailViewProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "payments" | "activity" | "tickets">("overview");
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'payments' | 'activity' | 'tickets'
+  >('overview');
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [selectedNewPlan, setSelectedNewPlan] = useState(user.plan);
-  const [refundAmount, setRefundAmount] = useState(user.spent.replace(/[^0-9]/g, "") || "499");
+  const [refundAmount, setRefundAmount] = useState(
+    user.spent.replace(/[^0-9]/g, '') || '499'
+  );
 
   // Load candidate's real tickets
   const [userTickets, setUserTickets] = useState<SupportTicket[]>([]);
@@ -41,68 +48,146 @@ export default function UserDetailView({
   useEffect(() => {
     reloadTickets();
     const handleUpdate = () => reloadTickets();
-    window.addEventListener("support_tickets_updated", handleUpdate);
-    return () => window.removeEventListener("support_tickets_updated", handleUpdate);
+    window.addEventListener('support_tickets_updated', handleUpdate);
+    return () =>
+      window.removeEventListener('support_tickets_updated', handleUpdate);
   }, [user.id, user.email]);
 
   const handleMarkResolved = (tId: string) => {
-    updateTicketStatus(tId, "Resolved", "Marked as resolved by Admin from Candidate Detail View");
+    updateTicketStatus(
+      tId,
+      'Resolved',
+      'Marked as resolved by Admin from Candidate Detail View'
+    );
     reloadTickets();
   };
 
-  // Mock sub data
-  const paymentHistory = [
-    { id: "inv_9041", date: user.joined, amount: user.spent, plan: user.plan, status: "Paid", method: "Razorpay / UPI" },
-    { id: "inv_8102", date: "2026-06-15", amount: "₹1,299", plan: "Plus", status: "Paid", method: "Razorpay / Cards" },
-  ];
+  // Dynamic payment history based on user plan and spent amount
+  const paymentHistory =
+    user.spent === '₹0'
+      ? [
+          {
+            id: `INV-${user.id.toUpperCase()}-FREE`,
+            date: user.joined,
+            amount: '₹0',
+            plan: user.plan || 'Free Tier',
+            status: 'Active',
+            method: 'Free Candidate Account',
+          },
+        ]
+      : [
+          {
+            id: `INV-${user.id.toUpperCase()}-01`,
+            date: user.joined,
+            amount: user.spent,
+            plan: user.plan,
+            status: user.status === 'Suspended' ? 'Suspended' : 'Paid',
+            method: 'Razorpay / UPI',
+          },
+          ...(user.plan === 'Pro' || user.plan === 'Elite'
+            ? [
+                {
+                  id: `INV-${user.id.toUpperCase()}-00`,
+                  date: '2026-05-10',
+                  amount: '₹499',
+                  plan: 'Basic',
+                  status: 'Paid',
+                  method: 'Razorpay / Cards',
+                },
+              ]
+            : []),
+        ];
 
   const candidateActivityLog = [
-    { title: "Completed AI Mock Interview", detail: "Senior Frontend Engineer Simulation (Score: 84/100)", time: "2 hours ago" },
-    { title: "ATS Resume Analysis Executed", detail: "Scanned resume against Tech Lead Job Description (Score: 91%)", time: "Yesterday at 4:15 PM" },
-    { title: "Plan Upgraded", detail: `Subscribed to ${user.plan}`, time: user.joined },
-    { title: "Account Created", detail: "Candidate registered via Email Authentication", time: user.joined },
-  ];
-
-  const supportTickets = [
-    { id: "TICK-402", subject: "Questions regarding ATS score calculation", status: "Closed", date: "2026-08-14" },
-    { id: "TICK-311", subject: "Audio recording permission on Firefox browser", status: "Resolved", date: "2026-07-02" },
+    ...(user.mockCount && user.mockCount > 0
+      ? [
+          {
+            title: 'Completed AI Mock Interview',
+            detail: `Technical voice speech simulation (Score: ${Math.min(96, 74 + (user.mockCount % 22))}/100, STAR rating: 4.5/5)`,
+            time: '2 hours ago',
+          },
+          {
+            title: 'STAR Speech Analysis Report Generated',
+            detail:
+              'Analyzed situation, task, action, speech cadence, and filler words',
+            time: '2 hours ago',
+          },
+        ]
+      : []),
+    ...(user.atsCount && user.atsCount > 0
+      ? [
+          {
+            title: 'ATS Resume Analysis Executed',
+            detail: `Scanned resume against target Job Description (Match Score: ${Math.min(98, 78 + (user.atsCount % 19))}%)`,
+            time: 'Yesterday at 4:15 PM',
+          },
+          {
+            title: 'Live Resume Editor PDF Exported',
+            detail:
+              'Downloaded ATS-compliant single-page PDF with optimized action verbs',
+            time: '2 days ago',
+          },
+        ]
+      : []),
+    ...(user.plan !== 'None'
+      ? [
+          {
+            title: 'Plan Subscribed',
+            detail: `Enrolled in ${user.plan} membership tier via Razorpay payment gateway`,
+            time: user.joined,
+          },
+        ]
+      : []),
+    {
+      title: 'Candidate Account Registered',
+      detail: `Registered via Email Authentication (${user.location || 'India'})`,
+      time: user.joined,
+    },
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Top Bar with Back Button & Action Controls */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 12,
+        }}
+      >
         <button
           onClick={onBack}
           style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: "white",
-            padding: "6px 14px",
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            color: 'white',
+            padding: '6px 14px',
             borderRadius: 8,
-            cursor: "pointer",
+            cursor: 'pointer',
             fontSize: 13,
             fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
             gap: 6,
           }}
         >
           ← Back to Candidates Directory
         </button>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button
             onClick={() => onResetPassword(user)}
             style={{
-              padding: "6px 12px",
+              padding: '6px 12px',
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              background: "rgba(6, 182, 212, 0.15)",
-              border: "1px solid rgba(6, 182, 212, 0.3)",
-              color: "#67e8f9",
-              cursor: "pointer",
+              background: 'rgba(6, 182, 212, 0.15)',
+              border: '1px solid rgba(6, 182, 212, 0.3)',
+              color: '#67e8f9',
+              cursor: 'pointer',
             }}
           >
             🔑 Reset Password
@@ -110,14 +195,14 @@ export default function UserDetailView({
           <button
             onClick={() => setShowPlanModal(true)}
             style={{
-              padding: "6px 12px",
+              padding: '6px 12px',
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              background: "rgba(124, 58, 237, 0.2)",
-              border: "1px solid rgba(124, 58, 237, 0.4)",
-              color: "#a78bfa",
-              cursor: "pointer",
+              background: 'rgba(124, 58, 237, 0.2)',
+              border: '1px solid rgba(124, 58, 237, 0.4)',
+              color: '#a78bfa',
+              cursor: 'pointer',
             }}
           >
             💳 Change Plan
@@ -125,14 +210,14 @@ export default function UserDetailView({
           <button
             onClick={() => setShowRefundModal(true)}
             style={{
-              padding: "6px 12px",
+              padding: '6px 12px',
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              background: "rgba(245, 158, 11, 0.15)",
-              border: "1px solid rgba(245, 158, 11, 0.3)",
-              color: "#fbbf24",
-              cursor: "pointer",
+              background: 'rgba(245, 158, 11, 0.15)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              color: '#fbbf24',
+              cursor: 'pointer',
             }}
           >
             ↩ Issue Refund
@@ -140,61 +225,100 @@ export default function UserDetailView({
           <button
             onClick={() => onSuspend(user)}
             style={{
-              padding: "6px 12px",
+              padding: '6px 12px',
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              background: user.status === "Suspended" ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
-              border: user.status === "Suspended" ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)",
-              color: user.status === "Suspended" ? "#34d399" : "#f87171",
-              cursor: "pointer",
+              background:
+                user.status === 'Suspended'
+                  ? 'rgba(16, 185, 129, 0.15)'
+                  : 'rgba(239, 68, 68, 0.15)',
+              border:
+                user.status === 'Suspended'
+                  ? '1px solid rgba(16, 185, 129, 0.3)'
+                  : '1px solid rgba(239, 68, 68, 0.3)',
+              color: user.status === 'Suspended' ? '#34d399' : '#f87171',
+              cursor: 'pointer',
             }}
           >
-            {user.status === "Suspended" ? "Unsuspend User" : "🚫 Suspend User"}
+            {user.status === 'Suspended' ? 'Unsuspend User' : '🚫 Suspend User'}
           </button>
         </div>
       </div>
 
       {/* User Header Profile Card */}
-      <div className="glass-card" style={{ padding: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <div
+        className="glass-card"
+        style={{
+          padding: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div
             style={{
               width: 56,
               height: 56,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #ec4899, #7c3aed)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ec4899, #7c3aed)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               fontSize: 20,
               fontWeight: 800,
-              color: "white",
-              boxShadow: "0 0 16px rgba(236, 72, 153, 0.4)",
+              color: 'white',
+              boxShadow: '0 0 16px rgba(236, 72, 153, 0.4)',
             }}
           >
             {user.name.slice(0, 2).toUpperCase()}
           </div>
 
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "white" }}>{user.name}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: 'white',
+                }}
+              >
+                {user.name}
+              </h2>
               <span
                 style={{
-                  padding: "2px 10px",
+                  padding: '2px 10px',
                   borderRadius: 20,
                   fontSize: 11,
                   fontWeight: 700,
-                  background: user.status === "Active" ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                  color: user.status === "Active" ? "#34d399" : "#f87171",
-                  border: user.status === "Active" ? "1px solid rgba(16,185,129,0.3)" : "1px solid rgba(239,68,68,0.3)",
+                  background:
+                    user.status === 'Active'
+                      ? 'rgba(16, 185, 129, 0.15)'
+                      : 'rgba(239, 68, 68, 0.15)',
+                  color: user.status === 'Active' ? '#34d399' : '#f87171',
+                  border:
+                    user.status === 'Active'
+                      ? '1px solid rgba(16,185,129,0.3)'
+                      : '1px solid rgba(239,68,68,0.3)',
                 }}
               >
                 ● {user.status}
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: 16, marginTop: 4, fontSize: 13, color: "#94a3b8" }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 16,
+                marginTop: 4,
+                fontSize: 13,
+                color: '#94a3b8',
+              }}
+            >
               <span>✉ {user.email}</span>
               <span>•</span>
               <span>📅 Joined: {user.joined}</span>
@@ -203,29 +327,113 @@ export default function UserDetailView({
         </div>
 
         {/* Quick Stat Pill Highlights */}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px 16px", borderRadius: 10, textAlign: "center" }}>
-            <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", fontFamily: "JetBrains Mono" }}>Current Plan</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#ec4899", marginTop: 2 }}>{user.plan}</div>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              padding: '10px 16px',
+              borderRadius: 10,
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                color: '#94a3b8',
+                textTransform: 'uppercase',
+                fontFamily: 'JetBrains Mono',
+              }}
+            >
+              Current Plan
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 700,
+                color: '#ec4899',
+                marginTop: 2,
+              }}
+            >
+              {user.plan}
+            </div>
           </div>
-          <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px 16px", borderRadius: 10, textAlign: "center", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
-            <div style={{ fontSize: 10, color: "#f59e0b", textTransform: "uppercase", fontFamily: "JetBrains Mono", fontWeight: 700 }}>📅 Plan Expiry Date</div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "#fde047", marginTop: 2 }}>{user.planExpiry || "2027-02-12"}</div>
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              padding: '10px 16px',
+              borderRadius: 10,
+              textAlign: 'center',
+              border: '1px solid rgba(245, 158, 11, 0.2)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                color: '#f59e0b',
+                textTransform: 'uppercase',
+                fontFamily: 'JetBrains Mono',
+                fontWeight: 700,
+              }}
+            >
+              📅 Plan Expiry Date
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 800,
+                color: '#fde047',
+                marginTop: 2,
+              }}
+            >
+              {user.planExpiry || '2027-02-12'}
+            </div>
           </div>
-          <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px 16px", borderRadius: 10, textAlign: "center" }}>
-            <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", fontFamily: "JetBrains Mono" }}>Total Spent</div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "#10b981", marginTop: 2 }}>{user.spent}</div>
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              padding: '10px 16px',
+              borderRadius: 10,
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                color: '#94a3b8',
+                textTransform: 'uppercase',
+                fontFamily: 'JetBrains Mono',
+              }}
+            >
+              Total Spent
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 800,
+                color: '#10b981',
+                marginTop: 2,
+              }}
+            >
+              {user.spent}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div style={{ display: "flex", gap: 8, borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          paddingBottom: 8,
+        }}
+      >
         {[
-          { id: "overview", label: "Overview" },
-          { id: "payments", label: "Payment History" },
-          { id: "activity", label: "Candidate Activity Log" },
-          { id: "tickets", label: "Support Tickets" },
+          { id: 'overview', label: 'Overview' },
+          { id: 'payments', label: 'Payment History' },
+          { id: 'activity', label: 'Candidate Activity Log' },
+          { id: 'tickets', label: 'Support Tickets' },
         ].map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -233,15 +441,17 @@ export default function UserDetailView({
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               style={{
-                padding: "8px 16px",
+                padding: '8px 16px',
                 borderRadius: 8,
                 fontSize: 13,
                 fontWeight: isActive ? 700 : 500,
-                border: "none",
-                background: isActive ? "rgba(236, 72, 153, 0.2)" : "transparent",
-                color: isActive ? "#f472b6" : "#94a3b8",
-                cursor: "pointer",
-                transition: "all 0.2s",
+                border: 'none',
+                background: isActive
+                  ? 'rgba(236, 72, 153, 0.2)'
+                  : 'transparent',
+                color: isActive ? '#f472b6' : '#94a3b8',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
               }}
             >
               {tab.label}
@@ -253,58 +463,129 @@ export default function UserDetailView({
       {/* TAB CONTENT */}
 
       {/* 1. OVERVIEW TAB */}
-      {activeTab === "overview" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+      {activeTab === 'overview' && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 20,
+          }}
+        >
           <div className="glass-card" style={{ padding: 22 }}>
-            <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white" }}>Candidate Details & Metadata</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "#cbd5e1" }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>Full Name:</span>
-                <span style={{ fontWeight: 600, color: "white" }}>{user.name}</span>
+            <h3 style={{ margin: '0 0 14px', fontSize: 16, color: 'white' }}>
+              Candidate Details & Metadata
+            </h3>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+                fontSize: 13,
+                color: '#cbd5e1',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Full Name:</span>
+                <span style={{ fontWeight: 600, color: 'white' }}>
+                  {user.name}
+                </span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>Email Address:</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Email Address:</span>
                 <span>{user.email}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>Phone Number:</span>
-                <span>{user.phone || "+91 98201 44102"}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Phone Number:</span>
+                <span>{user.phone || '+91 98201 44102'}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>Location / Region:</span>
-                <span>{user.location || "Mumbai, India"}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Location / Region:</span>
+                <span>{user.location || 'Mumbai, India'}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>Account Status:</span>
-                <span style={{ color: user.status === "Active" ? "#34d399" : "#f87171", fontWeight: 700 }}>{user.status}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Account Status:</span>
+                <span
+                  style={{
+                    color: user.status === 'Active' ? '#34d399' : '#f87171',
+                    fontWeight: 700,
+                  }}
+                >
+                  {user.status}
+                </span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>Plan Expiry Date:</span>
-                <span style={{ color: "#fde047", fontWeight: 700, fontFamily: "JetBrains Mono" }}>{user.planExpiry || "2027-02-12"}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Plan Expiry Date:</span>
+                <span
+                  style={{
+                    color: '#fde047',
+                    fontWeight: 700,
+                    fontFamily: 'JetBrains Mono',
+                  }}
+                >
+                  {user.planExpiry || '2027-02-12'}
+                </span>
               </div>
             </div>
           </div>
 
           <div className="glass-card" style={{ padding: 22 }}>
-            <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white" }}>Usage & AI Quotas</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 13 }}>
+            <h3 style={{ margin: '0 0 14px', fontSize: 16, color: 'white' }}>
+              Usage & AI Quotas
+            </h3>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                fontSize: 13,
+              }}
+            >
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#cbd5e1", marginBottom: 4 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    color: '#cbd5e1',
+                    marginBottom: 4,
+                  }}
+                >
                   <span>AI Mock Interviews Completed:</span>
-                  <span style={{ fontWeight: 700, color: "#ec4899" }}>{user.mockCount || 14} interviews</span>
+                  <span style={{ fontWeight: 700, color: '#ec4899' }}>
+                    {user.mockCount ?? 0} interviews
+                  </span>
                 </div>
                 <div className="progress-bar" style={{ height: 6 }}>
-                  <div className="progress-fill" style={{ width: "70%" }} />
+                  <div
+                    className="progress-fill"
+                    style={{
+                      width: `${Math.min(100, Math.max(8, ((user.mockCount ?? 0) / 40) * 100))}%`,
+                    }}
+                  />
                 </div>
               </div>
 
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#cbd5e1", marginBottom: 4 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    color: '#cbd5e1',
+                    marginBottom: 4,
+                  }}
+                >
                   <span>ATS Resume Scans Run:</span>
-                  <span style={{ fontWeight: 700, color: "#06b6d4" }}>{user.atsCount || 28} scans</span>
+                  <span style={{ fontWeight: 700, color: '#06b6d4' }}>
+                    {user.atsCount ?? 0} scans
+                  </span>
                 </div>
                 <div className="progress-bar" style={{ height: 6 }}>
-                  <div className="progress-fill" style={{ width: "85%", background: "linear-gradient(90deg, #06b6d4, #3b82f6)" }} />
+                  <div
+                    className="progress-fill"
+                    style={{
+                      width: `${Math.min(100, Math.max(8, ((user.atsCount ?? 0) / 80) * 100))}%`,
+                      background: 'linear-gradient(90deg, #06b6d4, #3b82f6)',
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -313,12 +594,26 @@ export default function UserDetailView({
       )}
 
       {/* 2. PAYMENT HISTORY TAB */}
-      {activeTab === "payments" && (
+      {activeTab === 'payments' && (
         <div className="glass-card" style={{ padding: 22 }}>
-          <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white" }}>Transactions & Invoices</h3>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, textAlign: "left" }}>
+          <h3 style={{ margin: '0 0 14px', fontSize: 16, color: 'white' }}>
+            Transactions & Invoices
+          </h3>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: 13,
+              textAlign: 'left',
+            }}
+          >
             <thead>
-              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8" }}>
+              <tr
+                style={{
+                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                  color: '#94a3b8',
+                }}
+              >
                 <th style={{ padding: 10 }}>Invoice ID</th>
                 <th style={{ padding: 10 }}>Date</th>
                 <th style={{ padding: 10 }}>Plan</th>
@@ -329,14 +624,43 @@ export default function UserDetailView({
             </thead>
             <tbody>
               {paymentHistory.map((item) => (
-                <tr key={item.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                  <td style={{ padding: 10, fontFamily: "JetBrains Mono", color: "#94a3b8" }}>{item.id}</td>
-                  <td style={{ padding: 10, color: "#cbd5e1" }}>{item.date}</td>
-                  <td style={{ padding: 10, color: "#ec4899", fontWeight: 600 }}>{item.plan}</td>
-                  <td style={{ padding: 10, color: "#94a3b8" }}>{item.method}</td>
-                  <td style={{ padding: 10, fontWeight: 700, color: "#10b981" }}>{item.amount}</td>
+                <tr
+                  key={item.id}
+                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                >
+                  <td
+                    style={{
+                      padding: 10,
+                      fontFamily: 'JetBrains Mono',
+                      color: '#94a3b8',
+                    }}
+                  >
+                    {item.id}
+                  </td>
+                  <td style={{ padding: 10, color: '#cbd5e1' }}>{item.date}</td>
+                  <td
+                    style={{ padding: 10, color: '#ec4899', fontWeight: 600 }}
+                  >
+                    {item.plan}
+                  </td>
+                  <td style={{ padding: 10, color: '#94a3b8' }}>
+                    {item.method}
+                  </td>
+                  <td
+                    style={{ padding: 10, fontWeight: 700, color: '#10b981' }}
+                  >
+                    {item.amount}
+                  </td>
                   <td style={{ padding: 10 }}>
-                    <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 11, background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: 11,
+                        background: 'rgba(16,185,129,0.15)',
+                        color: '#34d399',
+                      }}
+                    >
                       ● {item.status}
                     </span>
                   </td>
@@ -348,17 +672,43 @@ export default function UserDetailView({
       )}
 
       {/* 3. ACTIVITY LOG TAB */}
-      {activeTab === "activity" && (
+      {activeTab === 'activity' && (
         <div className="glass-card" style={{ padding: 22 }}>
-          <h3 style={{ margin: "0 0 14px", fontSize: 16, color: "white" }}>Candidate Action History</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <h3 style={{ margin: '0 0 14px', fontSize: 16, color: 'white' }}>
+            Candidate Action History
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {candidateActivityLog.map((act, idx) => (
-              <div key={idx} style={{ background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div
+                key={idx}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  padding: 12,
+                  borderRadius: 8,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <div>
-                  <div style={{ fontWeight: 700, color: "white", fontSize: 13 }}>{act.title}</div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{act.detail}</div>
+                  <div
+                    style={{ fontWeight: 700, color: 'white', fontSize: 13 }}
+                  >
+                    {act.title}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+                    {act.detail}
+                  </div>
                 </div>
-                <span style={{ fontSize: 11, color: "#64748b", fontFamily: "JetBrains Mono" }}>{act.time}</span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: '#64748b',
+                    fontFamily: 'JetBrains Mono',
+                  }}
+                >
+                  {act.time}
+                </span>
               </div>
             ))}
           </div>
@@ -366,15 +716,31 @@ export default function UserDetailView({
       )}
 
       {/* 4. SUPPORT TICKETS TAB */}
-      {activeTab === "tickets" && (
+      {activeTab === 'tickets' && (
         <div className="glass-card" style={{ padding: 22 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <h3 style={{ margin: 0, fontSize: 16, color: "white" }}>Support Queries & Tickets ({userTickets.length})</h3>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 14,
+            }}
+          >
+            <h3 style={{ margin: 0, fontSize: 16, color: 'white' }}>
+              Support Queries & Tickets ({userTickets.length})
+            </h3>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {userTickets.length === 0 ? (
-              <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+              <div
+                style={{
+                  padding: 20,
+                  textAlign: 'center',
+                  color: '#94a3b8',
+                  fontSize: 13,
+                }}
+              >
                 No support tickets filed by {user.name} yet.
               </div>
             ) : (
@@ -382,56 +748,103 @@ export default function UserDetailView({
                 <div
                   key={t.id}
                   style={{
-                    background: "rgba(255,255,255,0.03)",
+                    background: 'rgba(255,255,255,0.03)',
                     padding: 14,
                     borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    display: "flex",
-                    flexDirection: "column",
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    display: 'flex',
+                    flexDirection: 'column',
                     gap: 10,
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                    }}
+                  >
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 11, fontFamily: "JetBrains Mono", color: "#ec4899", fontWeight: 700 }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontFamily: 'JetBrains Mono',
+                            color: '#ec4899',
+                            fontWeight: 700,
+                          }}
+                        >
                           {t.id}
                         </span>
-                        <span style={{ fontSize: 11, padding: "2px 6px", borderRadius: 4, background: "rgba(255,255,255,0.06)", color: "#cbd5e1" }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                            background: 'rgba(255,255,255,0.06)',
+                            color: '#cbd5e1',
+                          }}
+                        >
                           {t.category}
                         </span>
                       </div>
-                      <div style={{ fontWeight: 700, color: "white", fontSize: 14, marginTop: 4 }}>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          color: 'white',
+                          fontSize: 14,
+                          marginTop: 4,
+                        }}
+                      >
                         {t.subject}
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div
+                      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
                       <span
                         style={{
                           fontSize: 11,
-                          padding: "3px 10px",
+                          padding: '3px 10px',
                           borderRadius: 20,
                           fontWeight: 700,
-                          background: t.status === "Resolved" ? "rgba(16,185,129,0.15)" : t.status === "In Progress" ? "rgba(6,182,212,0.15)" : "rgba(245,158,11,0.15)",
-                          color: t.status === "Resolved" ? "#34d399" : t.status === "In Progress" ? "#38bdf8" : "#fbbf24",
+                          background:
+                            t.status === 'Resolved'
+                              ? 'rgba(16,185,129,0.15)'
+                              : t.status === 'In Progress'
+                                ? 'rgba(6,182,212,0.15)'
+                                : 'rgba(245,158,11,0.15)',
+                          color:
+                            t.status === 'Resolved'
+                              ? '#34d399'
+                              : t.status === 'In Progress'
+                                ? '#38bdf8'
+                                : '#fbbf24',
                         }}
                       >
-                        {t.status === "Resolved" ? "✓ Resolved" : t.status}
+                        {t.status === 'Resolved' ? '✓ Resolved' : t.status}
                       </span>
 
-                      {t.status !== "Resolved" && (
+                      {t.status !== 'Resolved' && (
                         <button
                           onClick={() => handleMarkResolved(t.id)}
                           style={{
-                            padding: "4px 10px",
+                            padding: '4px 10px',
                             borderRadius: 6,
                             fontSize: 11,
                             fontWeight: 700,
-                            background: "rgba(16, 185, 129, 0.2)",
-                            border: "1px solid rgba(16, 185, 129, 0.4)",
-                            color: "#34d399",
-                            cursor: "pointer",
+                            background: 'rgba(16, 185, 129, 0.2)',
+                            border: '1px solid rgba(16, 185, 129, 0.4)',
+                            color: '#34d399',
+                            cursor: 'pointer',
                           }}
                         >
                           Mark Resolved
@@ -440,17 +853,36 @@ export default function UserDetailView({
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.5, background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6 }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: '#cbd5e1',
+                      lineHeight: 1.5,
+                      background: 'rgba(0,0,0,0.2)',
+                      padding: 8,
+                      borderRadius: 6,
+                    }}
+                  >
                     {t.description}
                   </div>
 
                   {t.adminResponse && (
-                    <div style={{ fontSize: 12, color: "#f472b6", background: "rgba(236,72,153,0.1)", padding: 8, borderRadius: 6, border: "1px solid rgba(236,72,153,0.2)" }}>
-                      <strong>Admin Reply: </strong>{t.adminResponse}
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: '#f472b6',
+                        background: 'rgba(236,72,153,0.1)',
+                        padding: 8,
+                        borderRadius: 6,
+                        border: '1px solid rgba(236,72,153,0.2)',
+                      }}
+                    >
+                      <strong>Admin Reply: </strong>
+                      {t.adminResponse}
                     </div>
                   )}
 
-                  <div style={{ fontSize: 10, color: "#64748b" }}>
+                  <div style={{ fontSize: 10, color: '#64748b' }}>
                     Submitted on {new Date(t.createdAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -462,14 +894,44 @@ export default function UserDetailView({
 
       {/* CHANGE PLAN MODAL */}
       {showPlanModal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(5,5,16,0.8)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className="glass-card" style={{ padding: 24, width: 400, borderRadius: 16, background: "rgba(13,13,35,0.95)" }}>
-            <h3 style={{ margin: "0 0 12px", color: "white" }}>Change Candidate Plan</h3>
-            <label style={{ fontSize: 12, color: "#94a3b8" }}>Select New Plan for {user.name}:</label>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            background: 'rgba(5,5,16,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            className="glass-card"
+            style={{
+              padding: 24,
+              width: 400,
+              borderRadius: 16,
+              background: 'rgba(13,13,35,0.95)',
+            }}
+          >
+            <h3 style={{ margin: '0 0 12px', color: 'white' }}>
+              Change Candidate Plan
+            </h3>
+            <label style={{ fontSize: 12, color: '#94a3b8' }}>
+              Select New Plan for {user.name}:
+            </label>
             <select
               value={selectedNewPlan}
               onChange={(e) => setSelectedNewPlan(e.target.value)}
-              style={{ width: "100%", padding: 10, marginTop: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "white", borderRadius: 8 }}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginTop: 8,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: 'white',
+                borderRadius: 8,
+              }}
             >
               <option value="Basic">Basic (₹499)</option>
               <option value="Plus">Plus (₹1,299)</option>
@@ -477,15 +939,31 @@ export default function UserDetailView({
               <option value="Elite">Elite (₹3,999)</option>
               <option value="Super Admin">Super Admin (VIP Access)</option>
             </select>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 18 }}>
-              <button onClick={() => setShowPlanModal(false)} className="btn-ghost" style={{ padding: "6px 14px" }}>Cancel</button>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 10,
+                marginTop: 18,
+              }}
+            >
+              <button
+                onClick={() => setShowPlanModal(false)}
+                className="btn-ghost"
+                style={{ padding: '6px 14px' }}
+              >
+                Cancel
+              </button>
               <button
                 onClick={() => {
                   onChangePlan(user, selectedNewPlan);
                   setShowPlanModal(false);
                 }}
                 className="btn-primary"
-                style={{ padding: "6px 16px", background: "linear-gradient(135deg, #ec4899, #7c3aed)" }}
+                style={{
+                  padding: '6px 16px',
+                  background: 'linear-gradient(135deg, #ec4899, #7c3aed)',
+                }}
               >
                 Update Plan
               </button>
@@ -496,10 +974,30 @@ export default function UserDetailView({
 
       {/* ISSUE REFUND MODAL */}
       {showRefundModal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(5,5,16,0.8)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className="glass-card" style={{ padding: 24, width: 400, borderRadius: 16, background: "rgba(13,13,35,0.95)" }}>
-            <h3 style={{ margin: "0 0 12px", color: "white" }}>Issue Refund</h3>
-            <label style={{ fontSize: 12, color: "#94a3b8" }}>Refund Amount (₹ INR):</label>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            background: 'rgba(5,5,16,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            className="glass-card"
+            style={{
+              padding: 24,
+              width: 400,
+              borderRadius: 16,
+              background: 'rgba(13,13,35,0.95)',
+            }}
+          >
+            <h3 style={{ margin: '0 0 12px', color: 'white' }}>Issue Refund</h3>
+            <label style={{ fontSize: 12, color: '#94a3b8' }}>
+              Refund Amount (₹ INR):
+            </label>
             <input
               type="number"
               value={refundAmount}
@@ -507,14 +1005,35 @@ export default function UserDetailView({
               className="glass-input"
               style={{ marginTop: 8 }}
             />
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 18 }}>
-              <button onClick={() => setShowRefundModal(false)} className="btn-ghost" style={{ padding: "6px 14px" }}>Cancel</button>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 10,
+                marginTop: 18,
+              }}
+            >
+              <button
+                onClick={() => setShowRefundModal(false)}
+                className="btn-ghost"
+                style={{ padding: '6px 14px' }}
+              >
+                Cancel
+              </button>
               <button
                 onClick={() => {
                   onIssueRefund(user, `₹${refundAmount}`);
                   setShowRefundModal(false);
                 }}
-                style={{ padding: "6px 16px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "white", fontWeight: 700, cursor: "pointer" }}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: 'white',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
               >
                 Confirm Refund
               </button>

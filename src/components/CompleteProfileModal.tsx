@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserProfile } from "../types";
+import { useState } from 'react';
+import { UserProfile } from '../types';
 
 interface CompleteProfileModalProps {
   isOpen: boolean;
@@ -20,9 +20,9 @@ export default function CompleteProfileModal({
   const [showPassword, setShowPassword] = useState(false);
   const [educationList, setEducationList] = useState([
     {
-      degree: profile.degree || "Bachelor of Technology (B.Tech)",
-      field_of_study: profile.field_of_study || "Computer Science",
-      institution: profile.institution || "IIT Bombay",
+      degree: profile.degree || 'Bachelor of Technology (B.Tech)',
+      field_of_study: profile.field_of_study || 'Computer Science',
+      institution: profile.institution || 'IIT Bombay',
       start_year: profile.start_year || 2019,
       end_year: profile.end_year || 2023,
     },
@@ -32,11 +32,11 @@ export default function CompleteProfileModal({
     setEducationList((prev) => [
       ...prev,
       {
-        degree: "",
-        field_of_study: "",
-        institution: "",
-        start_year: "",
-        end_year: "",
+        degree: '',
+        field_of_study: '',
+        institution: '',
+        start_year: '',
+        end_year: '',
       },
     ]);
   };
@@ -89,8 +89,8 @@ export default function CompleteProfileModal({
   };
 
   const getInitials = (name: string) => {
-    if (!name) return "U";
-    const parts = name.trim().split(" ");
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
@@ -101,20 +101,20 @@ export default function CompleteProfileModal({
     <div
       className="fade-in"
       style={{
-        position: "fixed",
+        position: 'fixed',
         top: 0,
         left: 0,
-        width: "100%",
-        height: "100%",
+        width: '100%',
+        height: '100%',
         zIndex: 10000,
-        background: "rgba(7, 7, 26, 0.78)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
-        boxSizing: "border-box",
+        background: 'rgba(7, 7, 26, 0.78)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        boxSizing: 'border-box',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -123,48 +123,48 @@ export default function CompleteProfileModal({
       <div
         className="glass custom-scrollbar"
         style={{
-          width: "95%",
+          width: '95%',
           maxWidth: 880,
-          maxHeight: "92vh",
-          overflowY: "auto",
-          background: "#0d0d2b",
-          border: "1px solid rgba(124, 58, 237, 0.38)",
+          maxHeight: '92vh',
+          overflowY: 'auto',
+          background: '#0d0d2b',
+          border: '1px solid rgba(124, 58, 237, 0.38)',
           borderRadius: 24,
-          padding: "32px 36px",
+          padding: '32px 36px',
           boxShadow:
-            "0 24px 70px rgba(0, 0, 0, 0.85), 0 0 45px rgba(124, 58, 237, 0.35)",
-          color: "#ffffff",
-          position: "relative",
-          boxSizing: "border-box",
+            '0 24px 70px rgba(0, 0, 0, 0.85), 0 0 45px rgba(124, 58, 237, 0.35)',
+          color: '#ffffff',
+          position: 'relative',
+          boxSizing: 'border-box',
         }}
       >
         {/* Top Header Bar */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
             marginBottom: 24,
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             paddingBottom: 16,
           }}
         >
           <div>
             <div
               style={{
-                display: "inline-flex",
-                alignItems: "center",
+                display: 'inline-flex',
+                alignItems: 'center',
                 gap: 6,
-                padding: "4px 14px",
+                padding: '4px 14px',
                 borderRadius: 20,
-                background: "rgba(124, 58, 237, 0.15)",
-                border: "1px solid rgba(124, 58, 237, 0.3)",
+                background: 'rgba(124, 58, 237, 0.15)',
+                border: '1px solid rgba(124, 58, 237, 0.3)',
                 fontSize: 11,
                 fontWeight: 700,
-                color: "#a78bfa",
+                color: '#a78bfa',
                 marginBottom: 8,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
               }}
             >
               <span>⚡ CANDIDATE ACCOUNT PROFILE</span>
@@ -173,9 +173,9 @@ export default function CompleteProfileModal({
               style={{
                 fontSize: 26,
                 fontWeight: 800,
-                color: "white",
+                color: 'white',
                 margin: 0,
-                letterSpacing: "-0.02em",
+                letterSpacing: '-0.02em',
               }}
             >
               Complete Your <span className="gradient-text">Profile</span>
@@ -186,16 +186,16 @@ export default function CompleteProfileModal({
             style={{
               width: 36,
               height: 36,
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "rgba(148, 163, 184, 0.8)",
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: 'rgba(148, 163, 184, 0.8)',
               fontSize: 16,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s",
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
             }}
             title="Close / Skip"
           >
@@ -204,60 +204,70 @@ export default function CompleteProfileModal({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+        >
           {/* Avatar upload section */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
+              display: 'flex',
+              alignItems: 'center',
               gap: 20,
-              background: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
               borderRadius: 16,
-              padding: "16px 20px",
+              padding: '16px 20px',
             }}
           >
             <div
               style={{
                 width: 72,
                 height: 72,
-                borderRadius: "50%",
+                borderRadius: '50%',
                 background: formData.avatar_url
                   ? `url(${formData.avatar_url}) center/cover`
-                  : "linear-gradient(135deg, #7c3aed, #06b6d4)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                  : 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 fontSize: 24,
                 fontWeight: 800,
-                color: "white",
+                color: 'white',
                 flexShrink: 0,
-                boxShadow: "0 0 24px rgba(124, 58, 237, 0.45)",
+                boxShadow: '0 0 24px rgba(124, 58, 237, 0.45)',
               }}
             >
               {!formData.avatar_url && getInitials(formData.full_name)}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: 'white',
+                  marginBottom: 8,
+                }}
+              >
                 Profile Photo / Avatar Upload
               </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <input
                   className="glass-input"
-                  style={{ padding: "7px 12px", fontSize: 12, flex: 1 }}
+                  style={{ padding: '7px 12px', fontSize: 12, flex: 1 }}
                   placeholder="Paste Image URL (https://...)"
-                  value={formData.avatar_url || ""}
-                  onChange={(e) => handleChange("avatar_url", e.target.value)}
+                  value={formData.avatar_url || ''}
+                  onChange={(e) => handleChange('avatar_url', e.target.value)}
                 />
                 <label
                   className="btn-ghost"
                   style={{
-                    padding: "7px 14px",
+                    padding: '7px 14px',
                     fontSize: 12,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    display: "inline-flex",
-                    alignItems: "center",
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     gap: 6,
                   }}
                 >
@@ -265,14 +275,14 @@ export default function CompleteProfileModal({
                   <input
                     type="file"
                     accept="image/*"
-                    style={{ display: "none" }}
+                    style={{ display: 'none' }}
                     onChange={(e) => {
                       if (e.target.files?.[0]) {
                         const file = e.target.files[0];
                         const reader = new FileReader();
                         reader.onload = () => {
                           if (reader.result) {
-                            handleChange("avatar_url", String(reader.result));
+                            handleChange('avatar_url', String(reader.result));
                           }
                         };
                         reader.readAsDataURL(file);
@@ -287,8 +297,8 @@ export default function CompleteProfileModal({
           {/* Full Name & Password */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
               gap: 16,
             }}
           >
@@ -296,8 +306,8 @@ export default function CompleteProfileModal({
               <label
                 style={{
                   fontSize: 13,
-                  color: "rgba(148, 163, 184, 0.9)",
-                  display: "block",
+                  color: 'rgba(148, 163, 184, 0.9)',
+                  display: 'block',
                   marginBottom: 6,
                   fontWeight: 600,
                 }}
@@ -307,12 +317,12 @@ export default function CompleteProfileModal({
               <input
                 className="glass-input"
                 style={{
-                  background: "rgba(255, 255, 255, 0.04)",
-                  color: "rgba(255, 255, 255, 0.6)",
-                  cursor: "not-allowed",
-                  borderColor: "rgba(255, 255, 255, 0.1)",
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  cursor: 'not-allowed',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
                 }}
-                value={formData.full_name || ""}
+                value={formData.full_name || ''}
                 readOnly
                 disabled
               />
@@ -322,45 +332,47 @@ export default function CompleteProfileModal({
               <label
                 style={{
                   fontSize: 13,
-                  color: "rgba(148, 163, 184, 0.9)",
-                  display: "block",
+                  color: 'rgba(148, 163, 184, 0.9)',
+                  display: 'block',
                   marginBottom: 6,
                   fontWeight: 600,
                 }}
               >
                 Login Password
               </label>
-              <div style={{ position: "relative" }}>
+              <div style={{ position: 'relative' }}>
                 <input
                   className="glass-input"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   style={{
-                    background: "rgba(255, 255, 255, 0.04)",
-                    color: "rgba(255, 255, 255, 0.9)",
-                    width: "100%",
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    width: '100%',
                     paddingRight: 40,
                   }}
-                  value={formData.password_hash || "••••••••••••"}
-                  onChange={(e) => handleChange("password_hash", e.target.value)}
+                  value={formData.password_hash || '••••••••••••'}
+                  onChange={(e) =>
+                    handleChange('password_hash', e.target.value)
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
-                    position: "absolute",
+                    position: 'absolute',
                     right: 10,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    color: "rgba(148, 163, 184, 0.8)",
-                    cursor: "pointer",
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(148, 163, 184, 0.8)',
+                    cursor: 'pointer',
                     fontSize: 14,
                     padding: 4,
                   }}
-                  title={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? '🙈' : '👁️'}
                 </button>
               </div>
             </div>
@@ -372,22 +384,22 @@ export default function CompleteProfileModal({
               style={{
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#06b6d4",
+                color: '#06b6d4',
                 marginBottom: 14,
-                display: "flex",
-                alignItems: "center",
+                display: 'flex',
+                alignItems: 'center',
                 gap: 8,
               }}
             >
               <span>💼</span> Professional Details & Contact Info
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Professional Title & Phone Number */}
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
                   gap: 16,
                 }}
               >
@@ -395,8 +407,8 @@ export default function CompleteProfileModal({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
+                      color: 'rgba(148, 163, 184, 0.9)',
+                      display: 'block',
                       marginBottom: 6,
                       fontWeight: 600,
                     }}
@@ -405,9 +417,9 @@ export default function CompleteProfileModal({
                   </label>
                   <input
                     className="glass-input"
-                    value={formData.professional_title || ""}
+                    value={formData.professional_title || ''}
                     onChange={(e) =>
-                      handleChange("professional_title", e.target.value)
+                      handleChange('professional_title', e.target.value)
                     }
                     placeholder="e.g. Senior Frontend Engineer / Data Analyst"
                     required
@@ -418,8 +430,8 @@ export default function CompleteProfileModal({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
+                      color: 'rgba(148, 163, 184, 0.9)',
+                      display: 'block',
                       marginBottom: 6,
                       fontWeight: 600,
                     }}
@@ -428,73 +440,39 @@ export default function CompleteProfileModal({
                   </label>
                   <input
                     className="glass-input"
-                    value={formData.phone_no || ""}
-                    onChange={(e) => handleChange("phone_no", e.target.value)}
+                    value={formData.phone_no || ''}
+                    onChange={(e) => handleChange('phone_no', e.target.value)}
                     placeholder="e.g. +91 98765 43210"
                   />
                 </div>
               </div>
 
-              {/* Location & Preferred Language */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 16,
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
-                      marginBottom: 6,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Location (location)
-                  </label>
-                  <input
-                    className="glass-input"
-                    value={formData.location || ""}
-                    onChange={(e) => handleChange("location", e.target.value)}
-                    placeholder="e.g. Mumbai, India / Remote"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
-                      marginBottom: 6,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Select Language
-                  </label>
-                  <select
-                    className="glass-select"
-                    value={formData.language || "en"}
-                    onChange={(e) => handleChange("language", e.target.value)}
-                  >
-                    <option value="en">English (US)</option>
-                    <option value="hi">Hindi (हिंदी)</option>
-                    <option value="mr">Marathi (मराठी)</option>
-                    <option value="de">Deutsch</option>
-                    <option value="fr">Français</option>
-                    <option value="es">Español</option>
-                  </select>
-                </div>
+              {/* Location */}
+              <div>
+                <label
+                  style={{
+                    fontSize: 13,
+                    color: 'rgba(148, 163, 184, 0.9)',
+                    display: 'block',
+                    marginBottom: 6,
+                    fontWeight: 600,
+                  }}
+                >
+                  Location (location)
+                </label>
+                <input
+                  className="glass-input"
+                  value={formData.location || ''}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  placeholder="e.g. Mumbai, India / Remote"
+                />
               </div>
 
               {/* Portfolio URL, GitHub & LinkedIn Links */}
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 1fr",
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr',
                   gap: 16,
                 }}
               >
@@ -502,8 +480,8 @@ export default function CompleteProfileModal({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
+                      color: 'rgba(148, 163, 184, 0.9)',
+                      display: 'block',
                       marginBottom: 6,
                       fontWeight: 600,
                     }}
@@ -512,9 +490,9 @@ export default function CompleteProfileModal({
                   </label>
                   <input
                     className="glass-input"
-                    value={formData.portfolio_url || ""}
+                    value={formData.portfolio_url || ''}
                     onChange={(e) =>
-                      handleChange("portfolio_url", e.target.value)
+                      handleChange('portfolio_url', e.target.value)
                     }
                     placeholder="https://yourportfolio.com"
                   />
@@ -524,8 +502,8 @@ export default function CompleteProfileModal({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
+                      color: 'rgba(148, 163, 184, 0.9)',
+                      display: 'block',
                       marginBottom: 6,
                       fontWeight: 600,
                     }}
@@ -534,8 +512,8 @@ export default function CompleteProfileModal({
                   </label>
                   <input
                     className="glass-input"
-                    value={formData.github || ""}
-                    onChange={(e) => handleChange("github", e.target.value)}
+                    value={formData.github || ''}
+                    onChange={(e) => handleChange('github', e.target.value)}
                     placeholder="https://github.com/username"
                   />
                 </div>
@@ -544,8 +522,8 @@ export default function CompleteProfileModal({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148, 163, 184, 0.9)",
-                      display: "block",
+                      color: 'rgba(148, 163, 184, 0.9)',
+                      display: 'block',
                       marginBottom: 6,
                       fontWeight: 600,
                     }}
@@ -554,8 +532,8 @@ export default function CompleteProfileModal({
                   </label>
                   <input
                     className="glass-input"
-                    value={formData.linkedin || ""}
-                    onChange={(e) => handleChange("linkedin", e.target.value)}
+                    value={formData.linkedin || ''}
+                    onChange={(e) => handleChange('linkedin', e.target.value)}
                     placeholder="https://linkedin.com/in/username"
                   />
                 </div>
@@ -566,8 +544,8 @@ export default function CompleteProfileModal({
                 <label
                   style={{
                     fontSize: 13,
-                    color: "rgba(148, 163, 184, 0.9)",
-                    display: "block",
+                    color: 'rgba(148, 163, 184, 0.9)',
+                    display: 'block',
                     marginBottom: 6,
                     fontWeight: 600,
                   }}
@@ -577,8 +555,8 @@ export default function CompleteProfileModal({
                 <textarea
                   className="glass-textarea"
                   rows={2}
-                  value={formData.bio || ""}
-                  onChange={(e) => handleChange("bio", e.target.value)}
+                  value={formData.bio || ''}
+                  onChange={(e) => handleChange('bio', e.target.value)}
                   placeholder="Tell us about your technical skills, experience, or career goals..."
                 />
               </div>
@@ -588,25 +566,26 @@ export default function CompleteProfileModal({
           {/* Section: Education Degree (from education_degree table) */}
           <div
             style={{
-              background: "rgba(124, 58, 237, 0.05)",
-              border: "1px solid rgba(124, 58, 237, 0.2)",
+              background: 'rgba(124, 58, 237, 0.05)',
+              border: '1px solid rgba(124, 58, 237, 0.2)',
               borderRadius: 16,
-              padding: "18px 20px",
+              padding: '18px 20px',
             }}
           >
             <div
               style={{
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#a78bfa",
+                color: '#a78bfa',
                 marginBottom: 16,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>🎓</span> Education & Degree Qualification (education_degree)
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>🎓</span> Education & Degree Qualification
+                (education_degree)
               </div>
               <button
                 type="button"
@@ -614,28 +593,28 @@ export default function CompleteProfileModal({
                 onClick={addEducation}
                 style={{
                   fontSize: 12,
-                  padding: "5px 12px",
-                  display: "flex",
-                  alignItems: "center",
+                  padding: '5px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 6,
-                  borderColor: "rgba(167, 139, 250, 0.4)",
-                  color: "#a78bfa",
+                  borderColor: 'rgba(167, 139, 250, 0.4)',
+                  color: '#a78bfa',
                 }}
               >
                 <span>➕</span> Add Education Degree
               </button>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {educationList.map((edu, index) => (
                 <div
                   key={index}
                   style={{
-                    background: "rgba(255, 255, 255, 0.02)",
-                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
                     borderRadius: 12,
                     padding: 16,
-                    position: "relative",
+                    position: 'relative',
                   }}
                 >
                   {educationList.length > 1 && (
@@ -643,26 +622,32 @@ export default function CompleteProfileModal({
                       type="button"
                       onClick={() => removeEducation(index)}
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         top: 12,
                         right: 12,
-                        background: "rgba(239, 68, 68, 0.15)",
-                        border: "1px solid rgba(239, 68, 68, 0.3)",
-                        color: "#ef4444",
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444',
                         borderRadius: 6,
                         fontSize: 11,
-                        padding: "3px 8px",
-                        cursor: "pointer",
+                        padding: '3px 8px',
+                        cursor: 'pointer',
                       }}
                     >
                       ✕ Remove
                     </button>
                   )}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 14,
+                    }}
+                  >
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
                         gap: 14,
                       }}
                     >
@@ -670,20 +655,26 @@ export default function CompleteProfileModal({
                         <label
                           style={{
                             fontSize: 12,
-                            color: "rgba(148, 163, 184, 0.9)",
-                            display: "block",
+                            color: 'rgba(148, 163, 184, 0.9)',
+                            display: 'block',
                             marginBottom: 4,
                             fontWeight: 600,
                           }}
                         >
-                          Degree Name {educationList.length > 1 ? `#${index + 1}` : ""}
+                          Degree Name{' '}
+                          {educationList.length > 1 ? `#${index + 1}` : ''}
                         </label>
                         <input
                           className="glass-input"
-                          value={edu.degree || ""}
+                          value={edu.degree || ''}
                           onChange={(e) => {
-                            handleEducationChange(index, "degree", e.target.value);
-                            if (index === 0) handleChange("degree", e.target.value);
+                            handleEducationChange(
+                              index,
+                              'degree',
+                              e.target.value
+                            );
+                            if (index === 0)
+                              handleChange('degree', e.target.value);
                           }}
                           placeholder="e.g. Bachelor of Technology (B.Tech)"
                         />
@@ -693,8 +684,8 @@ export default function CompleteProfileModal({
                         <label
                           style={{
                             fontSize: 12,
-                            color: "rgba(148, 163, 184, 0.9)",
-                            display: "block",
+                            color: 'rgba(148, 163, 184, 0.9)',
+                            display: 'block',
                             marginBottom: 4,
                             fontWeight: 600,
                           }}
@@ -703,10 +694,15 @@ export default function CompleteProfileModal({
                         </label>
                         <input
                           className="glass-input"
-                          value={edu.field_of_study || ""}
+                          value={edu.field_of_study || ''}
                           onChange={(e) => {
-                            handleEducationChange(index, "field_of_study", e.target.value);
-                            if (index === 0) handleChange("field_of_study", e.target.value);
+                            handleEducationChange(
+                              index,
+                              'field_of_study',
+                              e.target.value
+                            );
+                            if (index === 0)
+                              handleChange('field_of_study', e.target.value);
                           }}
                           placeholder="e.g. Computer Science / Data Analytics"
                         />
@@ -717,8 +713,8 @@ export default function CompleteProfileModal({
                       <label
                         style={{
                           fontSize: 12,
-                          color: "rgba(148, 163, 184, 0.9)",
-                          display: "block",
+                          color: 'rgba(148, 163, 184, 0.9)',
+                          display: 'block',
                           marginBottom: 4,
                           fontWeight: 600,
                         }}
@@ -727,10 +723,15 @@ export default function CompleteProfileModal({
                       </label>
                       <input
                         className="glass-input"
-                        value={edu.institution || ""}
+                        value={edu.institution || ''}
                         onChange={(e) => {
-                          handleEducationChange(index, "institution", e.target.value);
-                          if (index === 0) handleChange("institution", e.target.value);
+                          handleEducationChange(
+                            index,
+                            'institution',
+                            e.target.value
+                          );
+                          if (index === 0)
+                            handleChange('institution', e.target.value);
                         }}
                         placeholder="e.g. IIT Bombay / University of Mumbai"
                       />
@@ -738,8 +739,8 @@ export default function CompleteProfileModal({
 
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
                         gap: 14,
                       }}
                     >
@@ -747,8 +748,8 @@ export default function CompleteProfileModal({
                         <label
                           style={{
                             fontSize: 12,
-                            color: "rgba(148, 163, 184, 0.9)",
-                            display: "block",
+                            color: 'rgba(148, 163, 184, 0.9)',
+                            display: 'block',
                             marginBottom: 4,
                             fontWeight: 600,
                           }}
@@ -758,10 +759,15 @@ export default function CompleteProfileModal({
                         <input
                           className="glass-input"
                           type="number"
-                          value={edu.start_year || ""}
+                          value={edu.start_year || ''}
                           onChange={(e) => {
-                            handleEducationChange(index, "start_year", e.target.value);
-                            if (index === 0) handleChange("start_year", e.target.value);
+                            handleEducationChange(
+                              index,
+                              'start_year',
+                              e.target.value
+                            );
+                            if (index === 0)
+                              handleChange('start_year', e.target.value);
                           }}
                           placeholder="e.g. 2019"
                         />
@@ -771,8 +777,8 @@ export default function CompleteProfileModal({
                         <label
                           style={{
                             fontSize: 12,
-                            color: "rgba(148, 163, 184, 0.9)",
-                            display: "block",
+                            color: 'rgba(148, 163, 184, 0.9)',
+                            display: 'block',
                             marginBottom: 4,
                             fontWeight: 600,
                           }}
@@ -782,10 +788,15 @@ export default function CompleteProfileModal({
                         <input
                           className="glass-input"
                           type="number"
-                          value={edu.end_year || ""}
+                          value={edu.end_year || ''}
                           onChange={(e) => {
-                            handleEducationChange(index, "end_year", e.target.value);
-                            if (index === 0) handleChange("end_year", e.target.value);
+                            handleEducationChange(
+                              index,
+                              'end_year',
+                              e.target.value
+                            );
+                            if (index === 0)
+                              handleChange('end_year', e.target.value);
                           }}
                           placeholder="e.g. 2023"
                         />
@@ -801,11 +812,11 @@ export default function CompleteProfileModal({
           <div
             style={{
               marginTop: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
               gap: 12,
-              borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
               paddingTop: 18,
             }}
           >
@@ -813,21 +824,21 @@ export default function CompleteProfileModal({
               type="button"
               className="btn-ghost"
               onClick={onClose}
-              style={{ padding: "10px 20px", fontSize: 13 }}
+              style={{ padding: '10px 20px', fontSize: 13 }}
             >
               Skip for Now
             </button>
 
-            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               {showSuccess && (
                 <div
                   className="fade-in"
                   style={{
-                    color: "#10b981",
+                    color: '#10b981',
                     fontSize: 13,
                     fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: 6,
                   }}
                 >
@@ -840,11 +851,11 @@ export default function CompleteProfileModal({
                 className="btn-primary"
                 disabled={isSaving}
                 style={{
-                  padding: "11px 26px",
+                  padding: '11px 26px',
                   fontSize: 14,
                   fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 8,
                 }}
               >
@@ -852,19 +863,19 @@ export default function CompleteProfileModal({
                   <>
                     <span
                       style={{
-                        display: "inline-block",
+                        display: 'inline-block',
                         width: 16,
                         height: 16,
-                        border: "2px solid rgba(255,255,255,0.3)",
-                        borderTopColor: "white",
-                        borderRadius: "50%",
-                        animation: "spin-slow 0.8s linear infinite",
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        borderTopColor: 'white',
+                        borderRadius: '50%',
+                        animation: 'spin-slow 0.8s linear infinite',
                       }}
                     />
                     Saving Profile...
                   </>
                 ) : (
-                  "Save Profile Information →"
+                  'Save Profile Information →'
                 )}
               </button>
             </div>

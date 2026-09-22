@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserProfile } from "../types";
+import { useState } from 'react';
+import { UserProfile } from '../types';
 
 interface ProfileProps {
   userProfile?: UserProfile;
@@ -7,70 +7,90 @@ interface ProfileProps {
   onOpenProfileModal?: () => void;
 }
 
-export default function Profile({
-  userProfile,
-  onSaveProfile,
-}: ProfileProps) {
-  const [activeTab, setActiveTab] = useState<"general" | "security" | "danger">(
-    "general"
+export default function Profile({ userProfile, onSaveProfile }: ProfileProps) {
+  const [activeTab, setActiveTab] = useState<'general' | 'security' | 'danger'>(
+    'general'
   );
 
-  const [fullName] = useState(userProfile?.full_name || "Arjun Kumar");
-  const [email] = useState(userProfile?.email || "arjun.kumar@gmail.com");
-  const [language, setLanguage] = useState(userProfile?.language || "en");
-  const [timezone, setTimezone] = useState(userProfile?.timezone || "Asia/Kolkata");
+  const [fullName] = useState(userProfile?.full_name || 'Arjun Kumar');
+  const [email] = useState(userProfile?.email || 'arjun.kumar@gmail.com');
+  const language = userProfile?.language || 'en';
+  const [timezone, setTimezone] = useState(
+    userProfile?.timezone || 'Asia/Kolkata'
+  );
   const [professionalTitle, setProfessionalTitle] = useState(
-    userProfile?.professional_title || "Senior Frontend Engineer"
+    userProfile?.professional_title || 'Senior Frontend Engineer'
   );
   const [bio, setBio] = useState(
     userProfile?.bio ||
-      "5+ years building scalable web applications. Passionate about DX and design systems."
+      '5+ years building scalable web applications. Passionate about DX and design systems.'
   );
-  const [avatarUrl, setAvatarUrl] = useState(userProfile?.avatar_url || "");
+  const [avatarUrl, setAvatarUrl] = useState(userProfile?.avatar_url || '');
   const [is2FAEnabled, setIs2FAEnabled] = useState(
     userProfile?.is_2fa_enabled ?? true
   );
 
-  const [phoneNo, setPhoneNo] = useState(userProfile?.phone_no || "+91 98765 43210");
-  const [location, setLocation] = useState(userProfile?.location || "Mumbai, India");
-  const [portfolioUrl, setPortfolioUrl] = useState(userProfile?.portfolio_url || "https://arjun-kumar.dev");
-  const [github, setGithub] = useState(userProfile?.github || "https://github.com/arjunkumar");
-  const [linkedin, setLinkedin] = useState(userProfile?.linkedin || "https://linkedin.com/in/arjunkumar");
+  const [phoneNo, setPhoneNo] = useState(
+    userProfile?.phone_no || '+91 98765 43210'
+  );
+  const [location, setLocation] = useState(
+    userProfile?.location || 'Mumbai, India'
+  );
+  const [portfolioUrl, setPortfolioUrl] = useState(
+    userProfile?.portfolio_url || 'https://arjun-kumar.dev'
+  );
+  const [github, setGithub] = useState(
+    userProfile?.github || 'https://github.com/arjunkumar'
+  );
+  const [linkedin, setLinkedin] = useState(
+    userProfile?.linkedin || 'https://linkedin.com/in/arjunkumar'
+  );
 
-  const [degree, setDegree] = useState(userProfile?.degree || "Bachelor of Technology (B.Tech)");
-  const [institution, setInstitution] = useState(userProfile?.institution || "IIT Bombay");
-  const [fieldOfStudy, setFieldOfStudy] = useState(userProfile?.field_of_study || "Computer Science & Engineering");
-  const [startYear, setStartYear] = useState<string | number>(userProfile?.start_year || 2019);
-  const [endYear, setEndYear] = useState<string | number>(userProfile?.end_year || 2023);
+  const [degree, setDegree] = useState(
+    userProfile?.degree || 'Bachelor of Technology (B.Tech)'
+  );
+  const [institution, setInstitution] = useState(
+    userProfile?.institution || 'IIT Bombay'
+  );
+  const [fieldOfStudy, setFieldOfStudy] = useState(
+    userProfile?.field_of_study || 'Computer Science & Engineering'
+  );
+  const [startYear, setStartYear] = useState<string | number>(
+    userProfile?.start_year || 2019
+  );
+  const [endYear, setEndYear] = useState<string | number>(
+    userProfile?.end_year || 2023
+  );
 
   const [educationList, setEducationList] = useState([
     {
-      degree: userProfile?.degree || "Bachelor of Technology (B.Tech)",
-      fieldOfStudy: userProfile?.field_of_study || "Computer Science & Engineering",
-      institution: userProfile?.institution || "IIT Bombay",
+      degree: userProfile?.degree || 'Bachelor of Technology (B.Tech)',
+      fieldOfStudy:
+        userProfile?.field_of_study || 'Computer Science & Engineering',
+      institution: userProfile?.institution || 'IIT Bombay',
       startYear: userProfile?.start_year || 2019,
       endYear: userProfile?.end_year || 2023,
     },
   ]);
 
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
+  const [passwordError, setPasswordError] = useState('');
 
   const addEducation = () => {
     setEducationList((prev) => [
       ...prev,
       {
-        degree: "",
-        fieldOfStudy: "",
-        institution: "",
-        startYear: "",
-        endYear: "",
+        degree: '',
+        fieldOfStudy: '',
+        institution: '',
+        startYear: '',
+        endYear: '',
       },
     ]);
   };
@@ -79,7 +99,11 @@ export default function Profile({
     setEducationList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleEducationChange = (index: number, field: string, value: string | number) => {
+  const handleEducationChange = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
     setEducationList((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -89,23 +113,23 @@ export default function Profile({
 
   const handleChangePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError("");
+    setPasswordError('');
     if (!currentPassword) {
-      setPasswordError("Please enter your current password.");
+      setPasswordError('Please enter your current password.');
       return;
     }
     if (newPassword.length < 6) {
-      setPasswordError("New password must be at least 6 characters long.");
+      setPasswordError('New password must be at least 6 characters long.');
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      setPasswordError("New password and confirm password do not match.");
+      setPasswordError('New password and confirm password do not match.');
       return;
     }
     setPasswordChangeSuccess(true);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmNewPassword("");
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
     setTimeout(() => setPasswordChangeSuccess(false), 3000);
   };
 
@@ -141,7 +165,7 @@ export default function Profile({
   };
 
   const getInitials = (name: string) => {
-    const parts = name.trim().split(" ");
+    const parts = name.trim().split(' ');
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
@@ -151,15 +175,15 @@ export default function Profile({
   return (
     <div
       className="fade-in page-container"
-      style={{ height: "100%", overflowY: "auto" }}
+      style={{ height: '100%', overflowY: 'auto' }}
     >
       <div
         style={{
           marginBottom: 28,
-          display: "flex",
-          justify: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
+          display: 'flex',
+          justify: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
           gap: 12,
         }}
       >
@@ -168,14 +192,20 @@ export default function Profile({
             style={{
               fontSize: 26,
               fontWeight: 800,
-              color: "white",
+              color: 'white',
               margin: 0,
-              letterSpacing: "-0.02em",
+              letterSpacing: '-0.02em',
             }}
           >
             Profile <span className="gradient-text">Settings</span>
           </h1>
-          <p style={{ color: "rgba(148,163,184,0.6)", fontSize: 14, margin: "6px 0 0" }}>
+          <p
+            style={{
+              color: 'rgba(148,163,184,0.6)',
+              fontSize: 14,
+              margin: '6px 0 0',
+            }}
+          >
             Manage your candidate profile and security settings.
           </p>
         </div>
@@ -183,17 +213,17 @@ export default function Profile({
 
       <div className="profile-grid">
         {/* Tab nav */}
-        <div className="glass" style={{ padding: 10, height: "fit-content" }}>
+        <div className="glass" style={{ padding: 10, height: 'fit-content' }}>
           {(
             [
-              ["general", "◎", "General Profile"],
-              ["security", "◉", "Security & Password"],
-              ["danger", "⚠ Danger Zone"],
+              ['general', '◎', 'General Profile'],
+              ['security', '◉', 'Security & Password'],
+              ['danger', '⚠ Danger Zone'],
             ] as const
           ).map(([id, icon, label]) => (
             <div
               key={id}
-              className={`nav-item${activeTab === id ? " active" : ""}`}
+              className={`nav-item${activeTab === id ? ' active' : ''}`}
               style={{ marginBottom: 2 }}
               onClick={() => setActiveTab(id)}
             >
@@ -203,16 +233,16 @@ export default function Profile({
         </div>
 
         {/* Content */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {activeTab === "general" && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {activeTab === 'general' && (
             <>
               {/* Avatar */}
               <div
                 className="glass"
                 style={{
-                  padding: "24px 28px",
-                  display: "flex",
-                  alignItems: "center",
+                  padding: '24px 28px',
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 24,
                 }}
               >
@@ -220,16 +250,16 @@ export default function Profile({
                   style={{
                     width: 72,
                     height: 72,
-                    borderRadius: "50%",
+                    borderRadius: '50%',
                     background: avatarUrl
                       ? `url(${avatarUrl}) center/cover`
-                      : "linear-gradient(135deg, #7c3aed, #06b6d4)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                      : 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     fontSize: 26,
                     fontWeight: 800,
-                    color: "white",
+                    color: 'white',
                     flexShrink: 0,
                   }}
                   className="glow-purple"
@@ -237,13 +267,32 @@ export default function Profile({
                   {!avatarUrl && getInitials(fullName)}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "white", marginBottom: 12 }}>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: 'white',
+                      marginBottom: 12,
+                    }}
+                  >
                     Profile Photo / Avatar Upload
                   </div>
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 10,
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     <input
                       className="glass-input"
-                      style={{ fontSize: 13, padding: "7px 12px", minWidth: 260, flex: 1 }}
+                      style={{
+                        fontSize: 13,
+                        padding: '7px 12px',
+                        minWidth: 260,
+                        flex: 1,
+                      }}
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
                       placeholder="https://..."
@@ -251,12 +300,12 @@ export default function Profile({
                     <label
                       className="btn-ghost"
                       style={{
-                        padding: "7px 14px",
+                        padding: '7px 14px',
                         fontSize: 13,
-                        cursor: "pointer",
-                        whiteSpace: "nowrap",
-                        display: "inline-flex",
-                        alignItems: "center",
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
                         gap: 6,
                       }}
                     >
@@ -264,7 +313,7 @@ export default function Profile({
                       <input
                         type="file"
                         accept="image/*"
-                        style={{ display: "none" }}
+                        style={{ display: 'none' }}
                         onChange={(e) => {
                           if (e.target.files?.[0]) {
                             const file = e.target.files[0];
@@ -282,8 +331,8 @@ export default function Profile({
                     {avatarUrl && (
                       <button
                         className="btn-ghost"
-                        style={{ padding: "7px 14px", fontSize: 13 }}
-                        onClick={() => setAvatarUrl("")}
+                        style={{ padding: '7px 14px', fontSize: 13 }}
+                        onClick={() => setAvatarUrl('')}
                       >
                         Remove
                       </button>
@@ -293,24 +342,30 @@ export default function Profile({
               </div>
 
               {/* Fields */}
-              <div className="glass" style={{ padding: "24px 28px" }}>
+              <div className="glass" style={{ padding: '24px 28px' }}>
                 <div
                   style={{
                     fontSize: 15,
                     fontWeight: 700,
-                    color: "white",
+                    color: 'white',
                     marginBottom: 20,
                   }}
                 >
                   Personal Information
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 18,
+                  }}
+                >
                   <div>
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -320,10 +375,10 @@ export default function Profile({
                     <input
                       className="glass-input"
                       style={{
-                        background: "rgba(255, 255, 255, 0.04)",
-                        color: "rgba(255, 255, 255, 0.6)",
-                        cursor: "not-allowed",
-                        borderColor: "rgba(255, 255, 255, 0.1)",
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        cursor: 'not-allowed',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
                       }}
                       value={fullName}
                       readOnly
@@ -334,8 +389,8 @@ export default function Profile({
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -345,10 +400,10 @@ export default function Profile({
                     <input
                       className="glass-input"
                       style={{
-                        background: "rgba(255, 255, 255, 0.04)",
-                        color: "rgba(255, 255, 255, 0.6)",
-                        cursor: "not-allowed",
-                        borderColor: "rgba(255, 255, 255, 0.1)",
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        cursor: 'not-allowed',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
                       }}
                       type="email"
                       value={email}
@@ -360,8 +415,8 @@ export default function Profile({
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -379,8 +434,8 @@ export default function Profile({
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -399,8 +454,8 @@ export default function Profile({
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -418,8 +473,8 @@ export default function Profile({
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -433,12 +488,12 @@ export default function Profile({
                       placeholder="https://github.com/..."
                     />
                   </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
+                  <div style={{ gridColumn: '1 / -1' }}>
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -453,37 +508,12 @@ export default function Profile({
                     />
                   </div>
 
-                  <div style={{ gridColumn: "1 / -1" }}>
+                  <div style={{ gridColumn: '1 / -1' }}>
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
-                        marginBottom: 7,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Select Language
-                    </label>
-                    <select
-                      className="glass-select"
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                    >
-                      <option value="en">English (US)</option>
-                      <option value="hi">Hindi (हिंदी)</option>
-                      <option value="mr">Marathi (मराठी)</option>
-                      <option value="de">Deutsch</option>
-                      <option value="fr">Français</option>
-                      <option value="es">Español</option>
-                    </select>
-                  </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <label
-                      style={{
-                        fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -496,12 +526,12 @@ export default function Profile({
                       onChange={(e) => setProfessionalTitle(e.target.value)}
                     />
                   </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
+                  <div style={{ gridColumn: '1 / -1' }}>
                     <label
                       style={{
                         fontSize: 13,
-                        color: "rgba(148,163,184,0.7)",
-                        display: "block",
+                        color: 'rgba(148,163,184,0.7)',
+                        display: 'block',
                         marginBottom: 7,
                         fontWeight: 500,
                       }}
@@ -518,16 +548,16 @@ export default function Profile({
                 </div>
 
                 {/* Education Section */}
-                <hr className="glass-divider" style={{ margin: "24px 0" }} />
+                <hr className="glass-divider" style={{ margin: '24px 0' }} />
                 <div
                   style={{
                     fontSize: 15,
                     fontWeight: 700,
-                    color: "#a78bfa",
+                    color: '#a78bfa',
                     marginBottom: 16,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                   }}
                 >
                   <div>🎓 Education & Degree Details (education_degree)</div>
@@ -537,28 +567,30 @@ export default function Profile({
                     onClick={addEducation}
                     style={{
                       fontSize: 12,
-                      padding: "5px 12px",
-                      display: "flex",
-                      alignItems: "center",
+                      padding: '5px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
                       gap: 6,
-                      borderColor: "rgba(167, 139, 250, 0.4)",
-                      color: "#a78bfa",
+                      borderColor: 'rgba(167, 139, 250, 0.4)',
+                      color: '#a78bfa',
                     }}
                   >
                     <span>➕</span> Add Education Degree
                   </button>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <div
+                  style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
+                >
                   {educationList.map((edu, index) => (
                     <div
                       key={index}
                       style={{
-                        background: "rgba(255, 255, 255, 0.02)",
-                        border: "1px solid rgba(255, 255, 255, 0.06)",
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
                         borderRadius: 12,
                         padding: 16,
-                        position: "relative",
+                        position: 'relative',
                       }}
                     >
                       {educationList.length > 1 && (
@@ -566,39 +598,50 @@ export default function Profile({
                           type="button"
                           onClick={() => removeEducation(index)}
                           style={{
-                            position: "absolute",
+                            position: 'absolute',
                             top: 12,
                             right: 12,
-                            background: "rgba(239, 68, 68, 0.15)",
-                            border: "1px solid rgba(239, 68, 68, 0.3)",
-                            color: "#ef4444",
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            color: '#ef4444',
                             borderRadius: 6,
                             fontSize: 11,
-                            padding: "3px 8px",
-                            cursor: "pointer",
+                            padding: '3px 8px',
+                            cursor: 'pointer',
                           }}
                         >
                           ✕ Remove
                         </button>
                       )}
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: 18,
+                        }}
+                      >
                         <div>
                           <label
                             style={{
                               fontSize: 13,
-                              color: "rgba(148,163,184,0.7)",
-                              display: "block",
+                              color: 'rgba(148,163,184,0.7)',
+                              display: 'block',
                               marginBottom: 7,
                               fontWeight: 500,
                             }}
                           >
-                            Degree {educationList.length > 1 ? `#${index + 1}` : ""}
+                            Degree{' '}
+                            {educationList.length > 1 ? `#${index + 1}` : ''}
                           </label>
                           <input
                             className="glass-input"
                             value={edu.degree}
                             onChange={(e) => {
-                              handleEducationChange(index, "degree", e.target.value);
+                              handleEducationChange(
+                                index,
+                                'degree',
+                                e.target.value
+                              );
                               if (index === 0) setDegree(e.target.value);
                             }}
                             placeholder="e.g. Bachelor of Technology"
@@ -608,8 +651,8 @@ export default function Profile({
                           <label
                             style={{
                               fontSize: 13,
-                              color: "rgba(148,163,184,0.7)",
-                              display: "block",
+                              color: 'rgba(148,163,184,0.7)',
+                              display: 'block',
                               marginBottom: 7,
                               fontWeight: 500,
                             }}
@@ -620,18 +663,22 @@ export default function Profile({
                             className="glass-input"
                             value={edu.fieldOfStudy}
                             onChange={(e) => {
-                              handleEducationChange(index, "fieldOfStudy", e.target.value);
+                              handleEducationChange(
+                                index,
+                                'fieldOfStudy',
+                                e.target.value
+                              );
                               if (index === 0) setFieldOfStudy(e.target.value);
                             }}
                             placeholder="e.g. Computer Science"
                           />
                         </div>
-                        <div style={{ gridColumn: "1 / -1" }}>
+                        <div style={{ gridColumn: '1 / -1' }}>
                           <label
                             style={{
                               fontSize: 13,
-                              color: "rgba(148,163,184,0.7)",
-                              display: "block",
+                              color: 'rgba(148,163,184,0.7)',
+                              display: 'block',
                               marginBottom: 7,
                               fontWeight: 500,
                             }}
@@ -642,7 +689,11 @@ export default function Profile({
                             className="glass-input"
                             value={edu.institution}
                             onChange={(e) => {
-                              handleEducationChange(index, "institution", e.target.value);
+                              handleEducationChange(
+                                index,
+                                'institution',
+                                e.target.value
+                              );
                               if (index === 0) setInstitution(e.target.value);
                             }}
                             placeholder="e.g. IIT Bombay"
@@ -652,8 +703,8 @@ export default function Profile({
                           <label
                             style={{
                               fontSize: 13,
-                              color: "rgba(148,163,184,0.7)",
-                              display: "block",
+                              color: 'rgba(148,163,184,0.7)',
+                              display: 'block',
                               marginBottom: 7,
                               fontWeight: 500,
                             }}
@@ -665,7 +716,11 @@ export default function Profile({
                             type="number"
                             value={edu.startYear}
                             onChange={(e) => {
-                              handleEducationChange(index, "startYear", e.target.value);
+                              handleEducationChange(
+                                index,
+                                'startYear',
+                                e.target.value
+                              );
                               if (index === 0) setStartYear(e.target.value);
                             }}
                           />
@@ -674,8 +729,8 @@ export default function Profile({
                           <label
                             style={{
                               fontSize: 13,
-                              color: "rgba(148,163,184,0.7)",
-                              display: "block",
+                              color: 'rgba(148,163,184,0.7)',
+                              display: 'block',
                               marginBottom: 7,
                               fontWeight: 500,
                             }}
@@ -687,7 +742,11 @@ export default function Profile({
                             type="number"
                             value={edu.endYear}
                             onChange={(e) => {
-                              handleEducationChange(index, "endYear", e.target.value);
+                              handleEducationChange(
+                                index,
+                                'endYear',
+                                e.target.value
+                              );
                               if (index === 0) setEndYear(e.target.value);
                             }}
                           />
@@ -697,33 +756,55 @@ export default function Profile({
                   ))}
                 </div>
 
-                <div style={{ marginTop: 20, display: "flex", gap: 10, alignItems: "center" }}>
+                <div
+                  style={{
+                    marginTop: 20,
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'center',
+                  }}
+                >
                   <button
                     className="btn-primary"
-                    style={{ padding: "10px 22px", fontSize: 14 }}
+                    style={{ padding: '10px 22px', fontSize: 14 }}
                     onClick={handleSave}
                   >
-                    {saved ? "✓ Profile Saved!" : "Save Profile Changes"}
+                    {saved ? '✓ Profile Saved!' : 'Save Profile Changes'}
                   </button>
                 </div>
               </div>
             </>
           )}
 
-          {activeTab === "security" && (
-            <div className="glass" style={{ padding: "24px 28px" }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 20 }}>
+          {activeTab === 'security' && (
+            <div className="glass" style={{ padding: '24px 28px' }}>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: 'white',
+                  marginBottom: 20,
+                }}
+              >
                 Login Password & Security
               </div>
 
-              <form onSubmit={handleChangePasswordSubmit} style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 460 }}>
+              <form
+                onSubmit={handleChangePasswordSubmit}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
+                  maxWidth: 460,
+                }}
+              >
                 {passwordError && (
                   <div
                     style={{
-                      background: "rgba(239, 68, 68, 0.12)",
-                      border: "1px solid rgba(239, 68, 68, 0.3)",
-                      color: "#ef4444",
-                      padding: "10px 14px",
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      padding: '10px 14px',
                       borderRadius: 8,
                       fontSize: 13,
                     }}
@@ -734,10 +815,10 @@ export default function Profile({
                 {passwordChangeSuccess && (
                   <div
                     style={{
-                      background: "rgba(16, 185, 129, 0.12)",
-                      border: "1px solid rgba(16, 185, 129, 0.3)",
-                      color: "#10b981",
-                      padding: "10px 14px",
+                      background: 'rgba(16, 185, 129, 0.12)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      color: '#10b981',
+                      padding: '10px 14px',
                       borderRadius: 8,
                       fontSize: 13,
                       fontWeight: 600,
@@ -751,41 +832,45 @@ export default function Profile({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148,163,184,0.7)",
-                      display: "block",
+                      color: 'rgba(148,163,184,0.7)',
+                      display: 'block',
                       marginBottom: 7,
                       fontWeight: 500,
                     }}
                   >
                     Current Password
                   </label>
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: 'relative' }}>
                     <input
                       className="glass-input"
-                      type={showCurrentPassword ? "text" : "password"}
+                      type={showCurrentPassword ? 'text' : 'password'}
                       placeholder="Enter current password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      style={{ width: "100%", paddingRight: 40 }}
+                      style={{ width: '100%', paddingRight: 40 }}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        color: "rgba(148,163,184,0.8)",
-                        cursor: "pointer",
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(148,163,184,0.8)',
+                        cursor: 'pointer',
                         fontSize: 14,
                         padding: 4,
                       }}
-                      title={showCurrentPassword ? "Hide password" : "Show password"}
+                      title={
+                        showCurrentPassword ? 'Hide password' : 'Show password'
+                      }
                     >
-                      {showCurrentPassword ? "🙈" : "👁️"}
+                      {showCurrentPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
                 </div>
@@ -794,41 +879,43 @@ export default function Profile({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148,163,184,0.7)",
-                      display: "block",
+                      color: 'rgba(148,163,184,0.7)',
+                      display: 'block',
                       marginBottom: 7,
                       fontWeight: 500,
                     }}
                   >
                     New Password
                   </label>
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: 'relative' }}>
                     <input
                       className="glass-input"
-                      type={showNewPassword ? "text" : "password"}
+                      type={showNewPassword ? 'text' : 'password'}
                       placeholder="Enter new password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      style={{ width: "100%", paddingRight: 40 }}
+                      style={{ width: '100%', paddingRight: 40 }}
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        color: "rgba(148,163,184,0.8)",
-                        cursor: "pointer",
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(148,163,184,0.8)',
+                        cursor: 'pointer',
                         fontSize: 14,
                         padding: 4,
                       }}
-                      title={showNewPassword ? "Hide password" : "Show password"}
+                      title={
+                        showNewPassword ? 'Hide password' : 'Show password'
+                      }
                     >
-                      {showNewPassword ? "🙈" : "👁️"}
+                      {showNewPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
                 </div>
@@ -837,41 +924,47 @@ export default function Profile({
                   <label
                     style={{
                       fontSize: 13,
-                      color: "rgba(148,163,184,0.7)",
-                      display: "block",
+                      color: 'rgba(148,163,184,0.7)',
+                      display: 'block',
                       marginBottom: 7,
                       fontWeight: 500,
                     }}
                   >
                     Confirm New Password
                   </label>
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: 'relative' }}>
                     <input
                       className="glass-input"
-                      type={showConfirmNewPassword ? "text" : "password"}
+                      type={showConfirmNewPassword ? 'text' : 'password'}
                       placeholder="Confirm new password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      style={{ width: "100%", paddingRight: 40 }}
+                      style={{ width: '100%', paddingRight: 40 }}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                      onClick={() =>
+                        setShowConfirmNewPassword(!showConfirmNewPassword)
+                      }
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        color: "rgba(148,163,184,0.8)",
-                        cursor: "pointer",
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(148,163,184,0.8)',
+                        cursor: 'pointer',
                         fontSize: 14,
                         padding: 4,
                       }}
-                      title={showConfirmNewPassword ? "Hide password" : "Show password"}
+                      title={
+                        showConfirmNewPassword
+                          ? 'Hide password'
+                          : 'Show password'
+                      }
                     >
-                      {showConfirmNewPassword ? "🙈" : "👁️"}
+                      {showConfirmNewPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
                 </div>
@@ -880,50 +973,64 @@ export default function Profile({
                   <button
                     type="submit"
                     className="btn-primary"
-                    style={{ padding: "9px 20px", fontSize: 13 }}
+                    style={{ padding: '9px 20px', fontSize: 13 }}
                   >
                     Update Password
                   </button>
                 </div>
               </form>
-
-
             </div>
           )}
 
-          {activeTab === "danger" && (
+          {activeTab === 'danger' && (
             <div
               className="glass"
-              style={{ padding: "24px 28px", border: "1px solid rgba(239,68,68,0.2)" }}
+              style={{
+                padding: '24px 28px',
+                border: '1px solid rgba(239,68,68,0.2)',
+              }}
             >
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#fca5a5", marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: '#fca5a5',
+                  marginBottom: 8,
+                }}
+              >
                 ⚠ Danger Zone
               </div>
-              <div style={{ fontSize: 13, color: "rgba(148,163,184,0.6)", marginBottom: 24 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: 'rgba(148,163,184,0.6)',
+                  marginBottom: 24,
+                }}
+              >
                 These actions are permanent and cannot be undone.
               </div>
               {[
                 {
-                  title: "Deactivate Account",
-                  desc: "Temporarily disable your account. You can reactivate anytime.",
-                  btn: "Deactivate",
-                  color: "#f59e0b",
+                  title: 'Deactivate Account',
+                  desc: 'Temporarily disable your account. You can reactivate anytime.',
+                  btn: 'Deactivate',
+                  color: '#f59e0b',
                 },
                 {
-                  title: "Delete Account",
-                  desc: "Permanently delete your account and all associated data.",
-                  btn: "Delete Account",
-                  color: "#ef4444",
+                  title: 'Delete Account',
+                  desc: 'Permanently delete your account and all associated data.',
+                  btn: 'Delete Account',
+                  color: '#ef4444',
                 },
               ].map((item) => (
                 <div
                   key={item.title}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "16px 0",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '16px 0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
                   }}
                 >
                   <div>
@@ -931,26 +1038,28 @@ export default function Profile({
                       style={{
                         fontSize: 14,
                         fontWeight: 600,
-                        color: "rgba(226,232,240,0.9)",
+                        color: 'rgba(226,232,240,0.9)',
                         marginBottom: 3,
                       }}
                     >
                       {item.title}
                     </div>
-                    <div style={{ fontSize: 12, color: "rgba(148,163,184,0.5)" }}>
+                    <div
+                      style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)' }}
+                    >
                       {item.desc}
                     </div>
                   </div>
                   <button
                     style={{
-                      padding: "8px 16px",
+                      padding: '8px 16px',
                       fontSize: 13,
                       borderRadius: 8,
                       border: `1px solid ${item.color}55`,
                       background: `${item.color}15`,
                       color: item.color,
-                      cursor: "pointer",
-                      fontFamily: "Outfit",
+                      cursor: 'pointer',
+                      fontFamily: 'Outfit',
                       fontWeight: 500,
                       flexShrink: 0,
                       marginLeft: 20,
