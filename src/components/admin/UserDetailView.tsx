@@ -31,6 +31,7 @@ export default function UserDetailView({
   const [refundAmount, setRefundAmount] = useState(
     user.spent.replace(/[^0-9]/g, '') || '499'
   );
+  const [refundReason, setRefundReason] = useState('');
 
   // Load candidate's real tickets
   const [userTickets, setUserTickets] = useState<SupportTicket[]>([]);
@@ -97,6 +98,8 @@ export default function UserDetailView({
               ]
             : []),
         ];
+
+  const refundPaymentId = paymentHistory[0]?.id || '';
 
   const candidateActivityLog = [
     ...(user.mockCount && user.mockCount > 0
@@ -995,6 +998,19 @@ export default function UserDetailView({
             }}
           >
             <h3 style={{ margin: '0 0 12px', color: 'white' }}>Issue Refund</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 12, color: '#94a3b8' }}>
+                  Payment ID:
+                </label>
+                <input
+                  value={refundPaymentId}
+                  readOnly
+                  className="glass-input"
+                  style={{ marginTop: 4 }}
+                />
+              </div>
+            </div>
             <label style={{ fontSize: 12, color: '#94a3b8' }}>
               Refund Amount (₹ INR):
             </label>
@@ -1004,6 +1020,22 @@ export default function UserDetailView({
               onChange={(e) => setRefundAmount(e.target.value)}
               className="glass-input"
               style={{ marginTop: 8 }}
+            />
+            <label
+              style={{
+                fontSize: 12,
+                color: '#94a3b8',
+                display: 'block',
+                marginTop: 10,
+              }}
+            >
+              Reason:
+            </label>
+            <textarea
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+              className="glass-input"
+              style={{ marginTop: 8, minHeight: 70, resize: 'vertical' }}
             />
             <div
               style={{
