@@ -3,6 +3,7 @@ import { Screen, UserProfile } from "./types";
 import Sidebar from "./components/Sidebar";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import JobResume from "./pages/JobResume";
@@ -136,7 +137,7 @@ const defaultUserProfile: UserProfile = {
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"user" | "admin" | null>(null);
-  const [authView, setAuthView] = useState<"landing" | "login">("landing");
+  const [authView, setAuthView] = useState<"landing" | "login" | "forgot-password">("landing");
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -213,6 +214,17 @@ export default function App() {
 
   // Unauthenticated Flow
   if (!loggedIn) {
+    if (authView === "forgot-password") {
+      return (
+        <div className="mesh-bg" style={{ height: "100%", width: "100%" }}>
+          <ForgotPassword
+            onBackToLogin={() => setAuthView("login")}
+            onBackToLanding={() => setAuthView("landing")}
+          />
+        </div>
+      );
+    }
+
     if (authView === "login") {
       return (
         <div className="mesh-bg" style={{ height: "100%", width: "100%" }}>
@@ -220,6 +232,7 @@ export default function App() {
             initialTab={authTab}
             onLogin={handleUserLogin}
             onBackToLanding={() => setAuthView("landing")}
+            onForgotPassword={() => setAuthView("forgot-password")}
           />
         </div>
       );

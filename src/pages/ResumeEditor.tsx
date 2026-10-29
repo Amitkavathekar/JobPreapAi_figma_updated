@@ -9,7 +9,7 @@ interface ResumeEditorProps {
   onOpenUpgradeModal?: () => void;
 }
 
-const formatChecks = [
+const formatChecks = [  
   { label: "No tables or complex grid columns", pass: true },
   { label: "Standard ATS fonts (Arial, Calibri, Helvetica)", pass: true },
   { label: "Consistent date format (MM/YYYY)", pass: true, note: "Contains minor variations" },

@@ -1,6 +1,7 @@
 export type Screen =
   | "landing"
   | "login"
+  | "forgot-password"
   | "dashboard"
   | "profile"
   | "job-resume"

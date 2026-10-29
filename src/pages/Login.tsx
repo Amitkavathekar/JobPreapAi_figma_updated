@@ -4,12 +4,14 @@ interface LoginProps {
   onLogin: (role: "user" | "admin") => void;
   onBackToLanding?: () => void;
   initialTab?: "login" | "register";
+  onForgotPassword?: () => void;
 }
 
 export default function Login({
   onLogin,
   onBackToLanding,
   initialTab = "login",
+  onForgotPassword,
 }: LoginProps) {
   const [tab, setTab] = useState<"login" | "register">(initialTab);
   const [email, setEmail] = useState("");
@@ -302,11 +304,23 @@ export default function Login({
             )}
             {tab === 'login' && (
               <div style={{ textAlign: 'right' }}>
-                <span
-                  style={{ fontSize: 13, color: '#a78bfa', cursor: 'pointer' }}
+                <button
+                  type="button"
+                  onClick={onForgotPassword}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: 13,
+                    color: '#a78bfa',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
                 >
                   Forgot password?
-                </span>
+                </button>
               </div>
             )}
 
